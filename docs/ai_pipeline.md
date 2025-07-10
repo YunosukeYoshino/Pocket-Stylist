@@ -220,6 +220,7 @@ graph TD
 ## 設定・管理
 
 ### 環境変数
+
 ```bash
 # Claude API
 CLAUDE_API_KEY=your_claude_api_key
@@ -235,6 +236,12 @@ GOOGLE_PLAY_SERVICE_ACCOUNT=your_service_account
 # Slack
 SLACK_WEBHOOK_URL=your_slack_webhook_url
 ```
+
+**⚠️ セキュリティ警告:**
+- **絶対にAPIキーや機密情報をGitにコミットしないでください**
+- 上記の値は全てGitHub Secretsに設定してください
+- .envファイルは.gitignoreに追加し、リポジトリに含めないでください
+- 定期的なAPIキーローテーションを実施してください
 
 ### セキュリティ
 - シークレット管理: GitHub Secrets

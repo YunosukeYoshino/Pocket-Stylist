@@ -7,8 +7,8 @@ services:
     container_name: pocket-stylist-db
     environment:
       POSTGRES_DB: pocket_stylist_dev
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -36,7 +36,7 @@ services:
     container_name: pocket-stylist-app
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/pocket_stylist_dev
+      - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379
     ports:
       - "3000:3000"

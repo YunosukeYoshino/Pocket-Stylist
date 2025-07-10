@@ -45,7 +45,7 @@ export class AuthService {
       
       // セキュリティ設定
       useRefreshTokens: true,
-      cacheLocation: 'localstorage', // メモリキャッシュでも可
+      cacheLocation: 'memory', // セキュリティ強化のためメモリキャッシュを使用
       
       // PKCE（推奨）
       usePKCE: true,
@@ -84,6 +84,15 @@ const client = jwksClient({
   rateLimit: true,
   jwksRequestsPerMinute: 5,
 });
+
+// JWKSからキーを取得する関数
+const getKey = (header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) => {
+  client.getSigningKey(header.kid, (err, key) => {
+    if (err) return callback(err);
+    const signingKey = key.getPublicKey();
+    callback(null, signingKey);
+  });
+};
 
 export const authenticateToken = async (
   req: Request,
@@ -234,7 +243,7 @@ export class EncryptionService {
   
   static encrypt(text: string): EncryptedData {
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(this.ALGORITHM, this.KEY);
+    const cipher = crypto.createCipheriv(this.ALGORITHM, this.KEY, iv);
     cipher.setAAD(Buffer.from('pocket-stylist-aad'));
     
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -250,7 +259,7 @@ export class EncryptionService {
   }
   
   static decrypt(data: EncryptedData): string {
-    const decipher = crypto.createDecipher(this.ALGORITHM, this.KEY);
+    const decipher = crypto.createDecipheriv(this.ALGORITHM, this.KEY, Buffer.from(data.iv, 'hex'));
     decipher.setAAD(Buffer.from('pocket-stylist-aad'));
     decipher.setAuthTag(Buffer.from(data.authTag, 'hex'));
     
@@ -517,7 +526,7 @@ const redis = new Redis(process.env.REDIS_URL!);
 // 一般的なAPIエンドポイント
 export const generalRateLimit = rateLimit({
   store: new RedisStore({
-    sendCommand: (...args: string[]) => redis.call(...args),
+    sendCommand: (...args: string[]) => redis.sendCommand(args),
   }),
   windowMs: 15 * 60 * 1000, // 15分
   max: 100, // リクエスト数
