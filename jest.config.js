@@ -2,7 +2,7 @@ module.exports = {
   preset: 'jest-expo',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
   transformIgnorePatterns: [

@@ -34,12 +34,12 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
+        // "appleId": "your-apple-id@example.com",
+        // "ascAppId": "your-app-store-connect-app-id",
+        // "appleTeamId": "your-apple-team-id"
       },
       "android": {
-        "serviceAccountKeyPath": "./path/to/api-key.json",
+        // "serviceAccountKeyPath": "./path/to/api-key.json",
         "track": "internal"
       }
     }

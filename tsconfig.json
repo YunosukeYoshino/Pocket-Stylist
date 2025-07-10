@@ -20,7 +20,6 @@
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
-      "@/screens/*": ["./screens/*"],
       "@/hooks/*": ["./hooks/*"],
       "@/utils/*": ["./utils/*"],
       "@/types/*": ["./types/*"],

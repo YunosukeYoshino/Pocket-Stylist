@@ -3,7 +3,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-bun.lockb
+# bun.lockb should be tracked for dependency reproducibility
 
 # Expo
 .expo/
@@ -69,8 +69,7 @@ android/.gradle/
 android/app/build/
 android/build/
 android/gradle/
-android/gradlew
-android/gradlew.bat
+# android/gradlew and android/gradlew.bat should be tracked for build consistency
 android/local.properties
 android/app/src/main/assets/index.android.bundle
 
@@ -94,7 +93,6 @@ ios/DerivedData/
 *.moved-aside
 DerivedData
 *.hmap
-*.ipa
 *.xcuserstate
 project.xcworkspace
 
@@ -114,7 +112,6 @@ project.xcworkspace
 .externalNativeBuild
 .cxx
 *.ap_
-*.aab
 
 # Fastlane
 ios/fastlane/report.xml
@@ -127,10 +124,8 @@ android/fastlane/screenshots
 android/fastlane/test_output
 
 # Bundle artifact
-*.jsbundle
 
 # CocoaPods
-ios/Pods/
 
 # Generated files
 ios/PocketStyled.xcodeproj/
