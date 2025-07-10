@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: pocket-stylist-db
+    environment:
+      POSTGRES_DB: pocket_stylist_dev
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - pocket-stylist-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pocket-stylist-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - pocket-stylist-network
+
+  # Main Application (Backend API)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pocket-stylist-app
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pocket-stylist-network
+    command: bun run dev
+
+  # Cloudflare Tunnel (for local development)
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: pocket-stylist-tunnel
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - app
+    networks:
+      - pocket-stylist-network
+    profiles:
+      - tunnel
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  pocket-stylist-network:
+    driver: bridge
