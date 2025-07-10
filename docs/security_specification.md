@@ -239,7 +239,13 @@ import crypto from 'crypto';
 
 export class EncryptionService {
   private static readonly ALGORITHM = 'aes-256-gcm';
-  private static readonly KEY = Buffer.from(process.env.ENCRYPTION_KEY!, 'hex');
+  private static readonly KEY = (() => {
+    const key = Buffer.from(process.env.ENCRYPTION_KEY ?? '', 'hex');
+    if (key.length !== 32) {
+      throw new Error('ENCRYPTION_KEY は 64 桁の hex (32byte) で指定してください');
+    }
+    return key;
+  })();
   
   static encrypt(text: string): EncryptedData {
     const iv = crypto.randomBytes(16);
