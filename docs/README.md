@@ -4,59 +4,59 @@
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare%20Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-FF6B35?style=for-the-badge&logo=anthropic&logoColor=white)](https://claude.ai/code)
 
-## What
+## 概要
 
-Pocket Stylist AI is an intelligent fashion companion app that uses AI to help users discover their perfect style. Built with React Native and Tamagui, it provides personalized styling recommendations through advanced machine learning algorithms and intuitive mobile interfaces.
+Pocket Stylist AIは、AIを活用してユーザーの理想的なスタイルを発見するインテリジェントなファッションコンパニオンアプリです。React NativeとTamaguiで構築され、高度な機械学習アルゴリズムと直感的なモバイルインターフェースを通じて、パーソナライズされたスタイリング提案を提供します。
 
-## Why
+## 目的
 
-Traditional fashion advice is expensive, time-consuming, and often not personalized. Pocket Stylist AI democratizes fashion expertise by:
+従来のファッションアドバイスは高価で時間がかかり、多くの場合パーソナライズされていません。Pocket Stylist AIは以下によってファッション専門知識を民主化します：
 
-- Providing instant, personalized style recommendations
-- Eliminating guesswork in outfit selection
-- Making fashion advice accessible to everyone
-- Reducing decision fatigue in daily styling choices
+- 即座にパーソナライズされたスタイル提案を提供
+- 服装選択の推測作業を排除
+- ファッションアドバイスを誰にでもアクセス可能に
+- 日常のスタイリング選択における決定疲れを軽減
 
-## How
+## 仕組み
 
-The app combines cutting-edge AI technology with user-friendly design:
+最先端のAI技術とユーザーフレンドリーなデザインを組み合わせています：
 
-- **AI-Powered Recommendations**: Claude AI analyzes user preferences and body type
-- **Virtual Try-On**: Real-time garment visualization and fitting
-- **Smart Wardrobe**: Automated outfit generation from existing clothes
-- **Style Learning**: Continuous improvement through user feedback
+- **AI駆動の推奨**: Claude AIがユーザーの好みと体型を分析
+- **バーチャル試着**: リアルタイムの衣服可視化とフィッティング
+- **スマートワードローブ**: 既存の衣服から自動的なコーディネート生成
+- **スタイル学習**: ユーザーフィードバックによる継続的改善
 
-## Development
+## 開発環境
 
-### Prerequisites
+### 必要な環境
 
-- Node.js (v18 or higher)
-- Bun package manager
+- Node.js (v18以上)
+- Bunパッケージマネージャー
 - Expo CLI
 
-### Quick Start
+### クイックスタート
 
 ```bash
-# Install dependencies
+# 依存関係のインストール
 bun install
 
-# Start development server
+# 開発サーバーの起動
 expo start
 
-# Run on iOS
+# iOS で実行
 expo start --ios
 
-# Run on Android
+# Android で実行
 expo start --android
 ```
 
-### Development Tools
+### 開発ツール
 
-- **Package Manager**: Bun
-- **Type Checking**: tsgo
-- **Linting & Formatting**: Biome
-- **Git Hooks**: Husky (enforces zero errors before commit)
+- **パッケージマネージャー**: Bun
+- **型チェック**: tsc
+- **リンティング・フォーマット**: Biome
+- **Git フック**: Husky（コミット前にゼロエラーを強制）
 
-## License
+## ライセンス
 
-MIT License - see LICENSE file for details.
+MIT License - 詳細はLICENSEファイルを参照してください。

@@ -75,7 +75,7 @@
 
 ### Update User Profile
 
-**PUT** `/v1/users/profile`
+**PATCH** `/v1/users/profile`
 
 **Auth Required**: Yes
 
@@ -128,7 +128,7 @@
 
 ### Update Body Profile
 
-**PUT** `/v1/users/body-profile`
+**PATCH** `/v1/users/body-profile`
 
 **Auth Required**: Yes
 
@@ -277,7 +277,7 @@
 
 ### Update Garment
 
-**PUT** `/v1/garments/{id}`
+**PATCH** `/v1/garments/{id}`
 
 **Auth Required**: Yes
 
@@ -492,7 +492,7 @@
 
 ### Update Outfit
 
-**PUT** `/v1/outfits/{id}`
+**PATCH** `/v1/outfits/{id}`
 
 **Auth Required**: Yes
 

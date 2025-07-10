@@ -42,7 +42,7 @@ graph TD
 | **CI/CD** | GitHub Actions | 自動化されたビルド・テスト・デプロイ |
 | **Package Manager** | Bun | 高速パッケージ管理、Node.js 互換性 |
 | **Linting** | Biome | 高速リンティング・フォーマット、Rust 製 |
-| **Type Checking** | tsgo | TypeScript 高速コンパイル |
+| **Type Checking** | tsc | TypeScript 公式コンパイラ |
 
 ## デプロイフロー
 

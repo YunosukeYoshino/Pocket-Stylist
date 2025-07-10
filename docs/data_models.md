@@ -9,13 +9,12 @@ erDiagram
     users ||--o{ tryons : creates
     users ||--o{ outfits : creates
     users ||--o{ orders : places
-    users ||--o{ preferences : has
     
     body_profiles ||--o{ tryons : used_in
     garments ||--o{ outfit_items : belongs_to
     garments ||--o{ tryons : featured_in
+    garments ||--o{ order_items : referenced_in
     outfits ||--o{ outfit_items : contains
-    outfits ||--o{ orders : ordered_as
     tryons ||--o{ tryon_results : generates
     orders ||--o{ order_items : contains
     
@@ -134,14 +133,6 @@ erDiagram
         timestamp created_at
     }
     
-    preferences {
-        uuid id PK
-        uuid user_id FK
-        string category
-        jsonb values
-        timestamp created_at
-        timestamp updated_at
-    }
 ```
 
 ## テーブル詳細
@@ -279,13 +270,3 @@ erDiagram
 | total_price | DECIMAL(10,2) | 合計価格 |
 | created_at | TIMESTAMP | 作成日時 |
 
-### preferences
-
-| Column | Type | Description |
-|---|---|---|
-| id | UUID | プライマリーキー |
-| user_id | UUID | ユーザーID（外部キー） |
-| category | VARCHAR(50) | 設定カテゴリー（style, color, brand, etc.） |
-| values | JSONB | 設定値 |
-| created_at | TIMESTAMP | 作成日時 |
-| updated_at | TIMESTAMP | 更新日時 |
