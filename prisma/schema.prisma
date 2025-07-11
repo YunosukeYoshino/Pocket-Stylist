@@ -1,0 +1,233 @@
+// Pocket Stylist AI - Prisma Schema
+// データベース設計: https://github.com/YunosukeYoshino/Pocket-Stylist/blob/main/docs/data_models.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  email       String   @unique @db.VarChar(255)
+  name        String?  @db.VarChar(100)
+  auth0Id     String   @unique @map("auth0_id") @db.VarChar(255)
+  avatarUrl   String?  @map("avatar_url") @db.Text
+  gender      Gender?
+  birthDate   DateTime? @map("birth_date") @db.Date
+  phone       String?  @db.VarChar(20)
+  preferences Json?    @db.JsonB
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  bodyProfiles BodyProfile[]
+  garments     Garment[]
+  tryons       Tryon[]
+  outfits      Outfit[]
+  orders       Order[]
+
+  @@map("users")
+}
+
+model BodyProfile {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @unique @map("user_id") @db.Uuid
+  height          Int?      @db.Integer
+  weight          Int?      @db.Integer
+  bodyType        String?   @map("body_type") @db.VarChar(50)
+  skinTone        String?   @map("skin_tone") @db.VarChar(50)
+  measurements    Json?     @db.JsonB
+  fitPreferences  String?   @map("fit_preferences") @db.VarChar(100)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tryons Tryon[]
+
+  @@map("body_profiles")
+}
+
+model Garment {
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @map("user_id") @db.Uuid
+  name         String      @db.VarChar(200)
+  category     String      @db.VarChar(50)
+  subcategory  String?     @db.VarChar(50)
+  brand        String?     @db.VarChar(100)
+  color        String?     @db.VarChar(50)
+  size         String?     @db.VarChar(20)
+  material     String?     @db.VarChar(100)
+  price        Decimal?    @db.Decimal(10, 2)
+  imageUrl     String?     @map("image_url") @db.Text
+  tags         Json?       @db.JsonB
+  condition    Condition?
+  isFavorite   Boolean     @default(false) @map("is_favorite")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfitItems  OutfitItem[]
+  orderItems   OrderItem[]
+  tryonItems   TryonGarment[]
+
+  @@map("garments")
+}
+
+model Tryon {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  bodyProfileId   String   @map("body_profile_id") @db.Uuid
+  sessionId       String   @map("session_id") @db.VarChar(100)
+  aiAnalysis      String?  @map("ai_analysis") @db.Text
+  confidenceScore Decimal? @map("confidence_score") @db.Decimal(3, 2)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bodyProfile BodyProfile     @relation(fields: [bodyProfileId], references: [id], onDelete: Cascade)
+  results     TryonResult[]
+  garments    TryonGarment[]
+
+  @@map("tryons")
+}
+
+model TryonResult {
+  id              String   @id @default(uuid()) @db.Uuid
+  tryonId         String   @map("tryon_id") @db.Uuid
+  resultImageUrl  String   @map("result_image_url") @db.Text
+  overlayData     String?  @map("overlay_data") @db.Text
+  fitAnalysis     Json?    @map("fit_analysis") @db.JsonB
+  rating          Decimal? @db.Decimal(2, 1)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  tryon Tryon @relation(fields: [tryonId], references: [id], onDelete: Cascade)
+
+  @@map("tryon_results")
+}
+
+model TryonGarment {
+  id        String   @id @default(uuid()) @db.Uuid
+  tryonId   String   @map("tryon_id") @db.Uuid
+  garmentId String   @map("garment_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  tryon   Tryon   @relation(fields: [tryonId], references: [id], onDelete: Cascade)
+  garment Garment @relation(fields: [garmentId], references: [id], onDelete: Cascade)
+
+  @@unique([tryonId, garmentId])
+  @@map("tryon_garments")
+}
+
+model Outfit {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  name          String   @db.VarChar(200)
+  occasion      String?  @db.VarChar(50)
+  season        Season?
+  weather       String?  @db.VarChar(50)
+  aiDescription String?  @map("ai_description") @db.Text
+  isFavorite    Boolean  @default(false) @map("is_favorite")
+  likesCount    Int      @default(0) @map("likes_count") @db.Integer
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OutfitItem[]
+
+  @@map("outfits")
+}
+
+model OutfitItem {
+  id           String   @id @default(uuid()) @db.Uuid
+  outfitId     String   @map("outfit_id") @db.Uuid
+  garmentId    String   @map("garment_id") @db.Uuid
+  category     String   @db.VarChar(50)
+  displayOrder Int      @map("display_order") @db.Integer
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  outfit  Outfit  @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+  garment Garment @relation(fields: [garmentId], references: [id], onDelete: Cascade)
+
+  @@unique([outfitId, garmentId])
+  @@unique([outfitId, displayOrder])
+  @@map("outfit_items")
+}
+
+model Order {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  orderNumber     String    @unique @map("order_number") @db.VarChar(50)
+  status          OrderStatus
+  totalAmount     Decimal   @map("total_amount") @db.Decimal(10, 2)
+  shippingAddress String    @map("shipping_address") @db.Text
+  paymentMethod   String    @map("payment_method") @db.VarChar(50)
+  shippedAt       DateTime? @map("shipped_at") @db.Timestamptz
+  deliveredAt     DateTime? @map("delivered_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @map("order_id") @db.Uuid
+  garmentId  String   @map("garment_id") @db.Uuid
+  quantity   Int      @db.Integer
+  unitPrice  Decimal  @map("unit_price") @db.Decimal(10, 2)
+  totalPrice Decimal  @map("total_price") @db.Decimal(10, 2)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  garment Garment @relation(fields: [garmentId], references: [id], onDelete: Restrict)
+
+  @@map("order_items")
+}
+
+// Enums
+enum Gender {
+  male
+  female
+  other
+}
+
+enum Condition {
+  new
+  like_new @map("like_new")
+  good
+  fair
+}
+
+enum Season {
+  spring
+  summer
+  fall
+  winter
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  shipped
+  delivered
+  cancelled
+  returned
+  refunded
+}

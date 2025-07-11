@@ -132,3 +132,4 @@ ios/PocketStyled.xcodeproj/
 ios/PocketStyled.xcworkspace/
 android/app/src/main/java/com/pocketstylist/
 android/app/src/main/res/values/strings.xml
+/generated/prisma

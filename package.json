@@ -27,9 +27,21 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "db:generate": "prisma generate && echo 'Generated Prisma client'",
+    "db:migrate": "prisma migrate dev && echo 'Applied database migrations'",
+    "db:migrate:deploy": "prisma migrate deploy && echo 'Deployed migrations to production'",
+    "db:migrate:reset": "prisma migrate reset && echo 'Reset database schema'",
+    "db:seed": "prisma db seed && echo 'Seeded database with sample data'",
+    "db:studio": "prisma studio && echo 'Opening Prisma Studio'",
+    "db:push": "prisma db push && echo 'Pushed schema changes to database'",
+    "db:pull": "prisma db pull && echo 'Pulled schema from database'",
+    "docker:up": "docker-compose up -d && echo 'Started Docker services'",
+    "docker:down": "docker-compose down && echo 'Stopped Docker services'",
+    "docker:logs": "docker-compose logs -f"
   },
   "dependencies": {
+    "@prisma/client": "^6.11.1",
     "@tamagui/animations-react-native": "^1.95.3",
     "@tamagui/button": "^1.131.3",
     "@tamagui/config": "^1.95.3",
@@ -69,9 +81,13 @@
     "jest": "^29.7.0",
     "jest-expo": "~50.0.0",
     "lint-staged": "^15.2.2",
+    "prisma": "^6.11.1",
     "typescript": "^5.3.3"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json,css,md}": ["biome check --apply"]
+  },
+  "prisma": {
+    "seed": "bun run prisma/seed.ts"
   }
 }
