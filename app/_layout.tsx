@@ -1,5 +1,5 @@
-import { Stack } from 'expo-router'
 import { TamaguiProvider } from '@tamagui/core'
+import { Stack } from 'expo-router'
 import { tamaguiConfig } from '../config/tamagui.config'
 
 export default function RootLayout() {

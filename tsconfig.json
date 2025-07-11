@@ -17,6 +17,7 @@
     "allowJs": true,
     "incremental": true,
     "baseUrl": ".",
+    "types": ["jest"],
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
@@ -29,19 +30,6 @@
       "@/config/*": ["./config/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    ".expo",
-    ".next"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules", "dist", "build", ".expo", ".next"]
 }

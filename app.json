@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pocketstylist.ai"
@@ -51,9 +49,7 @@
       "router": {
         "origin": false
       },
-      "eas": {
-        // "projectId": "your-project-id"
-      }
+      "eas": {}
     }
   }
 }
