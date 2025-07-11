@@ -106,6 +106,7 @@ model TryonResult {
   fitAnalysis     Json?    @map("fit_analysis") @db.JsonB
   rating          Decimal? @db.Decimal(2, 1)
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   tryon Tryon @relation(fields: [tryonId], references: [id], onDelete: Cascade)
@@ -146,6 +147,7 @@ model OutfitItem {
   garment Garment @relation(fields: [garmentId], references: [id], onDelete: Cascade)
 
   @@unique([outfitId, garmentId])
+  @@unique([outfitId, displayOrder])
   @@map("outfit_items")
 }
 
