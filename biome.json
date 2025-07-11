@@ -67,6 +67,7 @@
       ".expo/**",
       ".next/**",
       "coverage/**",
+      "generated/**",
       "*.log",
       "*.lock",
       "*.tsbuildinfo"
