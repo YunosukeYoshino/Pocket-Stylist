@@ -17,6 +17,7 @@
     "allowJs": true,
     "incremental": true,
     "baseUrl": ".",
+    "types": ["jest"],
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],

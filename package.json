@@ -43,6 +43,7 @@
   "dependencies": {
     "@prisma/client": "^6.11.1",
     "@tamagui/animations-react-native": "^1.95.3",
+    "@tamagui/button": "^1.131.3",
     "@tamagui/config": "^1.95.3",
     "@tamagui/core": "^1.95.3",
     "@tamagui/font-inter": "^1.95.3",
@@ -70,6 +71,8 @@
     "@biomejs/biome": "^1.8.0",
     "@expo/cli": "~0.17.0",
     "@expo/webpack-config": "~19.0.0",
+    "@testing-library/react-native": "^13.2.0",
+    "@types/glob": "^9.0.0",
     "@types/jest": "^29.5.12",
     "@types/minimatch": "^6.0.0",
     "@types/react": "~18.2.45",
