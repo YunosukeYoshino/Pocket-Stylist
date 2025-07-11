@@ -1,9 +1,9 @@
-import 'react-native-gesture-handler/jestSetup';
+import 'react-native-gesture-handler/jestSetup'
 
 jest.mock('react-native-reanimated', () => {
-  const Reanimated = require('react-native-reanimated/mock');
-  return Reanimated;
-});
+  const Reanimated = require('react-native-reanimated/mock')
+  return Reanimated
+})
 
 jest.mock('expo-router', () => ({
   Link: ({ children, ...props }) => children,
@@ -23,15 +23,15 @@ jest.mock('expo-router', () => ({
     back: jest.fn(),
     canGoBack: jest.fn(() => true),
   }),
-}));
+}))
 
 jest.mock('expo-font', () => ({
   loadAsync: jest.fn(),
-}));
+}))
 
 jest.mock('@tamagui/core', () => ({
   TamaguiProvider: ({ children }) => children,
   View: ({ children, ...props }) => children,
   Text: ({ children, ...props }) => children,
   Button: ({ children, ...props }) => children,
-}));
+}))

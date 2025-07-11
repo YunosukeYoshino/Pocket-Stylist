@@ -1,4 +1,4 @@
-import { View, Text, Button } from '@tamagui/core'
+import { Button, Text, View } from '@tamagui/core'
 import { Link } from 'expo-router'
 
 export default function ProfileScreen() {
