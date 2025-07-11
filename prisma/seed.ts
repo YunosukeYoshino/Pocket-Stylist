@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -103,16 +103,18 @@ async function main() {
     },
   ]
 
-  for (const garmentData of garments) {
-    await prisma.garment.upsert({
-      where: { id: garmentData.id },
-      update: {},
-      create: {
-        ...garmentData,
-        userId: demoUser.id,
-      },
-    })
-  }
+  await Promise.all(
+    garments.map(garmentData =>
+      prisma.garment.upsert({
+        where: { id: garmentData.id },
+        update: {},
+        create: {
+          ...garmentData,
+          userId: demoUser.id,
+        },
+      })
+    )
+  )
 
   console.log(`✅ Created ${garments.length} sample garments`)
 
@@ -137,33 +139,35 @@ async function main() {
     {
       id: '890e4567-e89b-12d3-a456-426614174007',
       outfitId: outfit.id,
-      garmentId: '345e4567-e89b-12d3-a456-426614174002', // ホワイトシャツ
+      garmentId: garments[0].id, // ホワイトシャツ
       category: 'tops',
       displayOrder: 1,
     },
     {
       id: '901e4567-e89b-12d3-a456-426614174008',
       outfitId: outfit.id,
-      garmentId: '456e4567-e89b-12d3-a456-426614174003', // ダークデニム
+      garmentId: garments[1].id, // ダークデニム
       category: 'bottoms',
       displayOrder: 2,
     },
     {
       id: '012e4567-e89b-12d3-a456-426614174009',
       outfitId: outfit.id,
-      garmentId: '678e4567-e89b-12d3-a456-426614174005', // レザーシューズ
+      garmentId: garments[3].id, // レザーシューズ
       category: 'shoes',
       displayOrder: 3,
     },
   ]
 
-  for (const itemData of outfitItems) {
-    await prisma.outfitItem.upsert({
-      where: { id: itemData.id },
-      update: {},
-      create: itemData,
-    })
-  }
+  await Promise.all(
+    outfitItems.map(itemData =>
+      prisma.outfitItem.upsert({
+        where: { id: itemData.id },
+        update: {},
+        create: itemData,
+      })
+    )
+  )
 
   console.log('✅ Created sample outfit with items')
 
@@ -189,7 +193,7 @@ async function main() {
     {
       id: '234e4567-e89b-12d3-a456-426614174011',
       orderId: order.id,
-      garmentId: '345e4567-e89b-12d3-a456-426614174002', // garment-1
+      garmentId: garments[0].id, // ホワイトシャツ
       quantity: 1,
       unitPrice: 2990.0,
       totalPrice: 2990.0,
@@ -197,20 +201,22 @@ async function main() {
     {
       id: '345e4567-e89b-12d3-a456-426614174012',
       orderId: order.id,
-      garmentId: '567e4567-e89b-12d3-a456-426614174004', // garment-3
+      garmentId: garments[2].id, // ニットセーター
       quantity: 1,
       unitPrice: 3990.0,
       totalPrice: 3990.0,
     },
   ]
 
-  for (const itemData of orderItems) {
-    await prisma.orderItem.upsert({
-      where: { id: itemData.id },
-      update: {},
-      create: itemData,
-    })
-  }
+  await Promise.all(
+    orderItems.map(itemData =>
+      prisma.orderItem.upsert({
+        where: { id: itemData.id },
+        update: {},
+        create: itemData,
+      })
+    )
+  )
 
   console.log('✅ Created sample order with items')
 
@@ -223,7 +229,7 @@ async function main() {
       userId: demoUser.id,
       bodyProfileId: bodyProfile.id,
       sessionId: 'session-demo-001',
-      garmentIds: ['345e4567-e89b-12d3-a456-426614174002', '456e4567-e89b-12d3-a456-426614174003'],
+      garmentIds: [garments[0].id, garments[1].id],
       aiAnalysis:
         'このコンビネーションは体型に非常によく合っています。シャツとジーンズの組み合わせが自然で、カジュアルながらも洗練された印象を与えます。',
       confidenceScore: 0.92,
