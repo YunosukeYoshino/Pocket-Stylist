@@ -71,9 +71,10 @@ model Garment {
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  outfitItems OutfitItem[]
-  orderItems  OrderItem[]
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfitItems  OutfitItem[]
+  orderItems   OrderItem[]
+  tryonUsages  TryonGarment[]
 
   @@map("garments")
 }
@@ -83,16 +84,16 @@ model Tryon {
   userId          String   @map("user_id") @db.Uuid
   bodyProfileId   String   @map("body_profile_id") @db.Uuid
   sessionId       String   @map("session_id") @db.VarChar(100)
-  garmentIds      Json     @map("garment_ids") @db.JsonB
   aiAnalysis      String?  @map("ai_analysis") @db.Text
   confidenceScore Decimal? @map("confidence_score") @db.Decimal(3, 2)
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bodyProfile BodyProfile   @relation(fields: [bodyProfileId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bodyProfile BodyProfile     @relation(fields: [bodyProfileId], references: [id], onDelete: Cascade)
   results     TryonResult[]
+  garments    TryonGarment[]
 
   @@map("tryons")
 }
@@ -111,6 +112,20 @@ model TryonResult {
   tryon Tryon @relation(fields: [tryonId], references: [id], onDelete: Cascade)
 
   @@map("tryon_results")
+}
+
+model TryonGarment {
+  id        String   @id @default(uuid()) @db.Uuid
+  tryonId   String   @map("tryon_id") @db.Uuid
+  garmentId String   @map("garment_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  tryon   Tryon   @relation(fields: [tryonId], references: [id], onDelete: Cascade)
+  garment Garment @relation(fields: [garmentId], references: [id], onDelete: Cascade)
+
+  @@unique([tryonId, garmentId])
+  @@map("tryon_garments")
 }
 
 model Outfit {

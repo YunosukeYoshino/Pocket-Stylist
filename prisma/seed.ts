@@ -229,12 +229,35 @@ async function main() {
       userId: demoUser.id,
       bodyProfileId: bodyProfile.id,
       sessionId: 'session-demo-001',
-      garmentIds: [garments[0].id, garments[1].id],
       aiAnalysis:
         'このコンビネーションは体型に非常によく合っています。シャツとジーンズの組み合わせが自然で、カジュアルながらも洗練された印象を与えます。',
       confidenceScore: 0.92,
     },
   })
+
+  // 試着に含まれる衣服の関連付け
+  const tryonGarments = [
+    {
+      id: '567e4567-e89b-12d3-a456-426614174015',
+      tryonId: tryon.id,
+      garmentId: garments[0].id, // ホワイトシャツ
+    },
+    {
+      id: '678e4567-e89b-12d3-a456-426614174016',
+      tryonId: tryon.id,
+      garmentId: garments[1].id, // ダークデニム
+    },
+  ]
+
+  await Promise.all(
+    tryonGarments.map(garmentData =>
+      prisma.tryonGarment.upsert({
+        where: { id: garmentData.id },
+        update: {},
+        create: garmentData,
+      })
+    )
+  )
 
   // 試着結果の作成
   await prisma.tryonResult.upsert({
