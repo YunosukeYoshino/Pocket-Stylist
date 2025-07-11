@@ -47,10 +47,10 @@
       "quoteStyle": "single",
       "jsxQuoteStyle": "double",
       "semicolons": "asNeeded",
-      "trailingComma": "es5",
+      "trailingCommas": "es5",
       "bracketSpacing": true,
       "bracketSameLine": false,
-      "arrowParentheses": "avoid"
+      "arrowParentheses": "asNeeded"
     }
   },
   "json": {
@@ -59,14 +59,7 @@
     }
   },
   "files": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.json",
-      "**/*.md"
-    ],
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json", "**/*.md"],
     "ignore": [
       "node_modules/**",
       "dist/**",
