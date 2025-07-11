@@ -235,15 +235,15 @@ async function main() {
     },
   })
 
-  // 試着に含まれる衣服の関連付け
+  // 試着衣服の関連付け
   const tryonGarments = [
     {
-      id: '567e4567-e89b-12d3-a456-426614174015',
+      id: '780e4567-e89b-12d3-a456-426614174015',
       tryonId: tryon.id,
       garmentId: garments[0].id, // ホワイトシャツ
     },
     {
-      id: '678e4567-e89b-12d3-a456-426614174016',
+      id: '781e4567-e89b-12d3-a456-426614174016',
       tryonId: tryon.id,
       garmentId: garments[1].id, // ダークデニム
     },
@@ -282,7 +282,7 @@ async function main() {
     },
   })
 
-  console.log('✅ Created sample tryon with results')
+  console.log('✅ Created sample tryon with garments and results')
 
   console.log('🎉 Database seed completed successfully!')
 }

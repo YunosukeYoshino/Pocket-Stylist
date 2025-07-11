@@ -74,7 +74,7 @@ model Garment {
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   outfitItems  OutfitItem[]
   orderItems   OrderItem[]
-  tryonUsages  TryonGarment[]
+  tryonItems   TryonGarment[]
 
   @@map("garments")
 }
