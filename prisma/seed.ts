@@ -159,13 +159,15 @@ async function main() {
     },
   ]
 
-  for (const itemData of outfitItems) {
-    await prisma.outfitItem.upsert({
-      where: { id: itemData.id },
-      update: {},
-      create: itemData,
-    })
-  }
+  await Promise.all(
+    outfitItems.map(itemData =>
+      prisma.outfitItem.upsert({
+        where: { id: itemData.id },
+        update: {},
+        create: itemData,
+      })
+    )
+  )
 
   console.log('✅ Created sample outfit with items')
 
@@ -206,13 +208,15 @@ async function main() {
     },
   ]
 
-  for (const itemData of orderItems) {
-    await prisma.orderItem.upsert({
-      where: { id: itemData.id },
-      update: {},
-      create: itemData,
-    })
-  }
+  await Promise.all(
+    orderItems.map(itemData =>
+      prisma.orderItem.upsert({
+        where: { id: itemData.id },
+        update: {},
+        create: itemData,
+      })
+    )
+  )
 
   console.log('✅ Created sample order with items')
 
