@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
+import type { Request, Response } from 'express'
 import { authenticateToken } from '../middleware/auth'
 import { asyncHandler } from '../middleware/errorHandler'
 import { updateUserProfileSchema } from '../schemas/user'

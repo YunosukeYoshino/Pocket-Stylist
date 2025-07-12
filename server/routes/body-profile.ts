@@ -1,4 +1,5 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
+import type { Request, Response } from 'express'
 import { authenticateToken } from '../middleware/auth'
 import { asyncHandler } from '../middleware/errorHandler'
 import { createBodyProfileSchema, updateBodyProfileSchema } from '../schemas/user'
@@ -12,26 +13,12 @@ router.get(
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
     const bodyProfileService = new BodyProfileService(req.prisma)
+    const bodyProfile = await bodyProfileService.getBodyProfile(req.user!.sub)
 
-    try {
-      const bodyProfile = await bodyProfileService.getBodyProfile(req.user!.sub)
-
-      res.json({
-        data: bodyProfile,
-        timestamp: new Date().toISOString(),
-      })
-    } catch (error: any) {
-      if (error.statusCode === 404) {
-        // ボディプロファイルが存在しない場合はnullを返す
-        res.json({
-          data: null,
-          message: 'Body profile not found',
-          timestamp: new Date().toISOString(),
-        })
-      } else {
-        throw error
-      }
-    }
+    res.json({
+      data: bodyProfile,
+      timestamp: new Date().toISOString(),
+    })
   })
 )
 

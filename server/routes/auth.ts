@@ -1,12 +1,15 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
+import type { Request, Response } from 'express'
 import { authenticateToken } from '../middleware/auth'
 import { asyncHandler } from '../middleware/errorHandler'
 import { loginSchema, refreshTokenSchema } from '../schemas/user'
 import { AuthService } from '../services/auth'
+import { UserService } from '../services/user'
 
 const router = Router()
 
-// ログイン
+// ログイン - Note: loginSchema currently expects email/password, but API uses Auth0 format
+// TODO: Update loginSchema to match Auth0 authentication flow
 router.post(
   '/login',
   asyncHandler(async (req: Request, res: Response) => {
@@ -74,22 +77,13 @@ router.post(
 router.get(
   '/validate',
   authenticateToken,
-  asyncHandler(async (req: Request, res: Response) => {
-    const authHeader = req.headers.authorization
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (!token) {
-      return res.status(401).json({
-        error: 'No token provided',
-        timestamp: new Date().toISOString(),
-      })
-    }
-
-    const authService = new AuthService(req.prisma)
-    const result = await authService.validateToken(token)
-
+  asyncHandler(async (_req: Request, res: Response) => {
+    // Token is already validated by authenticateToken middleware
     res.json({
-      data: result,
+      data: {
+        valid: true,
+        message: 'Token is valid',
+      },
       timestamp: new Date().toISOString(),
     })
   })
@@ -100,21 +94,13 @@ router.get(
   '/me',
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
-    const authService = new AuthService(req.prisma)
-    const authHeader = req.headers.authorization
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (!token) {
-      return res.status(401).json({
-        error: 'No token provided',
-        timestamp: new Date().toISOString(),
-      })
-    }
-
-    const result = await authService.validateToken(token)
+    // User is already validated by authenticateToken middleware
+    // Get user profile directly using req.user.sub
+    const userService = new UserService(req.prisma)
+    const userProfile = await userService.getUserProfile(req.user!.sub)
 
     res.json({
-      data: result.user,
+      data: userProfile,
       timestamp: new Date().toISOString(),
     })
   })

@@ -3,10 +3,6 @@ import type { CreateBodyProfileInput, UpdateBodyProfileInput } from '../schemas/
 import { BaseRepository } from './base'
 
 export class BodyProfileRepository extends BaseRepository {
-  constructor(prisma: PrismaClient) {
-    super(prisma)
-  }
-
   async findByUserId(userId: string): Promise<BodyProfile | null> {
     try {
       return await this.prisma.bodyProfile.findUnique({
@@ -42,14 +38,10 @@ export class BodyProfileRepository extends BaseRepository {
 
   async update(userId: string, data: UpdateBodyProfileInput): Promise<BodyProfile> {
     try {
-      // upsert を使用して、存在しない場合は作成、存在する場合は更新
-      return await this.prisma.bodyProfile.upsert({
+      // Proper update operation - only updates existing records
+      return await this.prisma.bodyProfile.update({
         where: { userId },
-        create: {
-          userId,
-          ...data,
-        },
-        update: data,
+        data,
       })
     } catch (error) {
       this.handleError(error, 'update')
@@ -66,7 +58,7 @@ export class BodyProfileRepository extends BaseRepository {
     }
   }
 
-  async createOrUpdate(
+  async upsert(
     userId: string,
     data: CreateBodyProfileInput | UpdateBodyProfileInput
   ): Promise<BodyProfile> {
@@ -80,7 +72,7 @@ export class BodyProfileRepository extends BaseRepository {
         update: data,
       })
     } catch (error) {
-      this.handleError(error, 'createOrUpdate')
+      this.handleError(error, 'upsert')
     }
   }
 }

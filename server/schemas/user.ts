@@ -5,9 +5,9 @@ export const updateUserProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   avatarUrl: z.string().url().optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
-  birthDate: z.string().datetime().optional(),
+  birthDate: z.coerce.date().optional(), // Use coerce.date() to match userResponseSchema
   phone: z.string().max(20).optional(),
-  preferences: z.record(z.any()).optional(),
+  preferences: z.record(z.any()).optional(), // TODO: Define more specific preferences schema
 })
 
 export const userResponseSchema = z.object({
@@ -25,23 +25,17 @@ export const userResponseSchema = z.object({
 })
 
 // Body Profile schemas
-export const createBodyProfileSchema = z.object({
+const bodyProfileFields = z.object({
   height: z.number().int().min(50).max(300).optional(),
   weight: z.number().int().min(20).max(500).optional(),
   bodyType: z.string().max(50).optional(),
   skinTone: z.string().max(50).optional(),
-  measurements: z.record(z.any()).optional(),
+  measurements: z.record(z.any()).optional(), // TODO: Define more specific measurement schema
   fitPreferences: z.string().max(100).optional(),
 })
 
-export const updateBodyProfileSchema = z.object({
-  height: z.number().int().min(50).max(300).optional(),
-  weight: z.number().int().min(20).max(500).optional(),
-  bodyType: z.string().max(50).optional(),
-  skinTone: z.string().max(50).optional(),
-  measurements: z.record(z.any()).optional(),
-  fitPreferences: z.string().max(100).optional(),
-})
+export const createBodyProfileSchema = bodyProfileFields
+export const updateBodyProfileSchema = bodyProfileFields
 
 export const bodyProfileResponseSchema = z.object({
   id: z.string().uuid(),
@@ -57,9 +51,19 @@ export const bodyProfileResponseSchema = z.object({
 })
 
 // Auth schemas
+// TODO: This schema doesn't match the current Auth0-based login API
+// Consider updating to match the actual API format or creating a separate schema
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
+})
+
+// Schema that matches the current Auth0 login implementation
+export const auth0LoginSchema = z.object({
+  auth0Id: z.string(),
+  email: z.string().email(),
+  name: z.string().optional(),
+  avatarUrl: z.string().url().optional(),
 })
 
 export const refreshTokenSchema = z.object({
@@ -104,6 +108,7 @@ export type CreateBodyProfileInput = z.infer<typeof createBodyProfileSchema>
 export type UpdateBodyProfileInput = z.infer<typeof updateBodyProfileSchema>
 export type BodyProfileResponse = z.infer<typeof bodyProfileResponseSchema>
 export type LoginInput = z.infer<typeof loginSchema>
+export type Auth0LoginInput = z.infer<typeof auth0LoginSchema>
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>
 export type TokenResponse = z.infer<typeof tokenResponseSchema>
 export type PaginationInput = z.infer<typeof paginationSchema>

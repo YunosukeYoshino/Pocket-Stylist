@@ -1,6 +1,15 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
+import type { JwtHeader } from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
+
+// Environment validation
+if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_AUDIENCE) {
+  throw new Error('AUTH0_DOMAIN and AUTH0_AUDIENCE environment variables are required')
+}
+
+// Custom claim namespace - make configurable
+const CUSTOM_NAMESPACE = process.env.AUTH0_CUSTOM_NAMESPACE || 'https://pocket-stylist.com'
 
 const client = jwksClient({
   jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
@@ -8,7 +17,7 @@ const client = jwksClient({
   timeout: 30000,
 })
 
-function getKey(header: any, callback: any) {
+function getKey(header: JwtHeader, callback: (err: any, key?: string) => void) {
   client.getSigningKey(header.kid, (err, key) => {
     if (err) {
       return callback(err)
@@ -18,9 +27,15 @@ function getKey(header: any, callback: any) {
   })
 }
 
+interface DecodedToken {
+  sub: string
+  email?: string
+  [key: string]: any
+}
+
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization
-  const token = authHeader && authHeader.split(' ')[1]
+  const token = authHeader?.split(' ')[1]
 
   if (!token) {
     return res.status(401).json({
@@ -37,8 +52,8 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
       issuer: `https://${process.env.AUTH0_DOMAIN}/`,
       algorithms: ['RS256'],
     },
-    (err: any, decoded: any) => {
-      if (err) {
+    (err: jwt.VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
+      if (err || !decoded || typeof decoded === 'string') {
         console.error('JWT verification failed:', err)
         return res.status(403).json({
           error: 'Invalid token',
@@ -46,10 +61,12 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
         })
       }
 
+      const tokenPayload = decoded as DecodedToken
+
       req.user = {
-        sub: decoded.sub,
-        email: decoded.email || decoded['https://pocket-stylist.com/email'],
-        ...decoded,
+        ...tokenPayload,
+        sub: tokenPayload.sub,
+        email: tokenPayload.email || tokenPayload[`${CUSTOM_NAMESPACE}/email`],
       }
 
       next()
@@ -59,7 +76,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
 export const optionalAuth = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization
-  const token = authHeader && authHeader.split(' ')[1]
+  const token = authHeader?.split(' ')[1]
 
   if (!token) {
     return next()
@@ -73,12 +90,13 @@ export const optionalAuth = (req: Request, res: Response, next: NextFunction) =>
       issuer: `https://${process.env.AUTH0_DOMAIN}/`,
       algorithms: ['RS256'],
     },
-    (err: any, decoded: any) => {
-      if (!err && decoded) {
+    (err: jwt.VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
+      if (!err && decoded && typeof decoded !== 'string') {
+        const tokenPayload = decoded as DecodedToken
         req.user = {
-          sub: decoded.sub,
-          email: decoded.email || decoded['https://pocket-stylist.com/email'],
-          ...decoded,
+          ...tokenPayload,
+          sub: tokenPayload.sub,
+          email: tokenPayload.email || tokenPayload[`${CUSTOM_NAMESPACE}/email`],
         }
       }
       next()

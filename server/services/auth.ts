@@ -3,6 +3,20 @@ import jwt from 'jsonwebtoken'
 import { ApiError } from '../middleware/errorHandler'
 import { UserService } from './user'
 
+// Environment validation
+if (!process.env.JWT_SECRET || !process.env.JWT_REFRESH_SECRET) {
+  throw new Error('JWT_SECRET and JWT_REFRESH_SECRET environment variables are required')
+}
+
+interface DecodedToken {
+  sub: string
+  email?: string
+  iat?: number
+  exp?: number
+  type?: string
+  userId?: string
+}
+
 export class AuthService {
   private userService: UserService
 
@@ -35,11 +49,12 @@ export class AuthService {
     }
   }
 
-  async handleLogout(auth0Id: string) {
+  async handleLogout(_auth0Id: string) {
     try {
       // ログアウト処理（セッション無効化など）
       // この実装では単純にメッセージを返すだけ
       // 実際の環境では、リフレッシュトークンの無効化などを行う
+      // TODO: Implement proper logout logic with token invalidation
 
       return {
         message: 'Logout successful',
@@ -53,7 +68,7 @@ export class AuthService {
   async validateToken(token: string) {
     try {
       // JWTトークンのデコード（検証はmiddlewareで実施済み）
-      const decoded = jwt.decode(token) as any
+      const decoded = jwt.decode(token) as DecodedToken | null
 
       if (!decoded || !decoded.sub) {
         throw new ApiError('Invalid token', 401)
@@ -84,7 +99,7 @@ export class AuthService {
         type: 'refresh',
         iat: Math.floor(Date.now() / 1000),
       },
-      process.env.JWT_REFRESH_SECRET || 'your_refresh_secret',
+      process.env.JWT_REFRESH_SECRET!,
       { expiresIn: '30d' }
     )
   }
@@ -92,23 +107,22 @@ export class AuthService {
   async refreshAccessToken(refreshToken: string) {
     try {
       // リフレッシュトークンの検証
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET || 'your_refresh_secret'
-      ) as any
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as DecodedToken
 
       if (decoded.type !== 'refresh') {
         throw new ApiError('Invalid refresh token', 401)
       }
 
       // 新しいアクセストークンを生成
-      // 実際の環境では Auth0 の API を使用してトークンを更新する
+      // TODO: 実際の環境では Auth0 の /oauth/token エンドポイントを使用してトークンを更新する
+      // This is a simplified implementation - in production, use Auth0's token endpoint
+      // with grant_type=refresh_token to get a new, valid access token from Auth0
       const newAccessToken = jwt.sign(
         {
           sub: decoded.userId,
           iat: Math.floor(Date.now() / 1000),
         },
-        process.env.JWT_SECRET || 'your_secret',
+        process.env.JWT_SECRET!,
         { expiresIn: '24h' }
       )
 

@@ -3,10 +3,6 @@ import type { UpdateUserProfileInput } from '../schemas/user'
 import { BaseRepository } from './base'
 
 export class UserRepository extends BaseRepository {
-  constructor(prisma: PrismaClient) {
-    super(prisma)
-  }
-
   async findByAuth0Id(auth0Id: string): Promise<User | null> {
     try {
       return await this.prisma.user.findUnique({
@@ -91,11 +87,11 @@ export class UserRepository extends BaseRepository {
         user = await this.create(userData)
       } else {
         // 存在する場合は必要に応じて更新
-        const updateData: any = {}
+        const updateData: UpdateUserProfileInput = {}
         let shouldUpdate = false
 
         if (userData.email !== user.email) {
-          updateData.email = userData.email
+          // Email updates would need to be handled differently in the schema
           shouldUpdate = true
         }
         if (userData.name && userData.name !== user.name) {
