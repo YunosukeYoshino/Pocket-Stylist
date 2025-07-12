@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import type React from 'react'
 import { useState } from 'react'
 import { ActivityIndicator, Alert } from 'react-native'
+import type { AuthError } from '../../types/auth'
 import { useAuthContext } from './AuthProvider'
 
 export const LoginScreen: React.FC = () => {
@@ -18,53 +19,35 @@ export const LoginScreen: React.FC = () => {
   } = useAuthContext()
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null)
 
-  const handleLogin = async () => {
-    try {
-      setLoadingProvider('email')
-      clearError()
-      await login()
-    } catch (error: any) {
-      Alert.alert('ログインエラー', error.message || 'ログインに失敗しました')
-    } finally {
-      setLoadingProvider(null)
+  // 共通ログインハンドラを生成するファクトリー関数
+  const createLoginHandler = (
+    provider: string,
+    loginFn: () => Promise<void>,
+    errorTitle: string
+  ) => {
+    return async () => {
+      try {
+        setLoadingProvider(provider)
+        clearError()
+        await loginFn()
+      } catch (error) {
+        const authError = error as AuthError
+        Alert.alert(errorTitle, authError.message || `${errorTitle}に失敗しました`)
+      } finally {
+        setLoadingProvider(null)
+      }
     }
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      setLoadingProvider('google')
-      clearError()
-      await loginWithGoogle()
-    } catch (error: any) {
-      Alert.alert('Googleログインエラー', error.message || 'Googleログインに失敗しました')
-    } finally {
-      setLoadingProvider(null)
-    }
-  }
-
-  const handleAppleLogin = async () => {
-    try {
-      setLoadingProvider('apple')
-      clearError()
-      await loginWithApple()
-    } catch (error: any) {
-      Alert.alert('Appleログインエラー', error.message || 'Appleログインに失敗しました')
-    } finally {
-      setLoadingProvider(null)
-    }
-  }
-
-  const handleFacebookLogin = async () => {
-    try {
-      setLoadingProvider('facebook')
-      clearError()
-      await loginWithFacebook()
-    } catch (error: any) {
-      Alert.alert('Facebookログインエラー', error.message || 'Facebookログインに失敗しました')
-    } finally {
-      setLoadingProvider(null)
-    }
-  }
+  // 各プロバイダー向けのログインハンドラーを共通ファクトリーで生成
+  const handleLogin = createLoginHandler('email', login, 'ログインエラー')
+  const handleGoogleLogin = createLoginHandler('google', loginWithGoogle, 'Googleログインエラー')
+  const handleAppleLogin = createLoginHandler('apple', loginWithApple, 'Appleログインエラー')
+  const handleFacebookLogin = createLoginHandler(
+    'facebook',
+    loginWithFacebook,
+    'Facebookログインエラー'
+  )
 
   const isProviderLoading = (provider: string) => {
     return loadingProvider === provider

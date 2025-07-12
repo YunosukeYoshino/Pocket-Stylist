@@ -12,6 +12,18 @@ import type {
   User,
 } from '../../types/auth'
 
+// 定数
+const CUSTOM_CLAIMS_NAMESPACE = 'https://pocket-stylist.com/' as const
+const DEFAULT_TOKEN_EXPIRY = 24 * 60 * 60 // 24 hours in seconds
+
+// Auth0User をカスタムクレームで拡張
+interface Auth0UserWithClaims extends Auth0User {
+  'https://pocket-stylist.com/roles'?: string[]
+  'https://pocket-stylist.com/permissions'?: string[]
+  'https://pocket-stylist.com/app_metadata'?: User['app_metadata']
+  'https://pocket-stylist.com/user_metadata'?: User['user_metadata']
+}
+
 class AuthService {
   private auth0: Auth0
   private config: AuthConfig
@@ -19,9 +31,9 @@ class AuthService {
   constructor() {
     const domain = process.env.EXPO_PUBLIC_AUTH0_DOMAIN!
     const clientId = process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID!
-    const audience = process.env.EXPO_PUBLIC_AUTH0_AUDIENCE!
+    const audience = process.env.EXPO_PUBLIC_AUTH0_AUDIENCE
 
-    if (!domain || !clientId) {
+    if (!domain || !clientId || !audience) {
       throw new Error('Auth0 configuration is missing. Please check your environment variables.')
     }
 
@@ -77,7 +89,7 @@ class AuthService {
         refresh_token: credentials.refreshToken,
         id_token: credentials.idToken,
         token_type: credentials.tokenType || 'Bearer',
-        expires_in: credentials.expiresIn || 86400,
+        expires_in: credentials.expiresIn || DEFAULT_TOKEN_EXPIRY,
         scope: credentials.scope,
       })
 
@@ -86,7 +98,7 @@ class AuthService {
         refresh_token: credentials.refreshToken,
         id_token: credentials.idToken,
         token_type: credentials.tokenType || 'Bearer',
-        expires_in: credentials.expiresIn || 86400,
+        expires_in: credentials.expiresIn || DEFAULT_TOKEN_EXPIRY,
         scope: credentials.scope,
       }
     } catch (error) {
@@ -116,7 +128,7 @@ class AuthService {
         refresh_token: credentials.refreshToken,
         id_token: credentials.idToken,
         token_type: credentials.tokenType || 'Bearer',
-        expires_in: credentials.expiresIn || 86400,
+        expires_in: credentials.expiresIn || DEFAULT_TOKEN_EXPIRY,
         scope: credentials.scope,
       })
 
@@ -125,7 +137,7 @@ class AuthService {
         refresh_token: credentials.refreshToken,
         id_token: credentials.idToken,
         token_type: credentials.tokenType || 'Bearer',
-        expires_in: credentials.expiresIn || 86400,
+        expires_in: credentials.expiresIn || DEFAULT_TOKEN_EXPIRY,
         scope: credentials.scope,
       }
     } catch (error) {
@@ -201,16 +213,16 @@ class AuthService {
       // 新しいトークンを保存
       await this.storeTokens({
         access_token: credentials.accessToken,
-        refresh_token: refreshToken, // refresh tokenは通常変わらない
+        refresh_token: credentials.refreshToken || refreshToken,
         id_token: credentials.idToken,
         token_type: credentials.tokenType || 'Bearer',
-        expires_in: credentials.expiresIn || 86400,
+        expires_in: credentials.expiresIn || DEFAULT_TOKEN_EXPIRY,
       })
 
       return {
         accessToken: credentials.accessToken,
         idToken: credentials.idToken,
-        expiresIn: credentials.expiresIn || 86400,
+        expiresIn: credentials.expiresIn || DEFAULT_TOKEN_EXPIRY,
       }
     } catch (error) {
       console.error('Token refresh error:', error)
@@ -286,7 +298,7 @@ class AuthService {
       }
 
       // トークンの有効期限チェック
-      if (Date.now() >= Number.parseInt(expiresAt)) {
+      if (Date.now() >= Number.parseInt(expiresAt, 10)) {
         await this.clearTokens()
         return null
       }
@@ -330,6 +342,7 @@ class AuthService {
    * Auth0 User を アプリの User 型に変換
    */
   private transformAuth0UserToUser(auth0User: Auth0User): User {
+    const userWithClaims = auth0User as Auth0UserWithClaims
     return {
       id: auth0User.sub || '',
       email: auth0User.email || '',
@@ -338,45 +351,46 @@ class AuthService {
       nickname: auth0User.nickname,
       email_verified: auth0User.email_verified,
       sub: auth0User.sub || '',
-      roles: (auth0User as any)['https://pocket-stylist.com/roles'] || ['user'],
-      permissions: (auth0User as any)['https://pocket-stylist.com/permissions'] || [],
-      app_metadata: (auth0User as any)['https://pocket-stylist.com/app_metadata'],
-      user_metadata: (auth0User as any)['https://pocket-stylist.com/user_metadata'],
+      roles: userWithClaims['https://pocket-stylist.com/roles'] || ['user'],
+      permissions: userWithClaims['https://pocket-stylist.com/permissions'] || [],
+      app_metadata: userWithClaims['https://pocket-stylist.com/app_metadata'],
+      user_metadata: userWithClaims['https://pocket-stylist.com/user_metadata'],
     }
   }
 
   /**
    * エラーハンドリング
    */
-  private handleAuthError(error: any): AuthError {
-    if (error.message?.includes('login_required')) {
+  private handleAuthError(error: unknown): AuthError {
+    const errorObj = error as { message?: string; description?: string }
+    if (errorObj.message?.includes('login_required')) {
       return {
         code: 'PS-AUTH-001',
         message: 'ログインが必要です',
-        description: error.description,
+        description: errorObj.description,
       }
     }
 
-    if (error.message?.includes('access_denied')) {
+    if (errorObj.message?.includes('access_denied')) {
       return {
         code: 'PS-AUTH-002',
         message: 'アクセスが拒否されました',
-        description: error.description,
+        description: errorObj.description,
       }
     }
 
-    if (error.message?.includes('invalid_grant')) {
+    if (errorObj.message?.includes('invalid_grant')) {
       return {
         code: 'PS-AUTH-003',
         message: '認証トークンが無効です',
-        description: error.description,
+        description: errorObj.description,
       }
     }
 
     return {
       code: 'PS-AUTH-000',
-      message: error.message || '認証エラーが発生しました',
-      description: error.description,
+      message: errorObj.message || '認証エラーが発生しました',
+      description: errorObj.description,
     }
   }
 

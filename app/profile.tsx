@@ -2,7 +2,7 @@ import { Button } from '@tamagui/button'
 import { Stack, Text, View } from '@tamagui/core'
 import { Link } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { ScrollView } from 'react-native'
+import { Alert, ScrollView } from 'react-native'
 import { useAuthContext } from '../src/components/auth/AuthProvider'
 import { ProtectedRoute } from '../src/components/auth/ProtectedRoute'
 
@@ -14,6 +14,9 @@ export default function ProfileScreen() {
       await logout()
     } catch (error) {
       console.error('Logout error:', error)
+      Alert.alert('ログアウトエラー', 'ログアウトに失敗しました。もう一度お試しください。', [
+        { text: 'OK' },
+      ])
     }
   }
 

@@ -70,7 +70,7 @@ export const useAuthStore = create<AuthStore>()(
       error: null,
 
       // ログイン処理
-      login: async options => {
+      login: async (options?: LoginOptions) => {
         set({ isLoading: true, error: null })
         try {
           const tokens = await authService.login(options)
@@ -194,7 +194,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       // ログアウト処理
-      logout: async options => {
+      logout: async (options?: LogoutOptions) => {
         set({ isLoading: true, error: null })
         try {
           await authService.logout(options)

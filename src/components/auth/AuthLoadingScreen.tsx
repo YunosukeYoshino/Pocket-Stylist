@@ -7,7 +7,7 @@ export const AuthLoadingScreen: React.FC = () => {
   return (
     <View flex={1} alignItems="center" justifyContent="center" backgroundColor="$background">
       <View alignItems="center" gap="$4">
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="$blue10" />
         <Text fontSize="$6" fontWeight="600" color="$gray12">
           認証状態を確認中...
         </Text>
