@@ -9,31 +9,20 @@ interface UseRequireAuthOptions {
   permissions?: string[]
 }
 
-// ロール認証チェック
-const hasRequiredRoles = (user: User | null, roles?: string[]): boolean => {
-  if (!roles || roles.length === 0) return true
-  if (!user) return false
-
-  const userRoles = user.roles || []
-  return roles.some(role => userRoles.includes(role))
-}
-
-// 権限認証チェック
-const hasRequiredPermissions = (user: User | null, permissions?: string[]): boolean => {
-  if (!permissions || permissions.length === 0) return true
-  if (!user) return false
-
-  const userPermissions = user.permissions || []
-  return permissions.some(permission => userPermissions.includes(permission))
-}
-
 // 認証・認可チェック実行
 const performAuthorizationCheck = (
   user: User | null,
   roles?: string[],
   permissions?: string[]
 ): boolean => {
-  return hasRequiredRoles(user, roles) && hasRequiredPermissions(user, permissions)
+  if (!user) return false
+
+  const hasRoles = !roles || roles.length === 0 ||
+    roles.some(role => user.roles?.includes(role))
+  const hasPermissions = !permissions || permissions.length === 0 ||
+    permissions.some(permission => user.permissions?.includes(permission))
+
+  return hasRoles && hasPermissions
 }
 
 /**
