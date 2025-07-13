@@ -106,6 +106,58 @@ export class AuthService {
 
   async refreshAccessToken(refreshToken: string) {
     try {
+      // Validate environment variables for Auth0
+      const auth0Domain = process.env.AUTH0_DOMAIN
+      const auth0ClientId = process.env.AUTH0_CLIENT_ID
+      const auth0ClientSecret = process.env.AUTH0_CLIENT_SECRET
+
+      if (!auth0Domain || !auth0ClientId || !auth0ClientSecret) {
+        console.warn('Auth0 configuration incomplete, falling back to local token refresh')
+        return this.fallbackTokenRefresh(refreshToken)
+      }
+
+      // Use Auth0's token endpoint for proper token refresh
+      const tokenUrl = `https://${auth0Domain}/oauth/token`
+      
+      const response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          grant_type: 'refresh_token',
+          client_id: auth0ClientId,
+          client_secret: auth0ClientSecret,
+          refresh_token: refreshToken,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Auth0 token refresh failed:', errorData)
+        throw new ApiError('Token refresh failed', 401)
+      }
+
+      const tokenData = await response.json()
+
+      return {
+        accessToken: tokenData.access_token,
+        refreshToken: tokenData.refresh_token || refreshToken,
+        expiresIn: tokenData.expires_in,
+        tokenType: tokenData.token_type || 'Bearer',
+        message: 'Token refreshed successfully',
+      }
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error
+      }
+      console.error('Token refresh error:', error)
+      throw new ApiError('Token refresh failed', 401)
+    }
+  }
+
+  private async fallbackTokenRefresh(refreshToken: string) {
+    try {
       // リフレッシュトークンの検証
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as DecodedToken
 
@@ -113,10 +165,7 @@ export class AuthService {
         throw new ApiError('Invalid refresh token', 401)
       }
 
-      // 新しいアクセストークンを生成
-      // TODO: 実際の環境では Auth0 の /oauth/token エンドポイントを使用してトークンを更新する
-      // This is a simplified implementation - in production, use Auth0's token endpoint
-      // with grant_type=refresh_token to get a new, valid access token from Auth0
+      // 新しいアクセストークンを生成 (fallback implementation)
       const newAccessToken = jwt.sign(
         {
           sub: decoded.userId,
@@ -128,10 +177,12 @@ export class AuthService {
 
       return {
         accessToken: newAccessToken,
-        message: 'Token refreshed successfully',
+        expiresIn: 86400, // 24 hours in seconds
+        tokenType: 'Bearer',
+        message: 'Token refreshed successfully (fallback)',
       }
     } catch (error) {
-      console.error('Token refresh error:', error)
+      console.error('Fallback token refresh error:', error)
       throw new ApiError('Token refresh failed', 401)
     }
   }

@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -12,9 +12,9 @@
     "outDir": "../dist/server",
     "rootDir": ".",
     "resolveJsonModule": true,
-    "types": ["node", "express"],
-    "lib": ["ES2022"]
+    "typeRoots": ["../node_modules/@types"],
+    "lib": ["ES2022", "DOM"]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "jest.setup.js"]
 }

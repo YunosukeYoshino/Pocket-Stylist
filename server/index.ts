@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
 import { errorHandler } from './middleware/errorHandler'
+import { requestLoggingMiddleware, healthCheckMiddleware, metricsMiddleware } from './middleware/monitoring'
 import { notFoundHandler } from './middleware/notFoundHandler'
 import { authRouter } from './routes/auth'
 import { bodyProfileRouter } from './routes/body-profile'
@@ -43,16 +44,20 @@ app.use(limiter)
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 
+// Request/Response monitoring and logging middleware
+app.use(requestLoggingMiddleware)
+
 // Prismaクライアントをリクエストオブジェクトに注入
 app.use((req, _res, next) => {
   req.prisma = prisma
   next()
 })
 
-// ヘルスチェック
-app.get('/health', (_req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
-})
+// ヘルスチェック with detailed monitoring
+app.get('/health', healthCheckMiddleware)
+
+// Metrics endpoint (should be secured in production)
+app.get('/metrics', metricsMiddleware)
 
 // API バージョニング
 const v1Router = express.Router()
@@ -79,6 +84,8 @@ async function startServer() {
       console.log(`🚀 Server running on port ${PORT}`)
       console.log(`📖 API docs: http://localhost:${PORT}/v1`)
       console.log(`🔍 Health check: http://localhost:${PORT}/health`)
+      console.log(`📊 Metrics: http://localhost:${PORT}/metrics`)
+      console.log(`📝 Request logging enabled`)
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)
