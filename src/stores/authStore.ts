@@ -14,7 +14,10 @@ interface AuthActions {
 
   // ユーザー情報管理
   getCurrentUser: () => Promise<void>
-  refreshTokenAction: () => Promise<void>
+  refreshTokens: () => Promise<void>
+
+  // 内部ヘルパー
+  loginWithSocialProvider: (provider: 'google-oauth2' | 'apple' | 'facebook') => Promise<void>
 
   // 状態管理
   setUser: (user: User | null) => void
@@ -100,11 +103,11 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // Googleログイン
-      loginWithGoogle: async () => {
+      // ソーシャルログイン共通処理
+      loginWithSocialProvider: async (provider: 'google-oauth2' | 'apple' | 'facebook') => {
         set({ isLoading: true, error: null })
         try {
-          const tokens = await authService.loginWithSocial('google-oauth2')
+          const tokens = await authService.loginWithSocial(provider)
           const user = await authService.getCurrentUser()
 
           set({
@@ -129,68 +132,24 @@ export const useAuthStore = create<AuthStore>()(
           })
           throw error
         }
+      },
+
+      // Googleログイン
+      loginWithGoogle: async () => {
+        const { loginWithSocialProvider } = get()
+        await loginWithSocialProvider('google-oauth2')
       },
 
       // Appleログイン
       loginWithApple: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const tokens = await authService.loginWithSocial('apple')
-          const user = await authService.getCurrentUser()
-
-          set({
-            isAuthenticated: true,
-            user,
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token || null,
-            idToken: tokens.id_token,
-            isLoading: false,
-            error: null,
-          })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isAuthenticated: false,
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            idToken: null,
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        const { loginWithSocialProvider } = get()
+        await loginWithSocialProvider('apple')
       },
 
       // Facebookログイン
       loginWithFacebook: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const tokens = await authService.loginWithSocial('facebook')
-          const user = await authService.getCurrentUser()
-
-          set({
-            isAuthenticated: true,
-            user,
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token || null,
-            idToken: tokens.id_token,
-            isLoading: false,
-            error: null,
-          })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isAuthenticated: false,
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            idToken: null,
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        const { loginWithSocialProvider } = get()
+        await loginWithSocialProvider('facebook')
       },
 
       // ログアウト処理
@@ -245,7 +204,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       // トークンリフレッシュ
-      refreshTokenAction: async () => {
+      refreshTokens: async () => {
         try {
           const refreshResult = await authService.refreshAccessToken()
           const user = await authService.getCurrentUser()
@@ -370,7 +329,7 @@ export const useAuth = () => {
     loginWithFacebook,
     logout,
     getCurrentUser,
-    refreshTokenAction,
+    refreshTokens,
     setError,
     clearError,
     initialize,
@@ -388,7 +347,7 @@ export const useAuth = () => {
     loginWithFacebook,
     logout,
     getCurrentUser,
-    refreshToken: refreshTokenAction,
+    refreshToken: refreshTokens,
     setError,
     clearError,
     initialize,

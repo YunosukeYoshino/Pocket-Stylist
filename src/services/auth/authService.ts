@@ -181,10 +181,11 @@ class AuthService {
       })
 
       return this.transformAuth0UserToUser(userInfo)
-    } catch (error: any) {
+    } catch (error) {
       console.error('Get user error:', error)
       // トークンが無効な場合は null を返す
-      if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+      const errorObj = error as { message?: string }
+      if (errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
         await this.clearTokens()
         return null
       }
