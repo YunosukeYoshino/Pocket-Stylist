@@ -1,11 +1,39 @@
 import { useRouter } from 'expo-router'
 import { useEffect } from 'react'
 import { useAuthContext } from '../components/auth/AuthProvider'
+import type { User } from '../types/auth'
 
 interface UseRequireAuthOptions {
   redirectTo?: string
   roles?: string[]
   permissions?: string[]
+}
+
+// ロール認証チェック
+const hasRequiredRoles = (user: User | null, roles?: string[]): boolean => {
+  if (!roles || roles.length === 0) return true
+  if (!user) return false
+
+  const userRoles = user.roles || []
+  return roles.some(role => userRoles.includes(role))
+}
+
+// 権限認証チェック
+const hasRequiredPermissions = (user: User | null, permissions?: string[]): boolean => {
+  if (!permissions || permissions.length === 0) return true
+  if (!user) return false
+
+  const userPermissions = user.permissions || []
+  return permissions.some(permission => userPermissions.includes(permission))
+}
+
+// 認証・認可チェック実行
+const performAuthorizationCheck = (
+  user: User | null,
+  roles?: string[],
+  permissions?: string[]
+): boolean => {
+  return hasRequiredRoles(user, roles) && hasRequiredPermissions(user, permissions)
 }
 
 /**
@@ -27,29 +55,10 @@ export const useRequireAuth = (options: UseRequireAuthOptions = {}) => {
       return
     }
 
-    // ロール・権限チェック
-    if (user) {
-      // ロールチェック
-      if (roles && roles.length > 0) {
-        const userRoles = user.roles || []
-        const hasRequiredRole = roles.some(role => userRoles.includes(role))
-        if (!hasRequiredRole) {
-          router.replace('/unauthorized')
-          return
-        }
-      }
-
-      // 権限チェック
-      if (permissions && permissions.length > 0) {
-        const userPermissions = user.permissions || []
-        const hasRequiredPermission = permissions.some(permission =>
-          userPermissions.includes(permission)
-        )
-        if (!hasRequiredPermission) {
-          router.replace('/unauthorized')
-          return
-        }
-      }
+    // 認証・認可チェック
+    if (!performAuthorizationCheck(user, roles, permissions)) {
+      router.replace('/unauthorized')
+      return
     }
   }, [isAuthenticated, isLoading, user, router, redirectTo, roles, permissions])
 

@@ -14,7 +14,7 @@ import type {
 
 // 定数
 const CUSTOM_CLAIMS_NAMESPACE = 'https://pocket-stylist.com/' as const
-const DEFAULT_TOKEN_EXPIRY = 24 * 60 * 60 // 24 hours in seconds
+const DEFAULT_TOKEN_EXPIRY = 60 * 60 // 1 hour in seconds
 
 // Auth0User をカスタムクレームで拡張
 interface Auth0UserWithClaims extends Auth0User {
@@ -29,8 +29,8 @@ class AuthService {
   private config: AuthConfig
 
   constructor() {
-    const domain = process.env.EXPO_PUBLIC_AUTH0_DOMAIN!
-    const clientId = process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID!
+    const domain = process.env.EXPO_PUBLIC_AUTH0_DOMAIN
+    const clientId = process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID
     const audience = process.env.EXPO_PUBLIC_AUTH0_AUDIENCE
 
     if (!domain || !clientId || !audience) {

@@ -2,6 +2,7 @@ import { Button } from '@tamagui/button'
 import { Stack, Text, View } from '@tamagui/core'
 import type React from 'react'
 import type { ReactNode } from 'react'
+import type { User } from '../../types/auth'
 import AuthLoadingScreen from './AuthLoadingScreen'
 import { useAuthContext } from './AuthProvider'
 import LoginScreen from './LoginScreen'
@@ -12,6 +13,42 @@ interface ProtectedRouteProps {
   permissions?: string[]
   fallback?: ReactNode
   loadingComponent?: ReactNode
+}
+
+// ロール認証チェック
+const checkRoleAuthorization = (user: User | null, roles?: string[]) => {
+  if (!roles || roles.length === 0) return null
+
+  const userRoles = user?.roles || []
+  const hasRequiredRole = roles.some(role => userRoles.includes(role))
+
+  if (!hasRequiredRole) {
+    return (
+      <UnauthorizedScreen
+        message="このページにアクセスする権限がありません"
+        requiredRoles={roles}
+      />
+    )
+  }
+  return null
+}
+
+// 権限認証チェック
+const checkPermissionAuthorization = (user: User | null, permissions?: string[]) => {
+  if (!permissions || permissions.length === 0) return null
+
+  const userPermissions = user?.permissions || []
+  const hasRequiredPermission = permissions.some(permission => userPermissions.includes(permission))
+
+  if (!hasRequiredPermission) {
+    return (
+      <UnauthorizedScreen
+        message="この機能を使用する権限がありません"
+        requiredPermissions={permissions}
+      />
+    )
+  }
+  return null
 }
 
 /**
@@ -37,37 +74,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // ロール・権限チェック
-  if (user) {
-    // ロールチェック
-    if (roles && roles.length > 0) {
-      const userRoles = user.roles || []
-      const hasRequiredRole = roles.some(role => userRoles.includes(role))
-      if (!hasRequiredRole) {
-        return (
-          <UnauthorizedScreen
-            message="このページにアクセスする権限がありません"
-            requiredRoles={roles}
-          />
-        )
-      }
-    }
+  const roleAuthResult = checkRoleAuthorization(user, roles)
+  if (roleAuthResult) return roleAuthResult
 
-    // 権限チェック
-    if (permissions && permissions.length > 0) {
-      const userPermissions = user.permissions || []
-      const hasRequiredPermission = permissions.some(permission =>
-        userPermissions.includes(permission)
-      )
-      if (!hasRequiredPermission) {
-        return (
-          <UnauthorizedScreen
-            message="この機能を使用する権限がありません"
-            requiredPermissions={permissions}
-          />
-        )
-      }
-    }
-  }
+  const permissionAuthResult = checkPermissionAuthorization(user, permissions)
+  if (permissionAuthResult) return permissionAuthResult
 
   // 認証・認可が通った場合
   return <>{children}</>
