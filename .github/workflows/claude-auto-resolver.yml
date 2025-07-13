@@ -18,7 +18,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           # Personal Access Tokenを使用（設定されていない場合はGITHUB_TOKENを使用）
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
             // 優先度順にissueを探す
             const priorities = ['high', 'middle', 'low'];
