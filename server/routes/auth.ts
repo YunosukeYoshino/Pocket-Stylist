@@ -2,29 +2,22 @@ import { Router } from 'express'
 import type { Request, Response } from 'express'
 import { authenticateToken } from '../middleware/auth'
 import { asyncHandler } from '../middleware/errorHandler'
-import { loginSchema, refreshTokenSchema } from '../schemas/user'
+import { auth0LoginSchema, refreshTokenSchema } from '../schemas/user'
 import { AuthService } from '../services/auth'
 import { UserService } from '../services/user'
 
 const router = Router()
 
-// ログイン - Note: loginSchema currently expects email/password, but API uses Auth0 format
-// TODO: Update loginSchema to match Auth0 authentication flow
+// ログイン - Auth0 authentication flow
 router.post(
   '/login',
   asyncHandler(async (req: Request, res: Response) => {
     // 実際の環境では、Auth0からのコールバックまたはフロントエンドから認証済みのユーザー情報を受け取る
     // ここでは簡単な実装として、リクエストボディからユーザー情報を受け取る
 
-    const { auth0Id, email, name, avatarUrl } = req.body
-
-    if (!auth0Id || !email) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        message: 'auth0Id and email are required',
-        timestamp: new Date().toISOString(),
-      })
-    }
+    // リクエストボディのバリデーション
+    const validatedData = auth0LoginSchema.parse(req.body)
+    const { auth0Id, email, name, avatarUrl } = validatedData
 
     const authService = new AuthService(req.prisma)
     const result = await authService.handleLogin({

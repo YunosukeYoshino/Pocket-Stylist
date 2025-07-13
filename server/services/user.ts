@@ -10,13 +10,7 @@ export class UserService {
     this.userRepository = new UserRepository(prisma)
   }
 
-  async getUserProfile(auth0Id: string) {
-    const user = await this.userRepository.findByAuth0Id(auth0Id)
-
-    if (!user) {
-      throw new ApiError('User not found', 404)
-    }
-
+  private formatUserProfile(user: any) {
     return {
       id: user.id,
       email: user.email,
@@ -31,6 +25,16 @@ export class UserService {
     }
   }
 
+  async getUserProfile(auth0Id: string) {
+    const user = await this.userRepository.findByAuth0Id(auth0Id)
+
+    if (!user) {
+      throw new ApiError('User not found', 404)
+    }
+
+    return this.formatUserProfile(user)
+  }
+
   async updateUserProfile(auth0Id: string, data: UpdateUserProfileInput) {
     const user = await this.userRepository.findByAuth0Id(auth0Id)
 
@@ -40,18 +44,7 @@ export class UserService {
 
     const updatedUser = await this.userRepository.update(user.id, data)
 
-    return {
-      id: updatedUser.id,
-      email: updatedUser.email,
-      name: updatedUser.name,
-      avatarUrl: updatedUser.avatarUrl,
-      gender: updatedUser.gender,
-      birthDate: updatedUser.birthDate,
-      phone: updatedUser.phone,
-      preferences: updatedUser.preferences,
-      createdAt: updatedUser.createdAt,
-      updatedAt: updatedUser.updatedAt,
-    }
+    return this.formatUserProfile(updatedUser)
   }
 
   async deleteUserProfile(auth0Id: string) {

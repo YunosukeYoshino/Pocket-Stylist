@@ -13,6 +13,21 @@ export class BodyProfileService {
     this.userRepository = new UserRepository(prisma)
   }
 
+  private formatBodyProfileResponse(bodyProfile: any) {
+    return {
+      id: bodyProfile.id,
+      userId: bodyProfile.userId,
+      height: bodyProfile.height,
+      weight: bodyProfile.weight,
+      bodyType: bodyProfile.bodyType,
+      skinTone: bodyProfile.skinTone,
+      measurements: bodyProfile.measurements,
+      fitPreferences: bodyProfile.fitPreferences,
+      createdAt: bodyProfile.createdAt,
+      updatedAt: bodyProfile.updatedAt,
+    }
+  }
+
   async getBodyProfile(auth0Id: string) {
     // まずユーザーを取得
     const user = await this.userRepository.findByAuth0Id(auth0Id)
@@ -27,18 +42,7 @@ export class BodyProfileService {
       throw new ApiError('Body profile not found', 404)
     }
 
-    return {
-      id: bodyProfile.id,
-      userId: bodyProfile.userId,
-      height: bodyProfile.height,
-      weight: bodyProfile.weight,
-      bodyType: bodyProfile.bodyType,
-      skinTone: bodyProfile.skinTone,
-      measurements: bodyProfile.measurements,
-      fitPreferences: bodyProfile.fitPreferences,
-      createdAt: bodyProfile.createdAt,
-      updatedAt: bodyProfile.updatedAt,
-    }
+    return this.formatBodyProfileResponse(bodyProfile)
   }
 
   async createBodyProfile(auth0Id: string, data: CreateBodyProfileInput) {
@@ -57,18 +61,7 @@ export class BodyProfileService {
     // 新しいボディプロファイルを作成
     const bodyProfile = await this.bodyProfileRepository.create(user.id, data)
 
-    return {
-      id: bodyProfile.id,
-      userId: bodyProfile.userId,
-      height: bodyProfile.height,
-      weight: bodyProfile.weight,
-      bodyType: bodyProfile.bodyType,
-      skinTone: bodyProfile.skinTone,
-      measurements: bodyProfile.measurements,
-      fitPreferences: bodyProfile.fitPreferences,
-      createdAt: bodyProfile.createdAt,
-      updatedAt: bodyProfile.updatedAt,
-    }
+    return this.formatBodyProfileResponse(bodyProfile)
   }
 
   async updateBodyProfile(auth0Id: string, data: UpdateBodyProfileInput) {
@@ -81,18 +74,7 @@ export class BodyProfileService {
     // ボディプロファイルを更新（存在しない場合は作成）
     const bodyProfile = await this.bodyProfileRepository.update(user.id, data)
 
-    return {
-      id: bodyProfile.id,
-      userId: bodyProfile.userId,
-      height: bodyProfile.height,
-      weight: bodyProfile.weight,
-      bodyType: bodyProfile.bodyType,
-      skinTone: bodyProfile.skinTone,
-      measurements: bodyProfile.measurements,
-      fitPreferences: bodyProfile.fitPreferences,
-      createdAt: bodyProfile.createdAt,
-      updatedAt: bodyProfile.updatedAt,
-    }
+    return this.formatBodyProfileResponse(bodyProfile)
   }
 
   async deleteBodyProfile(auth0Id: string) {
