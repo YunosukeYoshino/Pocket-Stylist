@@ -6,7 +6,6 @@
       "TZ": "${localEnv:TZ:America/Los_Angeles}"
     }
   },
-  // Simplified configuration without firewall for easier development setup
   "customizations": {
     "vscode": {
       "extensions": [
