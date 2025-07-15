@@ -8,17 +8,10 @@
   },
   // Network capabilities required for firewall initialization
   // For development environments, consider disabling firewall for simpler setup
-  "runArgs": [
-    "--cap-add=NET_ADMIN",
-    "--cap-add=NET_RAW"
-  ],
+  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
   "customizations": {
     "vscode": {
-      "extensions": [
-        "biomejs.biome",
-        "eamodio.gitlens",
-        "bradlc.vscode-tailwindcss"
-      ],
+      "extensions": ["biomejs.biome", "eamodio.gitlens", "bradlc.vscode-tailwindcss"],
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "biomejs.biome",
