@@ -28,7 +28,7 @@ jobs:
         run: bun run lint
 
       - name: Run tests
-        run: bun run test
+        run: bunx jest
 
       - name: Build check
         run: bun run build:android --dry-run || echo "Build check completed"
