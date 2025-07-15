@@ -85,7 +85,7 @@ async function startServer() {
       console.log(`📖 API docs: http://localhost:${PORT}/v1`)
       console.log(`🔍 Health check: http://localhost:${PORT}/health`)
       console.log(`📊 Metrics: http://localhost:${PORT}/metrics`)
-      console.log(`📝 Request logging enabled`)
+      console.log('📝 Request logging enabled')
     })
   } catch (error) {
     console.error('❌ Failed to start server:', error)

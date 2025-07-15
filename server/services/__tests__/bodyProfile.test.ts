@@ -209,7 +209,7 @@ describe('BodyProfileService', () => {
       expect(result).toEqual({
         message: 'Body profile deleted successfully',
       })
-      expect(bodyProfileService['bodyProfileRepository'].delete).toHaveBeenCalledWith(existingProfile.id)
+      expect(bodyProfileService['bodyProfileRepository'].delete).toHaveBeenCalledWith(userId)
     })
 
     it('should throw ApiError when user not found', async () => {
