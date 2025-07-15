@@ -33,6 +33,13 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       return
     }
 
+    // 基本的な電話番号形式の検証
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/
+    if (!phoneRegex.test(phoneNumber.replace(/[\s-]/g, ''))) {
+      Alert.alert('エラー', '有効な電話番号を入力してください（例: +81-90-1234-5678）')
+      return
+    }
+
     setIsLoading(true)
     try {
       // TODO: Auth0 MFA API を使用してSMSセットアップを実装
@@ -40,8 +47,9 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       console.log('SMS MFA setup for:', phoneNumber)
       setStep('verify')
     } catch (error) {
-      const authError = error as AuthError
-      Alert.alert('セットアップエラー', authError.message)
+      const authError =
+        error instanceof Error ? error : new Error('セットアップエラーが発生しました')
+      Alert.alert('セットアップエラー', authError.message || 'セットアップに失敗しました')
     } finally {
       setIsLoading(false)
     }
@@ -59,8 +67,9 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       setQrCodeUrl('https://example.com/qr-code')
       setStep('verify')
     } catch (error) {
-      const authError = error as AuthError
-      Alert.alert('セットアップエラー', authError.message)
+      const authError =
+        error instanceof Error ? error : new Error('セットアップエラーが発生しました')
+      Alert.alert('セットアップエラー', authError.message || 'セットアップに失敗しました')
     } finally {
       setIsLoading(false)
     }
@@ -79,8 +88,8 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       console.log('MFA verification for:', selectedMethod, verificationCode)
       Alert.alert('成功', 'MFAが正常に設定されました', [{ text: 'OK', onPress: onComplete }])
     } catch (error) {
-      const authError = error as AuthError
-      Alert.alert('認証エラー', authError.message)
+      const authError = error instanceof Error ? error : new Error('認証エラーが発生しました')
+      Alert.alert('認証エラー', authError.message || '認証に失敗しました')
     } finally {
       setIsLoading(false)
     }
@@ -156,21 +165,23 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
         認証コードを受信する電話番号を入力してください
       </Text>
 
-      <TextInput
-        placeholder="電話番号 (例: +81-90-1234-5678)"
-        value={phoneNumber}
-        onChangeText={setPhoneNumber}
-        keyboardType="phone-pad"
-        autoFocus
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 8,
-          padding: 12,
-          fontSize: 16,
-          marginVertical: 8,
-        }}
-      />
+      <View marginVertical="$2">
+        <TextInput
+          placeholder="電話番号 (例: +81-90-1234-5678)"
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="phone-pad"
+          autoFocus
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 16,
+            minHeight: 44,
+          }}
+        />
+      </View>
 
       <Button
         theme="active"
@@ -233,13 +244,12 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       <Button
         theme="active"
         size="$5"
-        onPress={handleTOTPSetup}
+        onPress={() => setStep('verify')}
         disabled={isLoading}
         width="100%"
-        icon={isLoading ? <ActivityIndicator color="white" /> : undefined}
       >
         <Text color="$white1" fontWeight="600">
-          {isLoading ? '設定中...' : '次へ'}
+          次へ
         </Text>
       </Button>
 
@@ -265,24 +275,26 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
           : '認証アプリで生成された6桁のコードを入力してください'}
       </Text>
 
-      <TextInput
-        placeholder="認証コード (6桁)"
-        value={verificationCode}
-        onChangeText={setVerificationCode}
-        keyboardType="numeric"
-        maxLength={6}
-        textAlign="center"
-        autoFocus
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 8,
-          padding: 12,
-          fontSize: 18,
-          fontFamily: 'monospace',
-          marginVertical: 16,
-        }}
-      />
+      <View marginVertical="$4">
+        <TextInput
+          placeholder="認証コード (6桁)"
+          value={verificationCode}
+          onChangeText={setVerificationCode}
+          keyboardType="numeric"
+          maxLength={6}
+          textAlign="center"
+          autoFocus
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 18,
+            fontFamily: 'monospace',
+            minHeight: 44,
+          }}
+        />
+      </View>
 
       <Button
         theme="active"

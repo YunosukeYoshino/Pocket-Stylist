@@ -5,7 +5,6 @@ import type React from 'react'
 import { useState } from 'react'
 import { ActivityIndicator, Alert, TextInput } from 'react-native'
 import type { AuthError, MFAChallenge } from '../../types/auth'
-import { useAuthContext } from './AuthProvider'
 
 interface MFAChallengeScreenProps {
   challenge: MFAChallenge
@@ -35,8 +34,8 @@ export const MFAChallengeScreen: React.FC<MFAChallengeScreenProps> = ({
       console.log('MFA challenge verification:', challenge.challenge_id, verificationCode)
       onComplete()
     } catch (error) {
-      const authError = error as AuthError
-      Alert.alert('認証エラー', authError.message)
+      const authError = error instanceof Error ? error : new Error('認証エラーが発生しました')
+      Alert.alert('認証エラー', authError.message || '認証に失敗しました')
     } finally {
       setIsLoading(false)
     }
@@ -52,8 +51,8 @@ export const MFAChallengeScreen: React.FC<MFAChallengeScreenProps> = ({
       console.log('MFA code resent for challenge:', challenge.challenge_id)
       Alert.alert('成功', '認証コードを再送信しました')
     } catch (error) {
-      const authError = error as AuthError
-      Alert.alert('再送信エラー', authError.message)
+      const authError = error instanceof Error ? error : new Error('再送信エラーが発生しました')
+      Alert.alert('再送信エラー', authError.message || '再送信に失敗しました')
     } finally {
       setResendLoading(false)
     }
@@ -147,24 +146,26 @@ export const MFAChallengeScreen: React.FC<MFAChallengeScreenProps> = ({
         {getMFADescription()}
       </Text>
 
-      <TextInput
-        placeholder="認証コード (6桁)"
-        value={verificationCode}
-        onChangeText={setVerificationCode}
-        keyboardType="numeric"
-        maxLength={6}
-        textAlign="center"
-        autoFocus
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 8,
-          padding: 12,
-          fontSize: 18,
-          fontFamily: 'monospace',
-          marginVertical: 16,
-        }}
-      />
+      <View marginVertical="$4">
+        <TextInput
+          placeholder="認証コード (6桁)"
+          value={verificationCode}
+          onChangeText={setVerificationCode}
+          keyboardType="numeric"
+          maxLength={6}
+          textAlign="center"
+          autoFocus
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 18,
+            fontFamily: 'monospace',
+            minHeight: 44,
+          }}
+        />
+      </View>
 
       <Button
         theme="active"

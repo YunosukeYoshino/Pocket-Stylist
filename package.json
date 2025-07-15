@@ -47,6 +47,7 @@
     "@tamagui/config": "^1.95.3",
     "@tamagui/core": "^1.95.3",
     "@tamagui/font-inter": "^1.95.3",
+    "@tamagui/input": "^1.132.7",
     "@tamagui/theme-base": "^1.95.3",
     "expo": "~50.0.0",
     "expo-auth-session": "^6.2.1",
