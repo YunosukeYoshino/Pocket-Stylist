@@ -1,7 +1,7 @@
 import request from 'supertest'
 import express from 'express'
 import { authRouter } from '../auth'
-import { PrismaClient } from '@prisma/client'
+import type { PrismaClient } from '@prisma/client'
 
 // Mock authentication middleware
 jest.mock('../../middleware/auth', () => ({

@@ -33,8 +33,8 @@ app.use(
 
 // レート制限
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分
-  max: 100, // 15分間に最大100リクエスト
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 900000, // 15分 (900000ms)
+  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // 15分間に最大100リクエスト
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -113,8 +113,13 @@ declare global {
       prisma: PrismaClient
       user?: {
         sub: string
-        email: string
-        [key: string]: any
+        email?: string
+        iat?: number
+        exp?: number
+        aud?: string | string[]
+        iss?: string
+        scope?: string
+        permissions?: string[]
       }
     }
   }

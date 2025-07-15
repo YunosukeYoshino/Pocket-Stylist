@@ -105,14 +105,6 @@ export const bodyProfileResponseSchema = z.object({
 })
 
 // Auth schemas
-// TODO: This schema doesn't match the current Auth0-based login API
-// Consider updating to match the actual API format or creating a separate schema
-export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-})
-
-// Schema that matches the current Auth0 login implementation
 export const auth0LoginSchema = z.object({
   auth0Id: z.string(),
   email: z.string().email(),
@@ -161,7 +153,6 @@ export type UserResponse = z.infer<typeof userResponseSchema>
 export type CreateBodyProfileInput = z.infer<typeof createBodyProfileSchema>
 export type UpdateBodyProfileInput = z.infer<typeof updateBodyProfileSchema>
 export type BodyProfileResponse = z.infer<typeof bodyProfileResponseSchema>
-export type LoginInput = z.infer<typeof loginSchema>
 export type Auth0LoginInput = z.infer<typeof auth0LoginSchema>
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>
 export type TokenResponse = z.infer<typeof tokenResponseSchema>

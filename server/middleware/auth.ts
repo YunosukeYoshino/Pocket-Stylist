@@ -30,7 +30,15 @@ function getKey(header: JwtHeader, callback: (err: any, key?: string) => void) {
 interface DecodedToken {
   sub: string
   email?: string
-  [key: string]: any
+  iat?: number
+  exp?: number
+  aud?: string | string[]
+  iss?: string
+  // Auth0 specific claims
+  scope?: string
+  permissions?: string[]
+  // Custom claims with namespace
+  [key: `${string}/email`]: string | undefined
 }
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
