@@ -17,9 +17,10 @@ const performAuthorizationCheck = (
 ): boolean => {
   if (!user) return false
 
-  const hasRoles = !roles || roles.length === 0 ||
-    roles.some(role => user.roles?.includes(role))
-  const hasPermissions = !permissions || permissions.length === 0 ||
+  const hasRoles = !roles || roles.length === 0 || roles.some(role => user.roles?.includes(role))
+  const hasPermissions =
+    !permissions ||
+    permissions.length === 0 ||
     permissions.some(permission => user.permissions?.includes(permission))
 
   return hasRoles && hasPermissions
