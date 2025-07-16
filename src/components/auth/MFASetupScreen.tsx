@@ -1,11 +1,27 @@
 import { Button } from '@tamagui/button'
-import { Stack, Text, View } from '@tamagui/core'
+import { Stack, Text, View, styled } from '@tamagui/core'
 import { StatusBar } from 'expo-status-bar'
 import type React from 'react'
 import { useState } from 'react'
 import { ActivityIndicator, Alert, TextInput } from 'react-native'
 import type { AuthError } from '../../types/auth'
 import { useAuthContext } from './AuthProvider'
+
+const StyledTextInput = styled(TextInput, {
+  borderWidth: 1,
+  borderColor: '$borderColor',
+  borderRadius: '$4',
+  padding: '$3',
+  minHeight: 44,
+})
+
+const StyledCodeInput = styled(TextInput, {
+  borderWidth: 1,
+  borderColor: '$borderColor',
+  borderRadius: '$4',
+  padding: '$3',
+  minHeight: 44,
+})
 
 interface MFASetupScreenProps {
   onComplete: () => void
@@ -166,20 +182,13 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       </Text>
 
       <View marginVertical="$2">
-        <TextInput
+        <StyledTextInput
           placeholder="電話番号 (例: +81-90-1234-5678)"
           value={phoneNumber}
           onChangeText={setPhoneNumber}
           keyboardType="phone-pad"
           autoFocus
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 16,
-            minHeight: 44,
-          }}
+          style={{ fontSize: 16 }}
         />
       </View>
 
@@ -276,7 +285,7 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
       </Text>
 
       <View marginVertical="$4">
-        <TextInput
+        <StyledCodeInput
           placeholder="認証コード (6桁)"
           value={verificationCode}
           onChangeText={setVerificationCode}
@@ -284,15 +293,7 @@ export const MFASetupScreen: React.FC<MFASetupScreenProps> = ({ onComplete, onCa
           maxLength={6}
           textAlign="center"
           autoFocus
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 18,
-            fontFamily: 'monospace',
-            minHeight: 44,
-          }}
+          style={{ fontSize: 18, fontFamily: 'monospace' }}
         />
       </View>
 

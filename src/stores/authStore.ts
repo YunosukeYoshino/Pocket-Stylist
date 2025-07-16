@@ -52,6 +52,22 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions
 
+// 高階関数で共通処理を抽象化
+const createAsyncAuthAction =
+  <T extends unknown[], R>(asyncFn: (...args: T) => Promise<R>) =>
+  async (set: (state: Partial<AuthState>) => void, ...args: T): Promise<R> => {
+    set({ isLoading: true, error: null })
+    try {
+      const result = await asyncFn(...args)
+      set({ isLoading: false, error: null })
+      return result
+    } catch (error) {
+      const authError = error instanceof Error ? error : new Error('認証エラー')
+      set({ isLoading: false, error: authError.message })
+      throw error
+    }
+  }
+
 // SecureStore アダプター（Zustandの永続化用）
 const secureStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -326,50 +342,20 @@ export const useAuthStore = create<AuthStore>()(
 
       // MFA関連のアクション
       setupSMSMFA: async phoneNumber => {
-        set({ isLoading: true, error: null })
-        try {
-          const challengeId = await authService.setupSMSMFA(phoneNumber)
-          set({ isLoading: false, error: null })
-          return challengeId
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        return await createAsyncAuthAction(authService.setupSMSMFA)(set, phoneNumber)
       },
 
       setupTOTPMFA: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const result = await authService.setupTOTPMFA()
-          set({ isLoading: false, error: null })
-          return result
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        return await createAsyncAuthAction(authService.setupTOTPMFA)(set)
       },
 
       verifyMFASetup: async (method, code, challengeId) => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.verifyMFASetup(method, code, challengeId)
-          set({ isLoading: false, error: null })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        return await createAsyncAuthAction(authService.verifyMFASetup)(
+          set,
+          method,
+          code,
+          challengeId
+        )
       },
 
       verifyMFAChallenge: async (challengeId, code) => {
@@ -383,7 +369,7 @@ export const useAuthStore = create<AuthStore>()(
             mfaRequired: false,
           })
         } catch (error) {
-          const authError = error as AuthError
+          const authError = error instanceof Error ? error : new Error('認証エラー')
           set({
             isLoading: false,
             error: authError.message,
@@ -393,49 +379,15 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       resendMFACode: async challengeId => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.resendMFACode(challengeId)
-          set({ isLoading: false, error: null })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        return await createAsyncAuthAction(authService.resendMFACode)(set, challengeId)
       },
 
       getMFASettings: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const settings = await authService.getMFASettings()
-          set({ isLoading: false, error: null })
-          return settings
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        return await createAsyncAuthAction(authService.getMFASettings)(set)
       },
 
       disableMFA: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.disableMFA()
-          set({ isLoading: false, error: null })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
+        return await createAsyncAuthAction(authService.disableMFA)(set)
       },
 
       setMFAChallenge: challenge => {

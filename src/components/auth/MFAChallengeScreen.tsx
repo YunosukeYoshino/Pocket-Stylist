@@ -1,10 +1,18 @@
 import { Button } from '@tamagui/button'
-import { Stack, Text, View } from '@tamagui/core'
+import { Stack, Text, View, styled } from '@tamagui/core'
 import { StatusBar } from 'expo-status-bar'
 import type React from 'react'
 import { useState } from 'react'
 import { ActivityIndicator, Alert, TextInput } from 'react-native'
 import type { AuthError, MFAChallenge } from '../../types/auth'
+
+const StyledTextInput = styled(TextInput, {
+  borderWidth: 1,
+  borderColor: '$borderColor',
+  borderRadius: '$4',
+  padding: '$3',
+  minHeight: 44,
+})
 
 interface MFAChallengeScreenProps {
   challenge: MFAChallenge
@@ -147,7 +155,7 @@ export const MFAChallengeScreen: React.FC<MFAChallengeScreenProps> = ({
       </Text>
 
       <View marginVertical="$4">
-        <TextInput
+        <StyledTextInput
           placeholder="認証コード (6桁)"
           value={verificationCode}
           onChangeText={setVerificationCode}
@@ -155,15 +163,7 @@ export const MFAChallengeScreen: React.FC<MFAChallengeScreenProps> = ({
           maxLength={6}
           textAlign="center"
           autoFocus
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 18,
-            fontFamily: 'monospace',
-            minHeight: 44,
-          }}
+          style={{ fontSize: 18, fontFamily: 'monospace' }}
         />
       </View>
 
