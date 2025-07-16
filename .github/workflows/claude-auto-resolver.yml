@@ -33,64 +33,64 @@ jobs:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           set -e  # スクリプトエラーで停止
-          
+
           # 優先度順にissueを探す
           priorities=("high" "middle" "low")
           processed_label="claude-code-requested"
-          
+
           for priority in "${priorities[@]}"; do
             echo "🔍 Processing priority: $priority"
-            
+
             # 優先度ラベルがついたissueを取得（作成日時の降順）
             echo "Fetching issues with label '$priority'..."
             issues=$(gh issue list --label "$priority" --state open --json number,title,body,labels --limit 100)
-            
+
             if [ "$issues" = "[]" ]; then
               echo "No issues found for priority: $priority"
               continue
             fi
-            
+
             # 未処理のissueを探す
             unprocessed_issue=$(echo "$issues" | jq -r --arg processed_label "$processed_label" '
               .[] | select(.labels | map(.name) | contains([$processed_label]) | not) | .number
             ' | head -1)
-            
+
             if [ "$unprocessed_issue" != "" ] && [ "$unprocessed_issue" != "null" ]; then
               echo "✅ Found unprocessed issue: #$unprocessed_issue"
-              
+
               # Issue情報を取得
               issue_info=$(echo "$issues" | jq -r --arg number "$unprocessed_issue" '.[] | select(.number == ($number | tonumber))')
               issue_title=$(echo "$issue_info" | jq -r '.title')
               issue_body=$(echo "$issue_info" | jq -r '.body // "説明なし"')
-              
+
               # コメント本文を作成
               comment_text="@claude このIssue #${unprocessed_issue} を解決してください。"
               comment_text="$comment_text
 
-以下の内容に基づいて、具体的な実装方針と必要なコード変更を提案してください：
+              以下の内容に基づいて、具体的な実装方針と必要なコード変更を提案してください：
 
-タイトル: ${issue_title}
+              タイトル: ${issue_title}
 
-説明:
-${issue_body}
+              説明:
+              ${issue_body}
 
-優先度: ${priority}"
-              
+              優先度: ${priority}"
+
               echo "📝 Posting comment to issue #$unprocessed_issue"
               gh issue comment "$unprocessed_issue" --body "$comment_text"
-              
+
               # 処理済みラベルを追加
               echo "🏷️ Adding processed label to issue #$unprocessed_issue"
               gh issue edit "$unprocessed_issue" --add-label "$processed_label"
-              
+
               echo "🚀 Claude Code Action will be triggered by the mention"
-              
+
               exit 0  # 1つのissueのみ処理して終了
             else
               echo "No unprocessed issues found for priority: $priority"
             fi
           done
-          
+
           echo "ℹ️ No unprocessed issues found across all priorities"
 
 # ... (省略)
