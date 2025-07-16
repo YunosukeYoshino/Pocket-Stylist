@@ -118,7 +118,7 @@ export class AuthService {
 
       // Use Auth0's token endpoint for proper token refresh
       const tokenUrl = `https://${auth0Domain}/oauth/token`
-      
+
       const response = await fetch(tokenUrl, {
         method: 'POST',
         headers: {

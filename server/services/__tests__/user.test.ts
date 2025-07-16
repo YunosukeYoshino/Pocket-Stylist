@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client'
-import { UserService } from '../user'
 import { ApiError } from '../../middleware/errorHandler'
+import { UserService } from '../user'
 
 describe('UserService', () => {
   let userService: UserService
@@ -40,7 +40,7 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(mockUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(mockUser as any)
 
       const result = await userService.getUserProfile(auth0Id)
 
@@ -61,7 +61,7 @@ describe('UserService', () => {
     it('should throw ApiError when user not found', async () => {
       const auth0Id = 'auth0|123'
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(userService.getUserProfile(auth0Id)).rejects.toThrow(ApiError)
       await expect(userService.getUserProfile(auth0Id)).rejects.toThrow('User not found')
@@ -81,6 +81,13 @@ describe('UserService', () => {
         email: 'test@example.com',
         name: 'Test User',
         auth0Id,
+        avatarUrl: null,
+        gender: null,
+        birthDate: null,
+        phone: null,
+        preferences: {},
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       const updatedUser = {
@@ -89,8 +96,8 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(existingUser as any)
-      jest.spyOn(userService['userRepository'], 'update').mockResolvedValue(updatedUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(existingUser as any)
+      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as any)
 
       const result = await userService.updateUserProfile(auth0Id, updateData)
 
@@ -112,10 +119,12 @@ describe('UserService', () => {
       const auth0Id = 'auth0|123'
       const updateData = { name: 'Updated Name' }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(userService.updateUserProfile(auth0Id, updateData)).rejects.toThrow(ApiError)
-      await expect(userService.updateUserProfile(auth0Id, updateData)).rejects.toThrow('User not found')
+      await expect(userService.updateUserProfile(auth0Id, updateData)).rejects.toThrow(
+        'User not found'
+      )
     })
   })
 
@@ -125,24 +134,32 @@ describe('UserService', () => {
       const existingUser = {
         id: 'user-id',
         email: 'test@example.com',
+        name: 'Test User',
         auth0Id,
+        avatarUrl: null,
+        gender: null,
+        birthDate: null,
+        phone: null,
+        preferences: {},
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(existingUser as any)
-      jest.spyOn(userService['userRepository'], 'delete').mockResolvedValue(undefined)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(existingUser as any)
+      jest.spyOn(userService.userRepository, 'delete').mockResolvedValue(existingUser as any)
 
       const result = await userService.deleteUserProfile(auth0Id)
 
       expect(result).toEqual({
         message: 'User profile deleted successfully',
       })
-      expect(userService['userRepository'].delete).toHaveBeenCalledWith(existingUser.id)
+      expect(userService.userRepository.delete).toHaveBeenCalledWith(existingUser.id)
     })
 
     it('should throw ApiError when user not found for deletion', async () => {
       const auth0Id = 'auth0|123'
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(userService.deleteUserProfile(auth0Id)).rejects.toThrow(ApiError)
       await expect(userService.deleteUserProfile(auth0Id)).rejects.toThrow('User not found')
@@ -164,12 +181,12 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(existingUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(existingUser as any)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(existingUser)
-      expect(userService['userRepository'].findByAuth0Id).toHaveBeenCalledWith(userData.auth0Id)
+      expect(userService.userRepository.findByAuth0Id).toHaveBeenCalledWith(userData.auth0Id)
     })
 
     it('should return existing user when found by email', async () => {
@@ -186,14 +203,14 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService['userRepository'], 'findByEmail').mockResolvedValue(existingUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as any)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(existingUser)
-      expect(userService['userRepository'].findByAuth0Id).toHaveBeenCalledWith(userData.auth0Id)
-      expect(userService['userRepository'].findByEmail).toHaveBeenCalledWith(userData.email)
+      expect(userService.userRepository.findByAuth0Id).toHaveBeenCalledWith(userData.auth0Id)
+      expect(userService.userRepository.findByEmail).toHaveBeenCalledWith(userData.email)
     })
 
     it('should create new user when not found', async () => {
@@ -211,14 +228,14 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService['userRepository'], 'findByEmail').mockResolvedValue(null)
-      jest.spyOn(userService['userRepository'], 'create').mockResolvedValue(newUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'create').mockResolvedValue(newUser as any)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(newUser)
-      expect(userService['userRepository'].create).toHaveBeenCalledWith({
+      expect(userService.userRepository.create).toHaveBeenCalledWith({
         email: userData.email,
         auth0Id: userData.auth0Id,
         name: userData.name,
@@ -249,14 +266,14 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService['userRepository'], 'findByEmail').mockResolvedValue(existingUser as any)
-      jest.spyOn(userService['userRepository'], 'update').mockResolvedValue(updatedUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as any)
+      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as any)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(updatedUser)
-      expect(userService['userRepository'].update).toHaveBeenCalledWith(existingUser.id, {
+      expect(userService.userRepository.update).toHaveBeenCalledWith(existingUser.id, {
         auth0Id: userData.auth0Id,
         name: userData.name,
       })

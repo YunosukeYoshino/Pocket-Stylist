@@ -1,7 +1,7 @@
-import request from 'supertest'
-import express from 'express'
-import { authRouter } from '../auth'
 import type { PrismaClient } from '@prisma/client'
+import express from 'express'
+import request from 'supertest'
+import { authRouter } from '../auth'
 
 // Mock authentication middleware
 jest.mock('../../middleware/auth', () => ({
@@ -18,7 +18,7 @@ describe('Auth Routes', () => {
   beforeEach(() => {
     app = express()
     app.use(express.json())
-    
+
     mockPrisma = {
       user: {
         findUnique: jest.fn(),
@@ -57,13 +57,10 @@ describe('Auth Routes', () => {
       }
 
       // Mock the user creation/retrieval
-      mockPrisma.user.findUnique.mockResolvedValue(null) // User doesn't exist
-      mockPrisma.user.create.mockResolvedValue(mockUser as any)
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null) // User doesn't exist
+      ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(mockUser as any)
 
-      const response = await request(app)
-        .post('/auth/login')
-        .send(loginData)
-        .expect(200)
+      const response = await request(app).post('/auth/login').send(loginData).expect(200)
 
       expect(response.body.data.user).toEqual({
         id: mockUser.id,
@@ -80,10 +77,7 @@ describe('Auth Routes', () => {
         // Missing auth0Id
       }
 
-      const response = await request(app)
-        .post('/auth/login')
-        .send(incompleteData)
-        .expect(400)
+      const response = await request(app).post('/auth/login').send(incompleteData).expect(400)
 
       expect(response.body.error).toBeDefined()
     })
@@ -95,12 +89,9 @@ describe('Auth Routes', () => {
       }
 
       // Mock database error
-      mockPrisma.user.findUnique.mockRejectedValue(new Error('Database error'))
+      ;(mockPrisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('Database error'))
 
-      const response = await request(app)
-        .post('/auth/login')
-        .send(loginData)
-        .expect(500)
+      const response = await request(app).post('/auth/login').send(loginData).expect(500)
 
       expect(response.body.error).toBeDefined()
     })
@@ -123,26 +114,19 @@ describe('Auth Routes', () => {
         expires_in: 3600,
         token_type: 'Bearer',
       }
-
       ;(global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockResponse),
       })
 
-      const response = await request(app)
-        .post('/auth/refresh')
-        .send(refreshData)
-        .expect(200)
+      const response = await request(app).post('/auth/refresh').send(refreshData).expect(200)
 
       expect(response.body.data.accessToken).toBe(mockResponse.access_token)
       expect(response.body.data.refreshToken).toBe(mockResponse.refresh_token)
     })
 
     it('should return 400 for missing refresh token', async () => {
-      const response = await request(app)
-        .post('/auth/refresh')
-        .send({})
-        .expect(400)
+      const response = await request(app).post('/auth/refresh').send({}).expect(400)
 
       expect(response.body.error).toBeDefined()
     })
@@ -151,16 +135,12 @@ describe('Auth Routes', () => {
       const refreshData = {
         refreshToken: 'invalid-refresh-token',
       }
-
       ;(global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         json: () => Promise.resolve({ error: 'invalid_grant' }),
       })
 
-      const response = await request(app)
-        .post('/auth/refresh')
-        .send(refreshData)
-        .expect(401)
+      const response = await request(app).post('/auth/refresh').send(refreshData).expect(401)
 
       expect(response.body.error).toBeDefined()
     })
@@ -168,9 +148,7 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/logout', () => {
     it('should logout successfully', async () => {
-      const response = await request(app)
-        .post('/auth/logout')
-        .expect(200)
+      const response = await request(app).post('/auth/logout').expect(200)
 
       expect(response.body.data.message).toBe('Logout successful')
     })
@@ -195,9 +173,7 @@ describe('Auth Routes', () => {
         },
       }))
 
-      const response = await request(app)
-        .get('/auth/validate')
-        .expect(401)
+      const response = await request(app).get('/auth/validate').expect(401)
 
       expect(response.body.error).toBeDefined()
     })
@@ -217,8 +193,7 @@ describe('Auth Routes', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-
-      mockPrisma.user.findUnique.mockResolvedValue(mockUser as any)
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser as any)
 
       const response = await request(app)
         .get('/auth/me')
@@ -231,7 +206,7 @@ describe('Auth Routes', () => {
     })
 
     it('should return 404 when user not found', async () => {
-      mockPrisma.user.findUnique.mockResolvedValue(null)
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null)
 
       const response = await request(app)
         .get('/auth/me')
@@ -250,7 +225,12 @@ declare global {
       user?: {
         sub: string
         email?: string
-        [key: string]: any
+        iat?: number
+        exp?: number
+        aud?: string | string[]
+        iss?: string
+        scope?: string
+        permissions?: string[]
       }
     }
   }

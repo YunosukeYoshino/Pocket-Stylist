@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express'
+import type { NextFunction, Request, Response } from 'express'
 
 interface RequestMetrics {
   method: string
@@ -85,7 +85,12 @@ class MonitoringService {
     }
   }
 
-  recordResponse(requestData: RequestMetrics, responseTime: number, statusCode: number, contentLength?: number): void {
+  recordResponse(
+    requestData: RequestMetrics,
+    responseTime: number,
+    statusCode: number,
+    contentLength?: number
+  ): void {
     this.metrics.currentConcurrentRequests--
 
     // Update response time metrics
@@ -114,7 +119,7 @@ class MonitoringService {
     this.metrics.currentConcurrentRequests--
     this.metrics.errorCount++
     requestData.error = error.message
-    
+
     // Log error
     console.error(`[ERROR] ${requestData.method} ${requestData.path}`, {
       error: error.message,
@@ -152,13 +157,16 @@ class MonitoringService {
       ...(requestData.auth0Id && { auth0Id: requestData.auth0Id }),
       ...(requestData.userId && { userId: requestData.userId }),
       ...(requestData.error && { error: requestData.error }),
-      ...(logLevel === 'debug' && { 
+      ...(logLevel === 'debug' && {
         ip: requestData.ip,
-        userAgent: requestData.userAgent 
+        userAgent: requestData.userAgent,
       }),
     }
 
-    logMethod(`${logPrefix} ${requestData.method} ${requestData.path} - ${requestData.statusCode} (${requestData.responseTime}ms)`, logEntry)
+    logMethod(
+      `${logPrefix} ${requestData.method} ${requestData.path} - ${requestData.statusCode} (${requestData.responseTime}ms)`,
+      logEntry
+    )
   }
 
   private normalizePath(path: string): string {
@@ -184,7 +192,7 @@ class MonitoringService {
   getHealthStatus(): { status: string; uptime: number; metrics: any } {
     const uptime = process.uptime()
     const memoryUsage = process.memoryUsage()
-    
+
     return {
       status: 'healthy',
       uptime,
@@ -198,9 +206,10 @@ class MonitoringService {
         },
         performance: {
           averageResponseTimeMs: Math.round(this.metrics.averageResponseTime),
-          errorRate: this.metrics.totalRequests > 0 
-            ? Math.round((this.metrics.errorCount / this.metrics.totalRequests) * 100 * 100) / 100 
-            : 0,
+          errorRate:
+            this.metrics.totalRequests > 0
+              ? Math.round((this.metrics.errorCount / this.metrics.totalRequests) * 100 * 100) / 100
+              : 0,
         },
       },
     }
@@ -234,7 +243,7 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
     path: req.path,
     userAgent: req.get('User-Agent'),
     ip: req.ip || req.connection.remoteAddress || 'unknown',
-    userId: req.user?.id,
+    userId: req.user?.sub,
     auth0Id: req.user?.sub,
     timestamp: new Date(),
   }
@@ -244,18 +253,20 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
 
   // Capture original res.end to intercept response
   const originalEnd = res.end
-  res.end = function(chunk?: any, encoding?: any): Response {
+  res.end = function (chunk?: any, encoding?: any): Response {
     const responseTime = Date.now() - startTime
-    const contentLength = res.get('Content-Length') ? parseInt(res.get('Content-Length')!) : undefined
+    const contentLength = res.get('Content-Length')
+      ? Number.parseInt(res.get('Content-Length')!)
+      : undefined
 
     monitoringService.recordResponse(requestData, responseTime, res.statusCode, contentLength)
-    
+
     // Call original end method
     return originalEnd.call(this, chunk, encoding)
   }
 
   // Handle errors
-  res.on('error', (error) => {
+  res.on('error', error => {
     monitoringService.recordError(requestData, error)
   })
 
@@ -272,7 +283,7 @@ export const healthCheckMiddleware = (req: Request, res: Response): void => {
 export const metricsMiddleware = (req: Request, res: Response): void => {
   const metrics = monitoringService.getMetrics()
   const recentRequests = monitoringService.getRecentRequests(50)
-  
+
   res.json({
     metrics,
     recentRequests,

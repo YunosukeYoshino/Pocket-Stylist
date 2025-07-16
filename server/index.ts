@@ -6,7 +6,11 @@ import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
 
 import { errorHandler } from './middleware/errorHandler'
-import { requestLoggingMiddleware, healthCheckMiddleware, metricsMiddleware } from './middleware/monitoring'
+import {
+  healthCheckMiddleware,
+  metricsMiddleware,
+  requestLoggingMiddleware,
+} from './middleware/monitoring'
 import { notFoundHandler } from './middleware/notFoundHandler'
 import { authRouter } from './routes/auth'
 import { bodyProfileRouter } from './routes/body-profile'

@@ -5,7 +5,11 @@ module.exports = {
       displayName: 'React Native',
       preset: 'jest-expo',
       testEnvironment: 'jsdom',
-      testMatch: ['<rootDir>/app/**/*.test.{ts,tsx}', '<rootDir>/components/**/*.test.{ts,tsx}', '<rootDir>/hooks/**/*.test.{ts,tsx}'],
+      testMatch: [
+        '<rootDir>/app/**/*.test.{ts,tsx}',
+        '<rootDir>/components/**/*.test.{ts,tsx}',
+        '<rootDir>/hooks/**/*.test.{ts,tsx}',
+      ],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1',
@@ -43,11 +47,7 @@ module.exports = {
         '!server/jest.setup.js',
         '!server/index.ts', // Entry point usually excluded from coverage
       ],
-      coveragePathIgnorePatterns: [
-        '/node_modules/',
-        '/dist/',
-        '/coverage/',
-      ],
+      coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
     },
   ],
   coverageReporters: ['text', 'lcov', 'html'],

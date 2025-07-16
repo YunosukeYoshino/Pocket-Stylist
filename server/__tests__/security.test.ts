@@ -1,8 +1,8 @@
-import request from 'supertest'
+import cors from 'cors'
 import express from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
-import cors from 'cors'
+import request from 'supertest'
 import { app } from '../index'
 
 describe('Security Tests', () => {
@@ -12,7 +12,7 @@ describe('Security Tests', () => {
     beforeEach(() => {
       testApp = express()
       testApp.use(express.json())
-      
+
       // Apply a very restrictive rate limit for testing
       const testLimiter = rateLimit({
         windowMs: 1000, // 1 second
@@ -21,7 +21,7 @@ describe('Security Tests', () => {
         standardHeaders: true,
         legacyHeaders: false,
       })
-      
+
       testApp.use(testLimiter)
       testApp.get('/test', (req, res) => res.json({ success: true }))
     })
@@ -43,10 +43,12 @@ describe('Security Tests', () => {
 
     beforeEach(() => {
       testApp = express()
-      testApp.use(cors({
-        origin: ['http://localhost:3000'],
-        credentials: true,
-      }))
+      testApp.use(
+        cors({
+          origin: ['http://localhost:3000'],
+          credentials: true,
+        })
+      )
       testApp.get('/test', (req, res) => res.json({ success: true }))
     })
 
@@ -78,9 +80,7 @@ describe('Security Tests', () => {
     })
 
     it('should set security headers', async () => {
-      const response = await request(testApp)
-        .get('/test')
-        .expect(200)
+      const response = await request(testApp).get('/test').expect(200)
 
       expect(response.headers['x-frame-options']).toBeDefined()
       expect(response.headers['x-content-type-options']).toBe('nosniff')
@@ -89,12 +89,10 @@ describe('Security Tests', () => {
     })
 
     it('should not expose sensitive headers', async () => {
-      const response = await request(testApp)
-        .get('/test')
-        .expect(200)
+      const response = await request(testApp).get('/test').expect(200)
 
       expect(response.headers['x-powered-by']).toBeUndefined()
-      expect(response.headers['server']).toBeUndefined()
+      expect(response.headers.server).toBeUndefined()
     })
   })
 
@@ -104,7 +102,7 @@ describe('Security Tests', () => {
     beforeEach(() => {
       testApp = express()
       testApp.use(express.json({ limit: '1mb' }))
-      
+
       testApp.post('/test', (req, res) => {
         // Simple validation test
         const { email, name } = req.body
@@ -127,10 +125,7 @@ describe('Security Tests', () => {
         data: 'x'.repeat(2 * 1024 * 1024), // 2MB payload
       }
 
-      await request(testApp)
-        .post('/test')
-        .send(largePayload)
-        .expect(413) // Payload Too Large
+      await request(testApp).post('/test').send(largePayload).expect(413) // Payload Too Large
     })
 
     it('should reject malformed JSON', async () => {
@@ -150,9 +145,7 @@ describe('Security Tests', () => {
       }
 
       // This should be safely handled by Prisma's parameterized queries
-      const response = await request(app)
-        .post('/v1/auth/login')
-        .send(maliciousPayload)
+      const response = await request(app).post('/v1/auth/login').send(maliciousPayload)
 
       // Should either fail validation or be safely processed
       expect([200, 400, 422].includes(response.status)).toBe(true)
@@ -167,9 +160,7 @@ describe('Security Tests', () => {
         name: '<script>alert("XSS")</script>',
       }
 
-      const response = await request(app)
-        .post('/v1/auth/login')
-        .send(xssPayload)
+      const response = await request(app).post('/v1/auth/login').send(xssPayload)
 
       if (response.status === 200) {
         // If successful, ensure the script tag is not present in response
@@ -180,9 +171,7 @@ describe('Security Tests', () => {
 
   describe('Authorization Tests', () => {
     it('should require authentication for protected routes', async () => {
-      await request(app)
-        .get('/v1/users/profile')
-        .expect(401) // Unauthorized
+      await request(app).get('/v1/users/profile').expect(401) // Unauthorized
     })
 
     it('should reject invalid JWT tokens', async () => {
@@ -206,9 +195,7 @@ describe('Security Tests', () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'production'
 
-      const response = await request(app)
-        .get('/v1/nonexistent-endpoint')
-        .expect(404)
+      const response = await request(app).get('/v1/nonexistent-endpoint').expect(404)
 
       expect(response.body.stack).toBeUndefined()
       expect(response.body.trace).toBeUndefined()
@@ -218,9 +205,7 @@ describe('Security Tests', () => {
     })
 
     it('should not expose sensitive server information', async () => {
-      const response = await request(app)
-        .get('/health')
-        .expect(200)
+      const response = await request(app).get('/health').expect(200)
 
       // Health check should not expose sensitive information
       expect(response.body.databaseUrl).toBeUndefined()
@@ -231,9 +216,7 @@ describe('Security Tests', () => {
 
   describe('Content Security Policy', () => {
     it('should set appropriate CSP headers for API responses', async () => {
-      const response = await request(app)
-        .get('/health')
-        .expect(200)
+      const response = await request(app).get('/health').expect(200)
 
       // Check for security headers
       expect(response.headers['content-type']).toContain('application/json')
@@ -244,7 +227,8 @@ describe('Security Tests', () => {
   describe('Authentication Security', () => {
     it('should handle JWT token expiration gracefully', async () => {
       // Mock an expired token
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid'
+      const expiredToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyMzkwMjJ9.invalid'
 
       await request(app)
         .get('/v1/users/profile')
@@ -254,7 +238,8 @@ describe('Security Tests', () => {
 
     it('should validate JWT token signature', async () => {
       // Token with invalid signature
-      const invalidSignatureToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid-signature'
+      const invalidSignatureToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid-signature'
 
       await request(app)
         .get('/v1/users/profile')

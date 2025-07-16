@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
-import { AuthService } from '../auth'
 import { ApiError } from '../../middleware/errorHandler'
+import { AuthService } from '../auth'
 
 // Mock the fetch function
 global.fetch = jest.fn()
@@ -44,7 +44,7 @@ describe('AuthService', () => {
       }
 
       // Mock UserService.findOrCreateUser
-      jest.spyOn(authService['userService'], 'findOrCreateUser').mockResolvedValue(mockUser as any)
+      jest.spyOn(authService.userService, 'findOrCreateUser').mockResolvedValue(mockUser as any)
 
       const result = await authService.handleLogin(userData)
 
@@ -66,7 +66,9 @@ describe('AuthService', () => {
       }
 
       // Mock UserService.findOrCreateUser to throw error
-      jest.spyOn(authService['userService'], 'findOrCreateUser').mockRejectedValue(new Error('Database error'))
+      jest
+        .spyOn(authService.userService, 'findOrCreateUser')
+        .mockRejectedValue(new Error('Database error'))
 
       await expect(authService.handleLogin(userData)).rejects.toThrow(ApiError)
     })
@@ -96,7 +98,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
       } as any)
 
-      jest.spyOn(authService['userService'], 'getUserProfile').mockResolvedValue(mockUser as any)
+      jest.spyOn(authService.userService, 'getUserProfile').mockResolvedValue(mockUser as any)
 
       const result = await authService.validateToken(token)
 
@@ -191,7 +193,7 @@ describe('AuthService', () => {
     it('should fall back to local token refresh when Auth0 not configured', async () => {
       // Temporarily remove Auth0 config
       const originalDomain = process.env.AUTH0_DOMAIN
-      delete process.env.AUTH0_DOMAIN
+      process.env.AUTH0_DOMAIN = undefined
 
       const refreshToken = 'valid-refresh-token'
       const mockAccessToken = 'new-access-token'
@@ -220,7 +222,6 @@ describe('AuthService', () => {
 
     it('should handle Auth0 API errors', async () => {
       const refreshToken = 'invalid-refresh-token'
-
       ;(global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         json: () => Promise.resolve({ error: 'invalid_grant' }),
@@ -231,7 +232,6 @@ describe('AuthService', () => {
 
     it('should handle network errors', async () => {
       const refreshToken = 'valid-refresh-token'
-
       ;(global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'))
 
       await expect(authService.refreshAccessToken(refreshToken)).rejects.toThrow(ApiError)

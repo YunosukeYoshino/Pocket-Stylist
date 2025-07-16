@@ -57,7 +57,7 @@ router.post(
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
     const authService = new AuthService(req.prisma)
-    const result = await authService.handleLogout(req.user!.sub)
+    const result = await authService.handleLogout(req.user?.sub)
 
     res.json({
       data: result,
@@ -90,7 +90,7 @@ router.get(
     // User is already validated by authenticateToken middleware
     // Get user profile directly using req.user.sub
     const userService = new UserService(req.prisma)
-    const userProfile = await userService.getUserProfile(req.user!.sub)
+    const userProfile = await userService.getUserProfile(req.user?.sub)
 
     res.json({
       data: userProfile,
