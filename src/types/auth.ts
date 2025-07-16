@@ -34,6 +34,8 @@ export interface AuthState {
   refreshToken: string | null
   idToken: string | null
   error: string | null
+  mfaChallenge: MFAChallenge | null
+  mfaRequired: boolean
 }
 
 export interface LoginOptions {

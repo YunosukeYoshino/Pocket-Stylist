@@ -53,6 +53,8 @@ jest.mock('@tamagui/core', () => {
     View: ({ children, ...props }) => React.createElement('div', props, children),
     Text: ({ children, ...props }) => React.createElement('span', props, children),
     Button: ({ children, ...props }) => React.createElement('button', props, children),
+    Stack: ({ children, ...props }) => React.createElement('div', props, children),
+    Input: ({ children, ...props }) => React.createElement('input', props, children),
   }
 })
 
@@ -63,6 +65,74 @@ jest.mock('@tamagui/button', () => {
   }
 })
 
+jest.mock('@tamagui/input', () => {
+  const React = require('react')
+  return {
+    Input: ({ children, ...props }) => React.createElement('input', props, children),
+  }
+})
+
 jest.mock('expo-status-bar', () => ({
   StatusBar: ({ style, ...props }) => null,
+}))
+
+// Mock Auth0 environment variables
+process.env.EXPO_PUBLIC_AUTH0_DOMAIN = 'test.auth0.com'
+process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID = 'test_client_id'
+process.env.EXPO_PUBLIC_AUTH0_AUDIENCE = 'https://api.test.com'
+
+// Mock the entire auth service
+jest.mock('./src/services/auth/authService', () => {
+  const mockService = {
+    login: jest.fn(),
+    loginWithSocial: jest.fn(),
+    logout: jest.fn(),
+    getCurrentUser: jest.fn(),
+    refreshAccessToken: jest.fn(),
+    isAuthenticated: jest.fn(),
+    requestPasswordReset: jest.fn(),
+    setupSMSMFA: jest.fn(),
+    setupTOTPMFA: jest.fn(),
+    verifyMFASetup: jest.fn(),
+    verifyMFAChallenge: jest.fn(),
+    resendMFACode: jest.fn(),
+    getMFASettings: jest.fn(),
+    disableMFA: jest.fn(),
+    getConfig: jest.fn(() => ({
+      domain: 'test.auth0.com',
+      clientId: 'test_client_id',
+      audience: 'https://api.test.com',
+    })),
+  }
+
+  return {
+    __esModule: true,
+    default: mockService,
+    authService: mockService,
+  }
+})
+
+jest.mock('react-native-auth0', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    webAuth: {
+      authorize: jest.fn(),
+      clearSession: jest.fn(),
+    },
+    auth: {
+      userInfo: jest.fn(),
+      refreshToken: jest.fn(),
+      resetPassword: jest.fn(),
+    },
+  })),
+}))
+
+jest.mock('expo-auth-session', () => ({
+  makeRedirectUri: jest.fn(() => 'test://auth/callback'),
+}))
+
+jest.mock('expo-secure-store', () => ({
+  setItemAsync: jest.fn(),
+  getItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
 }))

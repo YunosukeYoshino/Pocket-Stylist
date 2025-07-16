@@ -396,6 +396,146 @@ class AuthService {
   }
 
   /**
+   * MFA設定の開始（SMS）
+   */
+  async setupSMSMFA(phoneNumber: string): Promise<string> {
+    try {
+      // TODO: Auth0 MFA API を使用してSMS MFAを設定
+      // const result = await this.auth0.auth.setupSMSMFA({
+      //   phone_number: phoneNumber,
+      // })
+      // return result.challenge_id
+      console.log('SMS MFA setup for phone:', phoneNumber)
+      return 'mock_challenge_id_sms'
+    } catch (error) {
+      console.error('SMS MFA setup error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
+   * MFA設定の開始（TOTP）
+   */
+  async setupTOTPMFA(): Promise<{ secret: string; qrCodeUrl: string; challengeId: string }> {
+    try {
+      // TODO: Auth0 MFA API を使用してTOTP MFAを設定
+      // const result = await this.auth0.auth.setupTOTPMFA()
+      // return {
+      //   secret: result.secret,
+      //   qrCodeUrl: result.qr_code_url,
+      //   challengeId: result.challenge_id,
+      // }
+      console.log('TOTP MFA setup initiated')
+      return {
+        secret: 'JBSWY3DPEHPK3PXP',
+        qrCodeUrl:
+          'otpauth://totp/Pocket%20Stylist%20AI?secret=JBSWY3DPEHPK3PXP&issuer=Pocket%20Stylist%20AI',
+        challengeId: 'mock_challenge_id_totp',
+      }
+    } catch (error) {
+      console.error('TOTP MFA setup error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
+   * MFA設定の検証
+   */
+  async verifyMFASetup(method: 'sms' | 'totp', code: string, challengeId: string): Promise<void> {
+    try {
+      // TODO: Auth0 MFA API を使用してMFA設定を検証
+      // await this.auth0.auth.verifyMFASetup({
+      //   challenge_id: challengeId,
+      //   code,
+      // })
+      console.log('MFA setup verification:', method, code, challengeId)
+    } catch (error) {
+      console.error('MFA setup verification error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
+   * MFAチャレンジの検証
+   */
+  async verifyMFAChallenge(challengeId: string, code: string): Promise<void> {
+    try {
+      // TODO: Auth0 MFA API を使用してMFAチャレンジを検証
+      // await this.auth0.auth.verifyMFAChallenge({
+      //   challenge_id: challengeId,
+      //   code,
+      // })
+      console.log('MFA challenge verification:', challengeId, code)
+    } catch (error) {
+      console.error('MFA challenge verification error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
+   * MFAコードの再送信
+   */
+  async resendMFACode(challengeId: string): Promise<void> {
+    try {
+      // TODO: Auth0 MFA API を使用してMFAコードを再送信
+      // await this.auth0.auth.resendMFACode({
+      //   challenge_id: challengeId,
+      // })
+      console.log('MFA code resent for challenge:', challengeId)
+    } catch (error) {
+      console.error('MFA code resend error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
+   * ユーザーのMFA設定を取得
+   */
+  async getMFASettings(): Promise<{ enabled: boolean; factors: Array<'sms' | 'totp' | 'push'> }> {
+    try {
+      const accessToken = await this.getStoredAccessToken()
+      if (!accessToken) {
+        throw new Error('No access token available')
+      }
+
+      // TODO: Auth0 MFA API を使用してMFA設定を取得
+      // const settings = await this.auth0.auth.getMFASettings({
+      //   token: accessToken,
+      // })
+      // return settings
+      console.log('Getting MFA settings')
+      return {
+        enabled: false,
+        factors: [],
+      }
+    } catch (error) {
+      console.error('Get MFA settings error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
+   * MFA設定を無効化
+   */
+  async disableMFA(): Promise<void> {
+    try {
+      const accessToken = await this.getStoredAccessToken()
+      if (!accessToken) {
+        throw new Error('No access token available')
+      }
+
+      // TODO: Auth0 MFA API を使用してMFAを無効化
+      // await this.auth0.auth.disableMFA({
+      //   token: accessToken,
+      // })
+      console.log('MFA disabled')
+    } catch (error) {
+      console.error('Disable MFA error:', error)
+      throw this.handleAuthError(error)
+    }
+  }
+
+  /**
    * 現在の設定を取得
    */
   getConfig(): AuthConfig {
