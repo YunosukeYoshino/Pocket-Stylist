@@ -1,10 +1,10 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { Env } from '../index'
+import type { Env } from '../index'
 
 export class R2Service {
   private s3Client: S3Client
-  private bucketName: string
+  public readonly bucketName: string
   private cdnBaseUrl: string
   
   constructor(env: Env) {
@@ -27,17 +27,22 @@ export class R2Service {
     mimeType: string,
     metadata?: Record<string, string>
   ): Promise<string> {
-    const command = new PutObjectCommand({
-      Bucket: this.bucketName,
-      Key: key,
-      Body: file,
-      ContentType: mimeType,
-      Metadata: metadata,
-    })
-    
-    await this.s3Client.send(command)
-    
-    return this.getCdnUrl(key)
+    try {
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+        Body: file,
+        ContentType: mimeType,
+        Metadata: metadata,
+      })
+      
+      await this.s3Client.send(command)
+      
+      return this.getCdnUrl(key)
+    } catch (error) {
+      console.error('Error uploading file to R2:', error)
+      throw new Error('Failed to upload file to R2 storage')
+    }
   }
   
   async getFile(key: string): Promise<ReadableStream | null> {
@@ -56,15 +61,20 @@ export class R2Service {
   }
   
   async deleteFile(key: string): Promise<void> {
-    const command = new DeleteObjectCommand({
-      Bucket: this.bucketName,
-      Key: key,
-    })
-    
-    await this.s3Client.send(command)
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      })
+      
+      await this.s3Client.send(command)
+    } catch (error) {
+      console.error('Error deleting file from R2:', error)
+      throw new Error('Failed to delete file from R2 storage')
+    }
   }
   
-  async generateSignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
+  async generateSignedUrl(key: string, expiresIn = 3600): Promise<string> {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,

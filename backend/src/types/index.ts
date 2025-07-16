@@ -34,7 +34,7 @@ export interface FileListResponse {
   }
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   error?: string
@@ -43,7 +43,7 @@ export interface ApiResponse<T = any> {
 
 export interface ErrorResponse {
   error: string
-  details?: any
+  details?: Record<string, unknown>
 }
 
 export interface PaginationParams {
@@ -66,5 +66,5 @@ export interface FileMetadata {
   checksum?: string
   processed?: boolean
   imageId?: string
-  [key: string]: any
+  [key: string]: unknown
 }

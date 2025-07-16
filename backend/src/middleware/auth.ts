@@ -1,5 +1,5 @@
-import { Context, Next } from 'hono'
-import { Env } from '../index'
+import type { Context, Next } from 'hono'
+import type { Env } from '../index'
 
 export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
   try {
@@ -15,12 +15,24 @@ export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) 
       return c.json({ error: 'Bearer token required' }, 401)
     }
     
-    // Verify JWT token with Auth0
+    // Basic JWT format validation
+    const jwtParts = token.split('.')
+    if (jwtParts.length !== 3) {
+      return c.json({ error: 'Invalid token format' }, 401)
+    }
+    
+    // Verify JWT token with Auth0 with timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+    
     const response = await fetch(`https://${c.env.AUTH0_DOMAIN}/userinfo`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+      signal: controller.signal,
     })
+    
+    clearTimeout(timeoutId)
     
     if (!response.ok) {
       return c.json({ error: 'Invalid token' }, 401)
@@ -33,7 +45,10 @@ export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) 
     
     await next()
   } catch (error) {
-    console.error('Auth middleware error:', error)
+    console.error('Auth middleware error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString(),
+    })
     return c.json({ error: 'Authentication failed' }, 401)
   }
 }

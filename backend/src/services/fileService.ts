@@ -1,9 +1,14 @@
-import { PrismaClient } from '@prisma/client'
+import type { PrismaClient } from '@prisma/client'
 import { R2Service } from './r2Service'
 import { ImageService } from './imageService'
 import { validateFile, validateFileContent, generateSecureFilename } from '../utils/fileValidation'
-import { Env } from '../index'
+import type { Env } from '../index'
 import { v4 as uuidv4 } from 'uuid'
+
+export interface FileMetadata {
+  variants?: Record<string, string>
+  imageId?: string
+}
 
 export interface FileUploadResult {
   id: string
@@ -45,7 +50,7 @@ export class FileService {
     const fileBuffer = await file.arrayBuffer()
     
     // Validate file content
-    const contentValidation = await validateFileContent(fileBuffer)
+    const contentValidation = validateFileContent(fileBuffer)
     if (!contentValidation.isValid) {
       throw new Error(contentValidation.error)
     }
@@ -74,6 +79,7 @@ export class FileService {
     let variants: Record<string, string> = {}
     let thumbnailUrl: string | undefined
     let processed = false
+    let imageId: string | undefined
     
     if (file.type.startsWith('image/')) {
       try {
@@ -90,6 +96,7 @@ export class FileService {
         
         variants = imageProcessing.variants
         thumbnailUrl = variants.thumbnail
+        imageId = imageProcessing.imageId
         processed = true
       } catch (error) {
         console.error('Error processing image variants:', error)
@@ -108,13 +115,12 @@ export class FileService {
         size: file.size,
         category,
         r2Key: secureFilename,
-        r2Bucket: 'pocket-stylist',
+        r2Bucket: this.r2Service.bucketName,
         cdnUrl,
         thumbnailUrl,
         metadata: {
           variants,
-          checksum,
-          processed,
+          imageId,
         },
         processed,
         checksum,
@@ -128,7 +134,7 @@ export class FileService {
       mimeType: fileRecord.mimeType,
       size: fileRecord.size,
       category: fileRecord.category,
-      cdnUrl: fileRecord.cdnUrl!,
+      cdnUrl: fileRecord.cdnUrl || '',
       thumbnailUrl: fileRecord.thumbnailUrl,
       variants,
       processed: fileRecord.processed,
@@ -155,9 +161,9 @@ export class FileService {
       mimeType: file.mimeType,
       size: file.size,
       category: file.category,
-      cdnUrl: file.cdnUrl!,
+      cdnUrl: file.cdnUrl || '',
       thumbnailUrl: file.thumbnailUrl,
-      variants: (file.metadata as any)?.variants || {},
+      variants: (file.metadata as FileMetadata)?.variants || {},
       processed: file.processed,
       createdAt: file.createdAt,
     }
@@ -181,7 +187,7 @@ export class FileService {
       
       // Delete from Cloudflare Images if it was processed
       if (file.processed && file.mimeType.startsWith('image/')) {
-        const imageId = (file.metadata as any)?.imageId
+        const imageId = (file.metadata as FileMetadata)?.imageId
         if (imageId) {
           await this.imageService.deleteImage(imageId)
         }
@@ -204,8 +210,8 @@ export class FileService {
   async getUserFiles(
     userId: string,
     category?: 'avatar' | 'garment' | 'tryon' | 'other',
-    page: number = 1,
-    limit: number = 20
+    page = 1,
+    limit = 20
   ): Promise<{
     files: FileUploadResult[]
     pagination: {
@@ -239,9 +245,9 @@ export class FileService {
       mimeType: file.mimeType,
       size: file.size,
       category: file.category,
-      cdnUrl: file.cdnUrl!,
+      cdnUrl: file.cdnUrl || '',
       thumbnailUrl: file.thumbnailUrl,
-      variants: (file.metadata as any)?.variants || {},
+      variants: (file.metadata as FileMetadata)?.variants || {},
       processed: file.processed,
       createdAt: file.createdAt,
     }))

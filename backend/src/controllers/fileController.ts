@@ -1,7 +1,15 @@
-import { Context } from 'hono'
+import type { Context } from 'hono'
+import { z } from 'zod'
 import { FileService } from '../services/fileService'
 import { getPrismaClient } from '../utils/database'
-import { Env } from '../index'
+import type { Env } from '../index'
+
+const CategorySchema = z.enum(['avatar', 'garment', 'tryon', 'other'])
+
+const UploadBodySchema = z.object({
+  file: z.instanceof(File),
+  category: CategorySchema,
+})
 
 export class FileController {
   private fileService: FileService
@@ -19,16 +27,16 @@ export class FileController {
       }
       
       const body = await c.req.parseBody()
-      const file = body.file as File
-      const category = body.category as 'avatar' | 'garment' | 'tryon' | 'other'
       
-      if (!file) {
-        return c.json({ error: 'No file provided' }, 400)
+      const validationResult = UploadBodySchema.safeParse(body)
+      if (!validationResult.success) {
+        return c.json({ 
+          error: 'Invalid request body', 
+          details: validationResult.error.format() 
+        }, 400)
       }
       
-      if (!category) {
-        return c.json({ error: 'Category is required' }, 400)
-      }
+      const { file, category } = validationResult.data
       
       const result = await this.fileService.uploadFile(file, user.sub, category)
       
@@ -115,8 +123,8 @@ export class FileController {
       }
       
       const category = c.req.query('category') as 'avatar' | 'garment' | 'tryon' | 'other' | undefined
-      const page = parseInt(c.req.query('page') || '1', 10)
-      const limit = parseInt(c.req.query('limit') || '20', 10)
+      const page = Number.parseInt(c.req.query('page') || '1', 10)
+      const limit = Number.parseInt(c.req.query('limit') || '20', 10)
       
       const result = await this.fileService.getUserFiles(user.sub, category, page, limit)
       

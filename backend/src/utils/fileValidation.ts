@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 export const ALLOWED_MIME_TYPES = [
   'image/jpeg',
-  'image/jpg',
   'image/png',
   'image/webp',
   'image/avif',
@@ -35,7 +34,7 @@ export function validateFile(file: File): FileValidationResult {
   }
   
   // Check MIME type
-  if (!ALLOWED_MIME_TYPES.includes(file.type as any)) {
+  if (!ALLOWED_MIME_TYPES.includes(file.type as typeof ALLOWED_MIME_TYPES[number])) {
     return {
       isValid: false,
       error: `File type ${file.type} is not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`
@@ -63,7 +62,7 @@ export function validateFile(file: File): FileValidationResult {
   }
 }
 
-export async function validateFileContent(fileBuffer: ArrayBuffer): Promise<FileValidationResult> {
+export function validateFileContent(fileBuffer: ArrayBuffer): FileValidationResult {
   // Basic file signature validation
   const bytes = new Uint8Array(fileBuffer)
   
@@ -115,9 +114,11 @@ export async function validateFileContent(fileBuffer: ArrayBuffer): Promise<File
 }
 
 export function generateSecureFilename(originalFilename: string, userId: string): string {
+  // Sanitize userId to prevent directory traversal
+  const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-_]/g, '')
   const timestamp = Date.now()
   const randomSuffix = Math.random().toString(36).substring(2, 15)
   const extension = originalFilename.split('.').pop()?.toLowerCase() || 'unknown'
   
-  return `${userId}/${timestamp}_${randomSuffix}.${extension}`
+  return `${sanitizedUserId}/${timestamp}_${randomSuffix}.${extension}`
 }

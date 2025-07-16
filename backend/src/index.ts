@@ -4,7 +4,6 @@ import { logger } from 'hono/logger'
 import { authMiddleware } from './middleware/auth'
 import { errorHandler } from './middleware/errorHandler'
 import { fileRoutes } from './routes/files'
-import { prismaClient } from './utils/database'
 
 export interface Env {
   // Database

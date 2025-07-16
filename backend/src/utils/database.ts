@@ -6,19 +6,29 @@ let prisma: PrismaClient | null = null
 
 export function getPrismaClient(databaseUrl: string): PrismaClient {
   if (!prisma) {
-    const pool = new Pool({
-      connectionString: databaseUrl,
-    })
-    
-    const adapter = new PrismaPg(pool)
-    
-    prisma = new PrismaClient({
-      adapter,
-      log: ['query', 'info', 'warn', 'error'],
-    })
+    try {
+      const pool = new Pool({
+        connectionString: databaseUrl,
+        max: 10,                   // Maximum number of connections
+        idleTimeoutMillis: 30000,  // Idle timeout
+        connectionTimeoutMillis: 2000, // Connection timeout
+      })
+      
+      const adapter = new PrismaPg(pool)
+      
+      prisma = new PrismaClient({
+        adapter,
+        log: process.env.NODE_ENV === 'development'
+          ? ['query', 'info', 'warn', 'error']
+          : ['warn', 'error'],    // Reduce log verbosity in production
+      })
+    } catch (error) {
+      console.error('Failed to initialize PrismaClient:', error)
+      throw error
+    }
   }
   
   return prisma
 }
 
-export const prismaClient = prisma
+// Use getPrismaClient() function instead of direct access to avoid null reference issues

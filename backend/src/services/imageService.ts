@@ -1,4 +1,4 @@
-import { Env } from '../index'
+import type { Env } from '../index'
 
 export interface ImageProcessingOptions {
   width?: number
@@ -13,6 +13,15 @@ export interface ImageVariant {
   width: number
   height: number
   quality: number
+}
+
+export interface CloudflareImageInfo {
+  id: string
+  filename: string
+  uploaded: string
+  requireSignedURLs: boolean
+  variants: string[]
+  meta?: Record<string, unknown>
 }
 
 export const IMAGE_VARIANTS: ImageVariant[] = [
@@ -54,7 +63,8 @@ export class ImageService {
     })
     
     if (!response.ok) {
-      throw new Error(`Failed to upload image: ${response.statusText}`)
+      const errorText = await response.text()
+      throw new Error(`Failed to upload image: ${response.status} ${response.statusText} - ${errorText}`)
     }
     
     const result = await response.json()
@@ -124,7 +134,7 @@ export class ImageService {
     }
   }
   
-  async getImageInfo(imageId: string): Promise<any> {
+  async getImageInfo(imageId: string): Promise<CloudflareImageInfo> {
     const response = await fetch(`${this.baseUrl}/v1/${imageId}`, {
       headers: {
         'Authorization': `Bearer ${this.apiToken}`,
