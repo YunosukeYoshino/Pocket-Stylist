@@ -18,7 +18,7 @@ interface DecodedToken {
 }
 
 export class AuthService {
-  private userService: UserService
+  public userService: UserService
 
   constructor(prisma: PrismaClient) {
     this.userService = new UserService(prisma)

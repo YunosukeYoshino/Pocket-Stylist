@@ -5,8 +5,8 @@ import { UserRepository } from '../repositories/user'
 import type { CreateBodyProfileInput, UpdateBodyProfileInput } from '../schemas/user'
 
 export class BodyProfileService {
-  private bodyProfileRepository: BodyProfileRepository
-  private userRepository: UserRepository
+  public bodyProfileRepository: BodyProfileRepository
+  public userRepository: UserRepository
 
   constructor(prisma: PrismaClient) {
     this.bodyProfileRepository = new BodyProfileRepository(prisma)

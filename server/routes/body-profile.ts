@@ -13,7 +13,7 @@ router.get(
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
     const bodyProfileService = new BodyProfileService(req.prisma)
-    const bodyProfile = await bodyProfileService.getBodyProfile(req.user?.sub)
+    const bodyProfile = await bodyProfileService.getBodyProfile(req.user?.sub || '')
 
     res.json({
       data: bodyProfile,
@@ -31,7 +31,10 @@ router.post(
     const validatedData = createBodyProfileSchema.parse(req.body)
 
     const bodyProfileService = new BodyProfileService(req.prisma)
-    const bodyProfile = await bodyProfileService.createBodyProfile(req.user?.sub, validatedData)
+    const bodyProfile = await bodyProfileService.createBodyProfile(
+      req.user?.sub || '',
+      validatedData
+    )
 
     res.status(201).json({
       data: bodyProfile,
@@ -50,7 +53,10 @@ router.patch(
     const validatedData = updateBodyProfileSchema.parse(req.body)
 
     const bodyProfileService = new BodyProfileService(req.prisma)
-    const updatedProfile = await bodyProfileService.updateBodyProfile(req.user?.sub, validatedData)
+    const updatedProfile = await bodyProfileService.updateBodyProfile(
+      req.user?.sub || '',
+      validatedData
+    )
 
     res.json({
       data: updatedProfile,
@@ -66,7 +72,7 @@ router.delete(
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
     const bodyProfileService = new BodyProfileService(req.prisma)
-    const result = await bodyProfileService.deleteBodyProfile(req.user?.sub)
+    const result = await bodyProfileService.deleteBodyProfile(req.user?.sub || '')
 
     res.json({
       data: result,

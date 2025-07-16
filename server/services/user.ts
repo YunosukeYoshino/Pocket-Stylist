@@ -4,7 +4,7 @@ import { UserRepository } from '../repositories/user'
 import type { UpdateUserProfileInput } from '../schemas/user'
 
 export class UserService {
-  private userRepository: UserRepository
+  public userRepository: UserRepository
 
   constructor(prisma: PrismaClient) {
     this.userRepository = new UserRepository(prisma)

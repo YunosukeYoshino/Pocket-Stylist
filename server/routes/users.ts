@@ -13,7 +13,7 @@ router.get(
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
     const userService = new UserService(req.prisma)
-    const userProfile = await userService.getUserProfile(req.user?.sub)
+    const userProfile = await userService.getUserProfile(req.user?.sub || '')
 
     res.json({
       data: userProfile,
@@ -31,7 +31,7 @@ router.patch(
     const validatedData = updateUserProfileSchema.parse(req.body)
 
     const userService = new UserService(req.prisma)
-    const updatedProfile = await userService.updateUserProfile(req.user?.sub, validatedData)
+    const updatedProfile = await userService.updateUserProfile(req.user?.sub || '', validatedData)
 
     res.json({
       data: updatedProfile,
@@ -47,7 +47,7 @@ router.delete(
   authenticateToken,
   asyncHandler(async (req: Request, res: Response) => {
     const userService = new UserService(req.prisma)
-    const result = await userService.deleteUserProfile(req.user?.sub)
+    const result = await userService.deleteUserProfile(req.user?.sub || '')
 
     res.json({
       data: result,
