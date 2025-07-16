@@ -54,6 +54,7 @@
     "@tamagui/config": "^1.95.3",
     "@tamagui/core": "^1.95.3",
     "@tamagui/font-inter": "^1.95.3",
+    "@tamagui/input": "^1.132.7",
     "@tamagui/theme-base": "^1.95.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
