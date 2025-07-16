@@ -1,0 +1,138 @@
+name: AI Automation
+
+on:
+  push:
+    paths:
+      - 'design-tokens/**'
+      - 'style-dictionary/**'
+  workflow_dispatch:
+    inputs:
+      generate_components:
+        description: 'Generate components with Claude API'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  style-dictionary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Style Dictionary
+        run: bun add -D style-dictionary
+
+      - name: Build design tokens
+        run: |
+          if [ -f "style-dictionary.config.js" ]; then
+            bunx style-dictionary build
+          else
+            echo "Style Dictionary config not found, skipping token generation"
+          fi
+
+      - name: Commit generated tokens
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "🎨 Auto-generate design tokens [skip ci]"
+            git push
+          fi
+
+  claude-component-generation:
+    if: github.event.inputs.generate_components == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate components with Claude API
+        run: |
+          # Create a script to generate components using Claude API
+          cat << 'EOF' > generate-components.ts
+          import { readFile, writeFile } from 'fs/promises';
+          
+          const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY;
+          const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
+          
+          async function generateComponent(prompt: string): Promise<string> {
+            const response = await fetch(CLAUDE_API_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': CLAUDE_API_KEY || '',
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-3-sonnet-20240229',
+                max_tokens: 2000,
+                messages: [{
+                  role: 'user',
+                  content: prompt
+                }]
+              })
+            });
+            
+            const data = await response.json();
+            return data.content[0].text;
+          }
+          
+          // Example: Generate a button component
+          const prompt = `
+          Generate a React Native button component using Tamagui that follows our design system.
+          The component should be TypeScript-based and include proper props interface.
+          `;
+          
+          try {
+            const componentCode = await generateComponent(prompt);
+            await writeFile('components/generated/AIButton.tsx', componentCode);
+            console.log('Component generated successfully');
+          } catch (error) {
+            console.error('Error generating component:', error);
+          }
+          EOF
+          
+          bun run generate-components.ts
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+
+      - name: Commit generated components
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "🤖 Auto-generate components with Claude API [skip ci]"
+            git push
+          fi
+
+  notify-completion:
+    needs: [style-dictionary, claude-component-generation]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#ai-automation'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow

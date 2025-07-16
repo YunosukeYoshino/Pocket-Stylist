@@ -8,20 +8,19 @@ on:
     - cron: "0,30 14-20 * * *" # UTC 14:00-20:30 (JST 23:00-05:30)
     - cron: "0 21 * * *" # UTC 21:00 (JST 06:00)
   workflow_dispatch: # 手動実行も可能
-
+permissions:
+  issues: write
+  contents: read
 jobs:
   process-issue:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      contents: read
 
     steps:
       - name: Find and process highest priority issue
         uses: actions/github-script@v7
         with:
-          # GITHUB_TOKENを使用（permissionsで権限を設定済み）
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Personal Access Tokenを使用（設定されていない場合はGITHUB_TOKENを使用）
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
             // 優先度順にissueを探す
             const priorities = ['high', 'middle', 'low'];
