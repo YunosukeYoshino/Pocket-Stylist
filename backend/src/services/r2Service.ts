@@ -75,12 +75,17 @@ export class R2Service {
   }
   
   async generateSignedUrl(key: string, expiresIn = 3600): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: key,
-    })
-    
-    return await getSignedUrl(this.s3Client, command, { expiresIn })
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      })
+      
+      return await getSignedUrl(this.s3Client, command, { expiresIn })
+    } catch (error) {
+      console.error('Error generating signed URL:', error)
+      throw new Error('Failed to generate signed URL')
+    }
   }
   
   getCdnUrl(key: string): string {
