@@ -44,7 +44,7 @@ describe('AuthService', () => {
       }
 
       // Mock UserService.findOrCreateUser
-      jest.spyOn(authService.userService, 'findOrCreateUser').mockResolvedValue(mockUser as any)
+      jest.spyOn(authService['userService'], 'findOrCreateUser').mockResolvedValue(mockUser as any)
 
       const result = await authService.handleLogin(userData)
 
@@ -67,7 +67,7 @@ describe('AuthService', () => {
 
       // Mock UserService.findOrCreateUser to throw error
       jest
-        .spyOn(authService.userService, 'findOrCreateUser')
+        .spyOn(authService['userService'], 'findOrCreateUser')
         .mockRejectedValue(new Error('Database error'))
 
       await expect(authService.handleLogin(userData)).rejects.toThrow(ApiError)
@@ -98,7 +98,7 @@ describe('AuthService', () => {
         email: 'test@example.com',
       } as any)
 
-      jest.spyOn(authService.userService, 'getUserProfile').mockResolvedValue(mockUser as any)
+      jest.spyOn(authService['userService'], 'getUserProfile').mockResolvedValue(mockUser as any)
 
       const result = await authService.validateToken(token)
 
