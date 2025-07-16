@@ -16,66 +16,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Find and process highest priority issue
-        uses: actions/github-script@v7
-        with:
-          # Personal Access Tokenを使用（設定されていない場合はGITHUB_TOKENを使用）
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          script: |
-            // 優先度順にissueを探す
-            const priorities = ['high', 'middle', 'low'];
-            const processedLabel = 'claude-code-requested';
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          # 優先度順にissueを探す
+          priorities=("high" "middle" "low")
+          processed_label="claude-code-requested"
+          
+          for priority in "${priorities[@]}"; do
+            echo "Processing priority: $priority"
+            
+            # 優先度ラベルがついたissueを取得（作成日時の降順）
+            issues=$(gh issue list --label "$priority" --state open --json number,title,body,labels --limit 100)
+            
+            # 未処理のissueを探す
+            unprocessed_issue=$(echo "$issues" | jq -r --arg processed_label "$processed_label" '
+              .[] | select(.labels | map(.name) | contains([$processed_label]) | not) | .number
+            ' | head -1)
+            
+            if [ "$unprocessed_issue" != "" ] && [ "$unprocessed_issue" != "null" ]; then
+              echo "Found unprocessed issue: #$unprocessed_issue"
+              
+              # Issue情報を取得
+              issue_info=$(echo "$issues" | jq -r --arg number "$unprocessed_issue" '.[] | select(.number == ($number | tonumber))')
+              issue_title=$(echo "$issue_info" | jq -r '.title')
+              issue_body=$(echo "$issue_info" | jq -r '.body // "説明なし"')
+              
+              # @claudeメンションコメントを投稿
+              comment_body="@claude このIssue #${unprocessed_issue} を解決してください。
 
-            for (const priority of priorities) {
-              // 優先度ラベルがついたissueを取得（作成日時の降順）
-              const issues = await github.rest.issues.listForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                labels: priority,
-                state: 'open',
-                sort: 'created',
-                direction: 'desc',
-                per_page: 100
-              });
+以下の内容に基づいて、具体的な実装方針と必要なコード変更を提案してください：
 
-              // 未処理のissueを探す
-              const unprocessedIssue = issues.data.find(issue =>
-                !issue.labels.some(label => label.name === processedLabel)
-              );
+**タイトル**: ${issue_title}
 
-              if (unprocessedIssue) {
-                // @claudeメンションコメントを投稿
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: unprocessedIssue.number,
-                  body: [
-                    `@claude このIssue #${unprocessedIssue.number} を解決してください。`,
-                    '',
-                    '以下の内容に基づいて、具体的な実装方針と必要なコード変更を提案してください：',
-                    '',
-                    `**タイトル**: ${unprocessedIssue.title}`,
-                    '',
-                    '**説明**:',
-                    unprocessedIssue.body || '説明なし',
-                    '',
-                    `優先度: ${priority}`
-                  ].join('\n')
-                });
+**説明**:
+${issue_body}
 
-                // 処理済みラベルを追加
-                await github.rest.issues.addLabels({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: unprocessedIssue.number,
-                  labels: [processedLabel]
-                });
-
-                console.log('Claude Code Action will be triggered by the mention');
-                return; // 1つのissueのみ処理して終了
-              }
-            }
-
-            console.log('No unprocessed issues found');
+優先度: ${priority}"
+              
+              echo "Posting comment to issue #$unprocessed_issue"
+              gh issue comment "$unprocessed_issue" --body "$comment_body"
+              
+              # 処理済みラベルを追加
+              echo "Adding processed label to issue #$unprocessed_issue"
+              gh issue edit "$unprocessed_issue" --add-label "$processed_label"
+              
+              echo "Claude Code Action will be triggered by the mention"
+              exit 0  # 1つのissueのみ処理して終了
+            fi
+          done
+          
+          echo "No unprocessed issues found"
 
 # ... (省略)
