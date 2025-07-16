@@ -31,7 +31,7 @@ export class R2Service {
       const command = new PutObjectCommand({
         Bucket: this.bucketName,
         Key: key,
-        Body: file,
+        Body: new Uint8Array(file),
         ContentType: mimeType,
         Metadata: metadata,
       })

@@ -14,7 +14,7 @@ export function getPrismaClient(databaseUrl: string): PrismaClient {
         connectionTimeoutMillis: 2000, // Connection timeout
       })
       
-      const adapter = new PrismaPg(pool)
+      const adapter = new PrismaPg(pool as any)
       
       prisma = new PrismaClient({
         adapter,

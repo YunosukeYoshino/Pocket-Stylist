@@ -1,7 +1,7 @@
 import type { Context, Next } from 'hono'
-import type { Env } from '../index'
+import type { Env, AuthContext, User } from '../index'
 
-export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+export async function authMiddleware(c: Context<{ Bindings: Env; Variables: AuthContext }>, next: Next): Promise<Response | void> {
   try {
     const authorization = c.req.header('Authorization')
     
@@ -38,7 +38,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) 
       return c.json({ error: 'Invalid token' }, 401)
     }
     
-    const user = await response.json()
+    const user = await response.json() as User
     
     // Store user info in context
     c.set('user', user)

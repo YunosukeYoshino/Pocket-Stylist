@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import { FileController } from '../controllers/fileController'
-import type { Env } from '../index'
+import type { Env, AuthContext } from '../index'
 
-export const fileRoutes = new Hono<{ Bindings: Env }>()
+export const fileRoutes = new Hono<{ Bindings: Env; Variables: AuthContext }>()
 
 // Initialize controller factory to create controllers per environment
 const createFileController = (env: Env) => {

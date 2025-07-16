@@ -67,7 +67,7 @@ export class ImageService {
       throw new Error(`Failed to upload image: ${response.status} ${response.statusText} - ${errorText}`)
     }
     
-    const result = await response.json()
+    const result = await response.json() as { result: { id: string } }
     return result.result.id
   }
   
@@ -145,7 +145,7 @@ export class ImageService {
       throw new Error(`Failed to get image info: ${response.statusText}`)
     }
     
-    const result = await response.json()
+    const result = await response.json() as { result: CloudflareImageInfo }
     return result.result
   }
 }

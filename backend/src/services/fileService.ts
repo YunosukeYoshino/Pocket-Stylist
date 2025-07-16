@@ -238,7 +238,7 @@ export class FileService {
       this.prisma.file.count({ where }),
     ])
     
-    const fileResults = files.map(file => ({
+    const fileResults = files.map((file: any) => ({
       id: file.id,
       filename: file.filename,
       originalName: file.originalName,

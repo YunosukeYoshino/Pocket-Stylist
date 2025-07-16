@@ -27,7 +27,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["@cloudflare/workers-types"]
+    "types": ["@cloudflare/workers-types", "jest"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -26,9 +26,28 @@ export interface Env {
   
   // CDN
   CDN_BASE_URL: string
+  
+  // Index signature for Hono's Bindings type system
+  [key: string]: unknown
 }
 
-const app = new Hono<{ Bindings: Env }>()
+// Define user object type for auth middleware
+export interface User {
+  sub: string
+  email?: string
+  name?: string
+  picture?: string
+  [key: string]: unknown
+}
+
+// Define extended context type for Hono with user
+export interface AuthContext {
+  user: User
+  fileController?: any
+  [key: string]: unknown
+}
+
+const app = new Hono<{ Bindings: Env; Variables: AuthContext }>()
 
 // Middleware
 app.use('*', cors())

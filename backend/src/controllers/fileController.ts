@@ -2,7 +2,7 @@ import type { Context } from 'hono'
 import { z } from 'zod'
 import { FileService } from '../services/fileService'
 import { getPrismaClient } from '../utils/database'
-import type { Env } from '../index'
+import type { Env, AuthContext } from '../index'
 
 const CategorySchema = z.enum(['avatar', 'garment', 'tryon', 'other'])
 
@@ -19,7 +19,7 @@ export class FileController {
     this.fileService = new FileService(prisma, env)
   }
   
-  async uploadFile(c: Context<{ Bindings: Env }>) {
+  async uploadFile(c: Context<{ Bindings: Env; Variables: AuthContext }>) {
     try {
       const user = c.get('user')
       if (!user?.sub) {
@@ -53,7 +53,7 @@ export class FileController {
     }
   }
   
-  async getFile(c: Context<{ Bindings: Env }>) {
+  async getFile(c: Context<{ Bindings: Env; Variables: AuthContext }>) {
     try {
       const user = c.get('user')
       if (!user?.sub) {
@@ -84,7 +84,7 @@ export class FileController {
     }
   }
   
-  async deleteFile(c: Context<{ Bindings: Env }>) {
+  async deleteFile(c: Context<{ Bindings: Env; Variables: AuthContext }>) {
     try {
       const user = c.get('user')
       if (!user?.sub) {
@@ -115,7 +115,7 @@ export class FileController {
     }
   }
   
-  async getUserFiles(c: Context<{ Bindings: Env }>) {
+  async getUserFiles(c: Context<{ Bindings: Env; Variables: AuthContext }>) {
     try {
       const user = c.get('user')
       if (!user?.sub) {
