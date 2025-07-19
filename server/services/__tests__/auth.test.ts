@@ -194,8 +194,10 @@ describe('AuthService', () => {
       // Temporarily remove Auth0 config
       const originalDomain = process.env.AUTH0_DOMAIN
       const originalClientId = process.env.AUTH0_CLIENT_ID
+      const originalClientSecret = process.env.AUTH0_CLIENT_SECRET
       process.env.AUTH0_DOMAIN = undefined
       process.env.AUTH0_CLIENT_ID = undefined
+      process.env.AUTH0_CLIENT_SECRET = undefined
 
       const refreshToken = 'valid-refresh-token'
 
@@ -209,6 +211,9 @@ describe('AuthService', () => {
       }
       if (originalClientId) {
         process.env.AUTH0_CLIENT_ID = originalClientId
+      }
+      if (originalClientSecret) {
+        process.env.AUTH0_CLIENT_SECRET = originalClientSecret
       }
     })
 
