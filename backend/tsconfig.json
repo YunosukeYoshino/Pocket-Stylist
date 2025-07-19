@@ -26,6 +26,7 @@
     "allowUnreachableCode": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "types": ["node", "jest"],
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
