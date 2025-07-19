@@ -24,11 +24,14 @@ model User {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  bodyProfiles BodyProfile[]
-  garments     Garment[]
-  tryons       Tryon[]
-  outfits      Outfit[]
-  orders       Order[]
+  bodyProfiles          BodyProfile[]
+  garments              Garment[]
+  tryons                Tryon[]
+  outfits               Outfit[]
+  orders                Order[]
+  aiRecommendations     AiRecommendation[]
+  aiRecommendationFeedback AiRecommendationFeedback[]
+  userStyleProfiles     UserStyleProfile[]
 
   @@map("users")
 }
@@ -201,6 +204,112 @@ model OrderItem {
   @@map("order_items")
 }
 
+// AI Recommendation Models
+model AiRecommendation {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  recommendationId  String   @unique @map("recommendation_id") @db.VarChar(100)
+  type              RecommendationType
+  status            RecommendationStatus
+  occasion          String?  @db.VarChar(50)
+  season            Season?
+  weather           String?  @db.VarChar(50)
+  context           Json?    @db.JsonB
+  styleAnalysis     Json?    @map("style_analysis") @db.JsonB
+  personalizationInsights Json? @map("personalization_insights") @db.JsonB
+  confidenceScore   Decimal? @map("confidence_score") @db.Decimal(3, 2)
+  claudeTokensUsed  Int?     @map("claude_tokens_used") @db.Integer
+  claudeCost        Decimal? @map("claude_cost") @db.Decimal(10, 6)
+  processingTime    Int?     @map("processing_time") @db.Integer
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user      User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     AiRecommendationItem[]
+  feedback  AiRecommendationFeedback[]
+
+  @@map("ai_recommendations")
+}
+
+model AiRecommendationItem {
+  id                 String   @id @default(uuid()) @db.Uuid
+  recommendationId   String   @map("recommendation_id") @db.Uuid
+  outfitId           String   @map("outfit_id") @db.VarChar(100)
+  outfitName         String   @map("outfit_name") @db.VarChar(200)
+  outfitDescription  String   @map("outfit_description") @db.Text
+  displayOrder       Int      @map("display_order") @db.Integer
+  confidenceScore    Decimal  @map("confidence_score") @db.Decimal(3, 2)
+  colorAnalysis      Json?    @map("color_analysis") @db.JsonB
+  stylingTips        Json?    @map("styling_tips") @db.JsonB
+  garmentIds         Json     @map("garment_ids") @db.JsonB
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  recommendation AiRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+
+  @@unique([recommendationId, outfitId])
+  @@map("ai_recommendation_items")
+}
+
+model AiRecommendationFeedback {
+  id               String       @id @default(uuid()) @db.Uuid
+  recommendationId String       @map("recommendation_id") @db.Uuid
+  userId           String       @map("user_id") @db.Uuid
+  outfitId         String?      @map("outfit_id") @db.VarChar(100)
+  feedbackType     FeedbackType @map("feedback_type")
+  rating           Decimal?     @db.Decimal(2, 1)
+  comment          String?      @db.Text
+  metadata         Json?        @db.JsonB
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  recommendation AiRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_recommendation_feedback")
+}
+
+model UserStyleProfile {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  styleProfile          String    @map("style_profile") @db.Text
+  dominantStyles        Json      @map("dominant_styles") @db.JsonB
+  colorPreferences      Json      @map("color_preferences") @db.JsonB
+  brandPreferences      Json      @map("brand_preferences") @db.JsonB
+  occasionPatterns      Json      @map("occasion_patterns") @db.JsonB
+  seasonalPatterns      Json      @map("seasonal_patterns") @db.JsonB
+  bodyTypeConsiderations Json?    @map("body_type_considerations") @db.JsonB
+  improvementAreas      Json?     @map("improvement_areas") @db.JsonB
+  suggestedPurchases    Json?     @map("suggested_purchases") @db.JsonB
+  styleEvolution        String?   @map("style_evolution") @db.Text
+  lastAnalyzed          DateTime? @map("last_analyzed") @db.Timestamptz
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@map("user_style_profiles")
+}
+
+model WeatherData {
+  id          String   @id @default(uuid()) @db.Uuid
+  location    String   @db.VarChar(100)
+  temperature Decimal  @db.Decimal(5, 2)
+  condition   String   @db.VarChar(50)
+  humidity    Int      @db.Integer
+  windSpeed   Decimal? @map("wind_speed") @db.Decimal(5, 2)
+  uvIndex     Int?     @map("uv_index") @db.Integer
+  season      Season
+  metadata    Json?    @db.JsonB
+  recordedAt  DateTime @map("recorded_at") @db.Timestamptz
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("weather_data")
+}
+
 // Enums
 enum Gender {
   male
@@ -230,4 +339,32 @@ enum OrderStatus {
   cancelled
   returned
   refunded
+}
+
+enum RecommendationType {
+  styling_recommendations @map("styling_recommendations")
+  outfit_suggestions      @map("outfit_suggestions")
+  seasonal_updates        @map("seasonal_updates")
+  trend_analysis          @map("trend_analysis")
+  color_matching          @map("color_matching")
+  body_type_optimization  @map("body_type_optimization")
+}
+
+enum RecommendationStatus {
+  pending
+  processing
+  completed
+  failed
+  expired
+}
+
+enum FeedbackType {
+  like
+  dislike
+  favorite
+  rating
+  comment
+  worn
+  purchased
+  skipped
 }
