@@ -68,6 +68,8 @@
       ".next/**",
       "coverage/**",
       "generated/**",
+      "backend/**",
+      "server/**",
       "*.log",
       "*.lock",
       "*.tsbuildinfo"
