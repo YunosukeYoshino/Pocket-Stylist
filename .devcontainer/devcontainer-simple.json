@@ -6,14 +6,9 @@
       "TZ": "${localEnv:TZ:America/Los_Angeles}"
     }
   },
-  // Simplified configuration without firewall for easier development setup
   "customizations": {
     "vscode": {
-      "extensions": [
-        "biomejs.biome",
-        "eamodio.gitlens",
-        "bradlc.vscode-tailwindcss"
-      ],
+      "extensions": ["biomejs.biome", "eamodio.gitlens", "bradlc.vscode-tailwindcss"],
       "settings": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "biomejs.biome",
