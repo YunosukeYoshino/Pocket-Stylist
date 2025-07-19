@@ -33,6 +33,8 @@ model User {
   aiRecommendationFeedback AiRecommendationFeedback[]
   userStyleProfiles     UserStyleProfile[]
 
+  @@index([createdAt], name: "users_created_at_idx")
+  @@index([updatedAt], name: "users_updated_at_idx")
   @@map("users")
 }
 
@@ -52,6 +54,8 @@ model BodyProfile {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   tryons Tryon[]
 
+  @@index([createdAt], name: "body_profiles_created_at_idx")
+  @@index([updatedAt], name: "body_profiles_updated_at_idx")
   @@map("body_profiles")
 }
 
@@ -79,6 +83,14 @@ model Garment {
   orderItems   OrderItem[]
   tryonItems   TryonGarment[]
 
+  @@index([userId], name: "garments_user_id_idx")
+  @@index([category], name: "garments_category_idx")
+  @@index([subcategory], name: "garments_subcategory_idx")
+  @@index([brand], name: "garments_brand_idx")
+  @@index([isFavorite], name: "garments_is_favorite_idx")
+  @@index([createdAt], name: "garments_created_at_idx")
+  @@index([userId, category], name: "garments_user_category_idx")
+  @@index([userId, isFavorite], name: "garments_user_favorite_idx")
   @@map("garments")
 }
 
@@ -98,6 +110,11 @@ model Tryon {
   results     TryonResult[]
   garments    TryonGarment[]
 
+  @@index([userId], name: "tryons_user_id_idx")
+  @@index([bodyProfileId], name: "tryons_body_profile_id_idx")
+  @@index([sessionId], name: "tryons_session_id_idx")
+  @@index([createdAt], name: "tryons_created_at_idx")
+  @@index([userId, createdAt], name: "tryons_user_created_at_idx")
   @@map("tryons")
 }
 
@@ -114,6 +131,9 @@ model TryonResult {
   // Relations
   tryon Tryon @relation(fields: [tryonId], references: [id], onDelete: Cascade)
 
+  @@index([tryonId], name: "tryon_results_tryon_id_idx")
+  @@index([rating], name: "tryon_results_rating_idx")
+  @@index([createdAt], name: "tryon_results_created_at_idx")
   @@map("tryon_results")
 }
 
@@ -148,6 +168,14 @@ model Outfit {
   user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   items OutfitItem[]
 
+  @@index([userId], name: "outfits_user_id_idx")
+  @@index([occasion], name: "outfits_occasion_idx")
+  @@index([season], name: "outfits_season_idx")
+  @@index([isFavorite], name: "outfits_is_favorite_idx")
+  @@index([likesCount], name: "outfits_likes_count_idx")
+  @@index([createdAt], name: "outfits_created_at_idx")
+  @@index([userId, isFavorite], name: "outfits_user_favorite_idx")
+  @@index([userId, season], name: "outfits_user_season_idx")
   @@map("outfits")
 }
 
@@ -165,6 +193,10 @@ model OutfitItem {
 
   @@unique([outfitId, garmentId])
   @@unique([outfitId, displayOrder])
+  @@index([outfitId], name: "outfit_items_outfit_id_idx")
+  @@index([garmentId], name: "outfit_items_garment_id_idx")
+  @@index([category], name: "outfit_items_category_idx")
+  @@index([displayOrder], name: "outfit_items_display_order_idx")
   @@map("outfit_items")
 }
 
@@ -185,6 +217,13 @@ model Order {
   user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items OrderItem[]
 
+  @@index([userId], name: "orders_user_id_idx")
+  @@index([status], name: "orders_status_idx")
+  @@index([createdAt], name: "orders_created_at_idx")
+  @@index([shippedAt], name: "orders_shipped_at_idx")
+  @@index([deliveredAt], name: "orders_delivered_at_idx")
+  @@index([userId, status], name: "orders_user_status_idx")
+  @@index([userId, createdAt], name: "orders_user_created_at_idx")
   @@map("orders")
 }
 
@@ -201,6 +240,9 @@ model OrderItem {
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   garment Garment @relation(fields: [garmentId], references: [id], onDelete: Restrict)
 
+  @@index([orderId], name: "order_items_order_id_idx")
+  @@index([garmentId], name: "order_items_garment_id_idx")
+  @@index([createdAt], name: "order_items_created_at_idx")
   @@map("order_items")
 }
 

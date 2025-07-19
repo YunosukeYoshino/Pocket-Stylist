@@ -1,134 +1,134 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { logger, logClaudeUsage } from '../utils/logger';
-import { env } from '../config/env';
-import { ClaudeAPIError } from '../middleware/errorHandler';
-import { RedisService } from './RedisService';
+import Anthropic from '@anthropic-ai/sdk'
+import { env } from '../config/env'
+import { ClaudeAPIError } from '../middleware/errorHandler'
+import { logClaudeUsage, logger } from '../utils/logger'
+import { RedisService } from './RedisService'
 
 export interface StylingRecommendationInput {
-  userId: string;
+  userId: string
   userProfile: {
-    gender?: string;
-    age?: number;
+    gender?: string
+    age?: number
     preferences?: {
-      style?: string;
-      colors?: string[];
-      brands?: string[];
-    };
-  };
+      style?: string
+      colors?: string[]
+      brands?: string[]
+    }
+  }
   bodyProfile: {
-    height?: number;
-    weight?: number;
-    bodyType?: string;
-    skinTone?: string;
-    measurements?: Record<string, number>;
-  };
+    height?: number
+    weight?: number
+    bodyType?: string
+    skinTone?: string
+    measurements?: Record<string, number>
+  }
   garments: Array<{
-    id: string;
-    name: string;
-    category: string;
-    subcategory?: string;
-    brand?: string;
-    color?: string;
-    size?: string;
-    material?: string;
-    tags?: string[];
-  }>;
+    id: string
+    name: string
+    category: string
+    subcategory?: string
+    brand?: string
+    color?: string
+    size?: string
+    material?: string
+    tags?: string[]
+  }>
   context: {
-    occasion?: string;
-    season?: string;
-    weather?: string;
-    timezone?: string;
-  };
+    occasion?: string
+    season?: string
+    weather?: string
+    timezone?: string
+  }
 }
 
 export interface StylingRecommendationOutput {
-  recommendationId: string;
+  recommendationId: string
   outfits: Array<{
-    id: string;
-    name: string;
-    description: string;
-    confidence: number;
-    occasion: string;
-    season: string;
-    weather: string;
+    id: string
+    name: string
+    description: string
+    confidence: number
+    occasion: string
+    season: string
+    weather: string
     items: Array<{
-      garmentId: string;
-      category: string;
-      displayOrder: number;
-      styling_notes?: string;
-    }>;
-    styling_tips: string[];
+      garmentId: string
+      category: string
+      displayOrder: number
+      styling_notes?: string
+    }>
+    styling_tips: string[]
     color_analysis: {
-      dominant_colors: string[];
-      harmony_score: number;
-      skin_tone_compatibility: number;
-    };
-  }>;
+      dominant_colors: string[]
+      harmony_score: number
+      skin_tone_compatibility: number
+    }
+  }>
   style_analysis: {
-    user_style_profile: string;
-    improvement_suggestions: string[];
-    trend_recommendations: string[];
-  };
+    user_style_profile: string
+    improvement_suggestions: string[]
+    trend_recommendations: string[]
+  }
   personalization_insights: {
-    style_preferences_learned: string[];
-    body_type_considerations: string[];
-    seasonal_adjustments: string[];
-  };
+    style_preferences_learned: string[]
+    body_type_considerations: string[]
+    seasonal_adjustments: string[]
+  }
 }
 
 export class ClaudeService {
-  private static instance: ClaudeService;
-  private client: Anthropic;
-  private redis: RedisService;
+  private static instance: ClaudeService
+  private client: Anthropic
+  private redis: RedisService
 
   private constructor() {
     this.client = new Anthropic({
       apiKey: env.CLAUDE_API_KEY,
-    });
-    this.redis = RedisService.getInstance();
+    })
+    this.redis = RedisService.getInstance()
   }
 
   public static getInstance(): ClaudeService {
     if (!ClaudeService.instance) {
-      ClaudeService.instance = new ClaudeService();
+      ClaudeService.instance = new ClaudeService()
     }
-    return ClaudeService.instance;
+    return ClaudeService.instance
   }
 
   public async generateStylingRecommendations(
     input: StylingRecommendationInput
   ): Promise<StylingRecommendationOutput> {
-    const startTime = Date.now();
-    
+    const startTime = Date.now()
+
     try {
       // Check cache first
-      const cacheKey = `styling:${input.userId}:${this.hashInput(input)}`;
-      const cached = await this.redis.getJson<StylingRecommendationOutput>(cacheKey);
-      
+      const cacheKey = `styling:${input.userId}:${this.hashInput(input)}`
+      const cached = await this.redis.getJson<StylingRecommendationOutput>(cacheKey)
+
       if (cached) {
-        logger.info('Returning cached styling recommendations', { userId: input.userId });
-        return cached;
+        logger.info('Returning cached styling recommendations', { userId: input.userId })
+        return cached
       }
 
-      const prompt = this.buildStylingPrompt(input);
-      
+      const prompt = this.buildStylingPrompt(input)
+
       const response = await this.client.messages.create({
         model: env.CLAUDE_MODEL,
-        max_tokens: parseInt(env.CLAUDE_MAX_TOKENS, 10),
-        temperature: parseFloat(env.CLAUDE_TEMPERATURE),
+        max_tokens: Number.parseInt(env.CLAUDE_MAX_TOKENS, 10),
+        temperature: Number.parseFloat(env.CLAUDE_TEMPERATURE),
         messages: [
           {
             role: 'user',
             content: prompt,
           },
         ],
-      });
+      })
 
-      const result = this.parseStylingResponse(response.content[0]);
-      const processingTime = Date.now() - startTime;
+      const result = this.parseStylingResponse(response.content[0])
+      const processingTime = Date.now() - startTime
 
       // Cache the result
-      await this.redis.setJson(cacheKey, result, parseInt(env.RECOMMENDATION_CACHE_TTL, 10));
+      await this.redis.setJson(cacheKey, result, Number.parseInt(env.RECOMMENDATION_CACHE_TTL, 10))
 
       // Log usage
       logClaudeUsage(
@@ -137,39 +137,43 @@ export class ClaudeService {
         response.usage?.input_tokens || 0,
         this.calculateCost(response.usage?.input_tokens || 0, response.usage?.output_tokens || 0),
         processingTime
-      );
+      )
 
-      return result;
+      return result
     } catch (error) {
-      logger.error('Claude API error in generateStylingRecommendations:', error);
-      throw new ClaudeAPIError('Failed to generate styling recommendations');
+      logger.error('Claude API error in generateStylingRecommendations:', error)
+      throw new ClaudeAPIError('Failed to generate styling recommendations')
     }
   }
 
-  public async analyzeUserStyleProfile(userId: string, userPreferences: any, garmentHistory: any[]): Promise<any> {
-    const startTime = Date.now();
-    
+  public async analyzeUserStyleProfile(
+    userId: string,
+    userPreferences: any,
+    garmentHistory: any[]
+  ): Promise<any> {
+    const startTime = Date.now()
+
     try {
-      const prompt = this.buildStyleAnalysisPrompt(userId, userPreferences, garmentHistory);
-      
+      const prompt = this.buildStyleAnalysisPrompt(userId, userPreferences, garmentHistory)
+
       const response = await this.client.messages.create({
         model: env.CLAUDE_MODEL,
-        max_tokens: parseInt(env.CLAUDE_MAX_TOKENS, 10),
-        temperature: parseFloat(env.CLAUDE_TEMPERATURE),
+        max_tokens: Number.parseInt(env.CLAUDE_MAX_TOKENS, 10),
+        temperature: Number.parseFloat(env.CLAUDE_TEMPERATURE),
         messages: [
           {
             role: 'user',
             content: prompt,
           },
         ],
-      });
+      })
 
-      const result = this.parseStyleAnalysisResponse(response.content[0]);
-      const processingTime = Date.now() - startTime;
+      const result = this.parseStyleAnalysisResponse(response.content[0])
+      const processingTime = Date.now() - startTime
 
       // Cache the result
-      const cacheKey = `style_profile:${userId}`;
-      await this.redis.setJson(cacheKey, result, parseInt(env.CACHE_TTL, 10));
+      const cacheKey = `style_profile:${userId}`
+      await this.redis.setJson(cacheKey, result, Number.parseInt(env.CACHE_TTL, 10))
 
       // Log usage
       logClaudeUsage(
@@ -178,35 +182,39 @@ export class ClaudeService {
         response.usage?.input_tokens || 0,
         this.calculateCost(response.usage?.input_tokens || 0, response.usage?.output_tokens || 0),
         processingTime
-      );
+      )
 
-      return result;
+      return result
     } catch (error) {
-      logger.error('Claude API error in analyzeUserStyleProfile:', error);
-      throw new ClaudeAPIError('Failed to analyze user style profile');
+      logger.error('Claude API error in analyzeUserStyleProfile:', error)
+      throw new ClaudeAPIError('Failed to analyze user style profile')
     }
   }
 
-  public async generateOutfitDescription(garmentIds: string[], occasion: string, season: string): Promise<string> {
-    const startTime = Date.now();
-    
+  public async generateOutfitDescription(
+    garmentIds: string[],
+    occasion: string,
+    season: string
+  ): Promise<string> {
+    const startTime = Date.now()
+
     try {
-      const prompt = this.buildOutfitDescriptionPrompt(garmentIds, occasion, season);
-      
+      const prompt = this.buildOutfitDescriptionPrompt(garmentIds, occasion, season)
+
       const response = await this.client.messages.create({
         model: env.CLAUDE_MODEL,
         max_tokens: 500,
-        temperature: parseFloat(env.CLAUDE_TEMPERATURE),
+        temperature: Number.parseFloat(env.CLAUDE_TEMPERATURE),
         messages: [
           {
             role: 'user',
             content: prompt,
           },
         ],
-      });
+      })
 
-      const result = this.parseTextResponse(response.content[0]);
-      const processingTime = Date.now() - startTime;
+      const result = this.parseTextResponse(response.content[0])
+      const processingTime = Date.now() - startTime
 
       // Log usage
       logClaudeUsage(
@@ -215,12 +223,12 @@ export class ClaudeService {
         response.usage?.input_tokens || 0,
         this.calculateCost(response.usage?.input_tokens || 0, response.usage?.output_tokens || 0),
         processingTime
-      );
+      )
 
-      return result;
+      return result
     } catch (error) {
-      logger.error('Claude API error in generateOutfitDescription:', error);
-      throw new ClaudeAPIError('Failed to generate outfit description');
+      logger.error('Claude API error in generateOutfitDescription:', error)
+      throw new ClaudeAPIError('Failed to generate outfit description')
     }
   }
 
@@ -295,10 +303,14 @@ Focus on:
 4. Season and weather suitability
 5. Personal style preferences
 6. Trend awareness
-7. Practical styling tips`;
+7. Practical styling tips`
   }
 
-  private buildStyleAnalysisPrompt(_userId: string, userPreferences: any, garmentHistory: any[]): string {
+  private buildStyleAnalysisPrompt(
+    _userId: string,
+    userPreferences: any,
+    garmentHistory: any[]
+  ): string {
     return `Analyze the user's style profile based on their preferences and garment history.
 
 User Preferences:
@@ -328,10 +340,14 @@ Provide analysis in JSON format:
     "suggested_purchases": ["item1", "item2"],
     "style_evolution": "Next steps in style journey"
   }
-}`;
+}`
   }
 
-  private buildOutfitDescriptionPrompt(garmentIds: string[], occasion: string, season: string): string {
+  private buildOutfitDescriptionPrompt(
+    garmentIds: string[],
+    occasion: string,
+    season: string
+  ): string {
     return `Create a compelling outfit description for a ${occasion} occasion in ${season}.
 
 Garment IDs: ${garmentIds.join(', ')}
@@ -341,70 +357,70 @@ Provide a 2-3 sentence description highlighting:
 2. Key styling elements
 3. Why it works for the occasion and season
 
-Keep it engaging and professional.`;
+Keep it engaging and professional.`
   }
 
   private parseStylingResponse(content: any): StylingRecommendationOutput {
     try {
-      const text = typeof content === 'string' ? content : content.text;
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      
+      const text = typeof content === 'string' ? content : content.text
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+
       if (!jsonMatch) {
-        throw new Error('No JSON found in response');
+        throw new Error('No JSON found in response')
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
-      
+      const parsed = JSON.parse(jsonMatch[0])
+
       return {
         recommendationId: this.generateRecommendationId(),
         outfits: parsed.outfits || [],
         style_analysis: parsed.style_analysis || {},
         personalization_insights: parsed.personalization_insights || {},
-      };
+      }
     } catch (error) {
-      logger.error('Error parsing styling response:', error);
-      throw new ClaudeAPIError('Failed to parse styling recommendation response');
+      logger.error('Error parsing styling response:', error)
+      throw new ClaudeAPIError('Failed to parse styling recommendation response')
     }
   }
 
   private parseStyleAnalysisResponse(content: any): any {
     try {
-      const text = typeof content === 'string' ? content : content.text;
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      
+      const text = typeof content === 'string' ? content : content.text
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+
       if (!jsonMatch) {
-        throw new Error('No JSON found in response');
+        throw new Error('No JSON found in response')
       }
 
-      return JSON.parse(jsonMatch[0]);
+      return JSON.parse(jsonMatch[0])
     } catch (error) {
-      logger.error('Error parsing style analysis response:', error);
-      throw new ClaudeAPIError('Failed to parse style analysis response');
+      logger.error('Error parsing style analysis response:', error)
+      throw new ClaudeAPIError('Failed to parse style analysis response')
     }
   }
 
   private parseTextResponse(content: any): string {
     try {
-      return typeof content === 'string' ? content : content.text;
+      return typeof content === 'string' ? content : content.text
     } catch (error) {
-      logger.error('Error parsing text response:', error);
-      throw new ClaudeAPIError('Failed to parse text response');
+      logger.error('Error parsing text response:', error)
+      throw new ClaudeAPIError('Failed to parse text response')
     }
   }
 
   private hashInput(input: any): string {
-    return Buffer.from(JSON.stringify(input)).toString('base64').slice(0, 32);
+    return Buffer.from(JSON.stringify(input)).toString('base64').slice(0, 32)
   }
 
   private generateRecommendationId(): string {
-    return `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
   private calculateCost(inputTokens: number, outputTokens: number): number {
     // Claude pricing (approximate)
-    const inputCostPer1K = 0.003;
-    const outputCostPer1K = 0.015;
-    
-    return (inputTokens / 1000) * inputCostPer1K + (outputTokens / 1000) * outputCostPer1K;
+    const inputCostPer1K = 0.003
+    const outputCostPer1K = 0.015
+
+    return (inputTokens / 1000) * inputCostPer1K + (outputTokens / 1000) * outputCostPer1K
   }
 }

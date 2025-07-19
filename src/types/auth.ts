@@ -73,7 +73,6 @@ export interface SocialConnection {
   icon?: string
 }
 
-
 export enum Role {
   USER = 'user',
   PREMIUM_USER = 'premium_user',

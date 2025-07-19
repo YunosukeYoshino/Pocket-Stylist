@@ -2,13 +2,7 @@ import * as SecureStore from 'expo-secure-store'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import authService from '../services/auth/authService'
-import type {
-  AuthError,
-  AuthState,
-  LoginOptions,
-  LogoutOptions,
-  User,
-} from '../types/auth'
+import type { AuthError, AuthState, LoginOptions, LogoutOptions, User } from '../types/auth'
 
 interface AuthActions {
   // ログイン・ログアウト
@@ -309,7 +303,6 @@ export const useAuthStore = create<AuthStore>()(
           throw error
         }
       },
-
     }),
     {
       name: 'auth-store',

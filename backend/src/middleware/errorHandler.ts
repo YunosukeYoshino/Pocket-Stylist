@@ -1,30 +1,30 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodError } from 'zod';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { logger } from '../utils/logger';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import type { NextFunction, Request, Response } from 'express'
+import { ZodError } from 'zod'
+import { logger } from '../utils/logger'
 
 export class AppError extends Error {
-  statusCode: number;
-  isOperational: boolean;
+  statusCode: number
+  isOperational: boolean
 
   constructor(message: string, statusCode: number) {
-    super(message);
-    this.statusCode = statusCode;
-    this.isOperational = true;
+    super(message)
+    this.statusCode = statusCode
+    this.isOperational = true
 
-    Error.captureStackTrace(this, this.constructor);
+    Error.captureStackTrace(this, this.constructor)
   }
 }
 
 export class ClaudeAPIError extends AppError {
-  constructor(message: string, statusCode: number = 500) {
-    super(`Claude API Error: ${message}`, statusCode);
+  constructor(message: string, statusCode = 500) {
+    super(`Claude API Error: ${message}`, statusCode)
   }
 }
 
 export class RecommendationError extends AppError {
-  constructor(message: string, statusCode: number = 500) {
-    super(`Recommendation Error: ${message}`, statusCode);
+  constructor(message: string, statusCode = 500) {
+    super(`Recommendation Error: ${message}`, statusCode)
   }
 }
 
@@ -34,8 +34,8 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  let statusCode = 500;
-  let message = 'Internal Server Error';
+  let statusCode = 500
+  let message = 'Internal Server Error'
 
   // Log error details
   logger.error('Error caught by error handler:', {
@@ -45,54 +45,54 @@ export const errorHandler = (
     method: req.method,
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-  });
+  })
 
   // Handle different types of errors
   if (error instanceof AppError) {
-    statusCode = error.statusCode;
-    message = error.message;
+    statusCode = error.statusCode
+    message = error.message
   } else if (error instanceof ZodError) {
-    statusCode = 400;
-    message = 'Validation Error';
+    statusCode = 400
+    message = 'Validation Error'
     const validationErrors = error.errors.map(err => ({
       field: err.path.join('.'),
       message: err.message,
-    }));
-    
+    }))
+
     res.status(statusCode).json({
       error: message,
       details: validationErrors,
-    });
-    return;
+    })
+    return
   } else if (error instanceof PrismaClientKnownRequestError) {
-    statusCode = 400;
-    
+    statusCode = 400
+
     switch (error.code) {
       case 'P2002':
-        message = 'Unique constraint violation';
-        break;
+        message = 'Unique constraint violation'
+        break
       case 'P2025':
-        message = 'Record not found';
-        statusCode = 404;
-        break;
+        message = 'Record not found'
+        statusCode = 404
+        break
       case 'P2003':
-        message = 'Foreign key constraint violation';
-        break;
+        message = 'Foreign key constraint violation'
+        break
       case 'P2014':
-        message = 'Invalid ID provided';
-        break;
+        message = 'Invalid ID provided'
+        break
       default:
-        message = 'Database error';
+        message = 'Database error'
     }
   } else if (error.name === 'JsonWebTokenError') {
-    statusCode = 401;
-    message = 'Invalid token';
+    statusCode = 401
+    message = 'Invalid token'
   } else if (error.name === 'TokenExpiredError') {
-    statusCode = 401;
-    message = 'Token expired';
+    statusCode = 401
+    message = 'Token expired'
   } else if (error.name === 'NotBeforeError') {
-    statusCode = 401;
-    message = 'Token not active';
+    statusCode = 401
+    message = 'Token not active'
   }
 
   // Send error response
@@ -102,16 +102,16 @@ export const errorHandler = (
       details: error.message,
       stack: error.stack,
     }),
-  });
-};
+  })
+}
 
 export const asyncHandler = (fn: Function) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
-};
+    Promise.resolve(fn(req, res, next)).catch(next)
+  }
+}
 
 export const notFound = (req: Request, _res: Response, next: NextFunction) => {
-  const error = new AppError(`Not found - ${req.originalUrl}`, 404);
-  next(error);
-};
+  const error = new AppError(`Not found - ${req.originalUrl}`, 404)
+  next(error)
+}

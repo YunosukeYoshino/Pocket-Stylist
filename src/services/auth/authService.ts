@@ -395,7 +395,6 @@ class AuthService {
     }
   }
 
-
   /**
    * 現在の設定を取得
    */
