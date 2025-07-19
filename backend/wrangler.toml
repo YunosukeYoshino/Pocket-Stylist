@@ -1,0 +1,38 @@
+# Wrangler configuration for Pocket Stylist API
+name = "pocket-stylist-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "pocket-stylist-files"
+preview_bucket_name = "pocket-stylist-files-preview"
+
+# Environment-specific settings
+[env.development]
+name = "pocket-stylist-api-dev"
+vars = { ENVIRONMENT = "development" }
+
+[env.staging]
+name = "pocket-stylist-api-staging"
+vars = { ENVIRONMENT = "staging" }
+
+[env.production]
+name = "pocket-stylist-api-prod"
+vars = { ENVIRONMENT = "production" }
+
+# Custom domains (to be configured)
+# [env.production.routes]
+# pattern = "api.pocket-stylist.com/*"
+# zone_name = "pocket-stylist.com"
+
+# Build configuration
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"

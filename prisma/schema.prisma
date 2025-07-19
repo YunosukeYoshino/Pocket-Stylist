@@ -24,14 +24,15 @@ model User {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  bodyProfiles          BodyProfile[]
-  garments              Garment[]
-  tryons                Tryon[]
-  outfits               Outfit[]
-  orders                Order[]
-  aiRecommendations     AiRecommendation[]
+  bodyProfiles             BodyProfile[]
+  garments                 Garment[]
+  tryons                   Tryon[]
+  outfits                  Outfit[]
+  orders                   Order[]
+  files                    File[]
+  aiRecommendations        AiRecommendation[]
   aiRecommendationFeedback AiRecommendationFeedback[]
-  userStyleProfiles     UserStyleProfile[]
+  userStyleProfiles        UserStyleProfile[]
 
   @@index([createdAt], name: "users_created_at_idx")
   @@index([updatedAt], name: "users_updated_at_idx")
@@ -246,6 +247,30 @@ model OrderItem {
   @@map("order_items")
 }
 
+model File {
+  id            String      @id @default(uuid()) @db.Uuid
+  userId        String      @map("user_id") @db.Uuid
+  filename      String      @db.VarChar(255)
+  originalName  String      @map("original_name") @db.VarChar(255)
+  mimeType      String      @map("mime_type") @db.VarChar(100)
+  size          Int         @db.Integer
+  category      FileCategory
+  r2Key         String      @unique @map("r2_key") @db.VarChar(500)
+  r2Bucket      String      @map("r2_bucket") @db.VarChar(100)
+  cdnUrl        String?     @map("cdn_url") @db.Text
+  thumbnailUrl  String?     @map("thumbnail_url") @db.Text
+  metadata      Json?       @db.JsonB
+  processed     Boolean     @default(false)
+  checksum      String?     @db.VarChar(64)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("files")
+}
+
 // AI Recommendation Models
 model AiRecommendation {
   id                String   @id @default(uuid()) @db.Uuid
@@ -381,6 +406,13 @@ enum OrderStatus {
   cancelled
   returned
   refunded
+}
+
+enum FileCategory {
+  avatar
+  garment
+  tryon
+  other
 }
 
 enum RecommendationType {
