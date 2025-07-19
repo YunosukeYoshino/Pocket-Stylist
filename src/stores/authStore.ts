@@ -2,14 +2,7 @@ import * as SecureStore from 'expo-secure-store'
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import authService from '../services/auth/authService'
-import type {
-  AuthError,
-  AuthState,
-  LoginOptions,
-  LogoutOptions,
-  MFAChallenge,
-  User,
-} from '../types/auth'
+import type { AuthError, AuthState, LoginOptions, LogoutOptions, User } from '../types/auth'
 
 interface AuthActions {
   // ログイン・ログアウト
@@ -37,17 +30,6 @@ interface AuthActions {
 
   // パスワードリセット
   requestPasswordReset: (email: string) => Promise<void>
-
-  // MFA関連
-  setupSMSMFA: (phoneNumber: string) => Promise<string>
-  setupTOTPMFA: () => Promise<{ secret: string; qrCodeUrl: string; challengeId: string }>
-  verifyMFASetup: (method: 'sms' | 'totp', code: string, challengeId: string) => Promise<void>
-  verifyMFAChallenge: (challengeId: string, code: string) => Promise<void>
-  resendMFACode: (challengeId: string) => Promise<void>
-  getMFASettings: () => Promise<{ enabled: boolean; factors: Array<'sms' | 'totp' | 'push'> }>
-  disableMFA: () => Promise<void>
-  setMFAChallenge: (challenge: MFAChallenge | null) => void
-  setMFARequired: (required: boolean) => void
 }
 
 type AuthStore = AuthState & AuthActions
@@ -89,8 +71,6 @@ export const useAuthStore = create<AuthStore>()(
       refreshToken: null,
       idToken: null,
       error: null,
-      mfaChallenge: null,
-      mfaRequired: false,
 
       // ログイン処理
       login: async (options?: LoginOptions) => {
@@ -323,128 +303,6 @@ export const useAuthStore = create<AuthStore>()(
           throw error
         }
       },
-
-      // MFA関連のアクション
-      setupSMSMFA: async phoneNumber => {
-        set({ isLoading: true, error: null })
-        try {
-          const challengeId = await authService.setupSMSMFA(phoneNumber)
-          set({ isLoading: false, error: null })
-          return challengeId
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      setupTOTPMFA: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const result = await authService.setupTOTPMFA()
-          set({ isLoading: false, error: null })
-          return result
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      verifyMFASetup: async (method, code, challengeId) => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.verifyMFASetup(method, code, challengeId)
-          set({ isLoading: false, error: null })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      verifyMFAChallenge: async (challengeId, code) => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.verifyMFAChallenge(challengeId, code)
-          set({
-            isLoading: false,
-            error: null,
-            mfaChallenge: null,
-            mfaRequired: false,
-          })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      resendMFACode: async challengeId => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.resendMFACode(challengeId)
-          set({ isLoading: false, error: null })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      getMFASettings: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          const settings = await authService.getMFASettings()
-          set({ isLoading: false, error: null })
-          return settings
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      disableMFA: async () => {
-        set({ isLoading: true, error: null })
-        try {
-          await authService.disableMFA()
-          set({ isLoading: false, error: null })
-        } catch (error) {
-          const authError = error as AuthError
-          set({
-            isLoading: false,
-            error: authError.message,
-          })
-          throw error
-        }
-      },
-
-      setMFAChallenge: challenge => {
-        set({ mfaChallenge: challenge })
-      },
-
-      setMFARequired: required => {
-        set({ mfaRequired: required })
-      },
     }),
     {
       name: 'auth-store',
@@ -465,8 +323,6 @@ export const useAuth = () => {
     isLoading,
     user,
     error,
-    mfaChallenge,
-    mfaRequired,
     login,
     loginWithGoogle,
     loginWithApple,
@@ -478,15 +334,6 @@ export const useAuth = () => {
     clearError,
     initialize,
     requestPasswordReset,
-    setupSMSMFA,
-    setupTOTPMFA,
-    verifyMFASetup,
-    verifyMFAChallenge,
-    resendMFACode,
-    getMFASettings,
-    disableMFA,
-    setMFAChallenge,
-    setMFARequired,
   } = useAuthStore()
 
   return {
@@ -494,8 +341,6 @@ export const useAuth = () => {
     isLoading,
     user,
     error,
-    mfaChallenge,
-    mfaRequired,
     login,
     loginWithGoogle,
     loginWithApple,
@@ -507,15 +352,6 @@ export const useAuth = () => {
     clearError,
     initialize,
     requestPasswordReset,
-    setupSMSMFA,
-    setupTOTPMFA,
-    verifyMFASetup,
-    verifyMFAChallenge,
-    resendMFACode,
-    getMFASettings,
-    disableMFA,
-    setMFAChallenge,
-    setMFARequired,
   }
 }
 

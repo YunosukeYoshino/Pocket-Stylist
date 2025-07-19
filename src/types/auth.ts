@@ -34,8 +34,6 @@ export interface AuthState {
   refreshToken: string | null
   idToken: string | null
   error: string | null
-  mfaChallenge: MFAChallenge | null
-  mfaRequired: boolean
 }
 
 export interface LoginOptions {
@@ -73,18 +71,6 @@ export interface SocialConnection {
   strategy: 'google-oauth2' | 'apple' | 'facebook' | 'twitter'
   display_name: string
   icon?: string
-}
-
-export interface MFAChallenge {
-  type: 'otp' | 'sms' | 'push'
-  challenge_id: string
-  phone_number?: string
-}
-
-export interface MFAOptions {
-  enabled: boolean
-  factors: Array<'sms' | 'push' | 'totp'>
-  force_for_admins?: boolean
 }
 
 export enum Role {
