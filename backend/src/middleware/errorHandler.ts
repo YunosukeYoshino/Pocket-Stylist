@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import type { NextFunction, Request, Response } from 'express'
+// import type { Context, Next } from 'hono'
 import { ZodError } from 'zod'
-import { logger } from '../utils/logger'
 
 export class AppError extends Error {
   statusCode: number
@@ -38,7 +38,7 @@ export const errorHandler = (
   let message = 'Internal Server Error'
 
   // Log error details
-  logger.error('Error caught by error handler:', {
+  console.error('Error caught by error handler:', {
     message: error.message,
     stack: error.stack,
     url: req.url,
@@ -115,3 +115,6 @@ export const notFound = (req: Request, _res: Response, next: NextFunction) => {
   const error = new AppError(`Not found - ${req.originalUrl}`, 404)
   next(error)
 }
+
+// TODO: Implement Hono-compatible error handler
+// For now, use Hono's built-in error handling
