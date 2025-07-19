@@ -7,7 +7,7 @@ export abstract class BaseRepository {
     this.prisma = prisma
   }
 
-  protected handleError(error: any, operation: string): never {
+  protected handleError(error: unknown, operation: string): never {
     console.error(`Repository error in ${operation}:`, error)
     throw error
   }

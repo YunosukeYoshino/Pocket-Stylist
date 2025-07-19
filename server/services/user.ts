@@ -10,7 +10,18 @@ export class UserService {
     this.userRepository = new UserRepository(prisma)
   }
 
-  private formatUserProfile(user: any) {
+  private formatUserProfile(user: {
+    id: string
+    email: string
+    name: string | null
+    avatarUrl: string | null
+    gender: string | null
+    birthDate: Date | null
+    phone: string | null
+    preferences: unknown
+    createdAt: Date
+    updatedAt: Date
+  }) {
     return {
       id: user.id,
       email: user.email,
@@ -19,7 +30,7 @@ export class UserService {
       gender: user.gender,
       birthDate: user.birthDate,
       phone: user.phone,
-      preferences: user.preferences,
+      preferences: user.preferences as Record<string, unknown> | null,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }

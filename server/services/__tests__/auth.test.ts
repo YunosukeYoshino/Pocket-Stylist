@@ -18,7 +18,7 @@ describe('AuthService', () => {
         create: jest.fn(),
         update: jest.fn(),
       },
-    } as any
+    } as never
 
     authService = new AuthService(mockPrisma)
   })
@@ -44,7 +44,7 @@ describe('AuthService', () => {
       }
 
       // Mock UserService.findOrCreateUser
-      jest.spyOn(authService['userService'], 'findOrCreateUser').mockResolvedValue(mockUser as any)
+      jest.spyOn(authService.userService, 'findOrCreateUser').mockResolvedValue(mockUser as never)
 
       const result = await authService.handleLogin(userData)
 
@@ -67,7 +67,7 @@ describe('AuthService', () => {
 
       // Mock UserService.findOrCreateUser to throw error
       jest
-        .spyOn(authService['userService'], 'findOrCreateUser')
+        .spyOn(authService.userService, 'findOrCreateUser')
         .mockRejectedValue(new Error('Database error'))
 
       await expect(authService.handleLogin(userData)).rejects.toThrow(ApiError)
@@ -96,9 +96,9 @@ describe('AuthService', () => {
       jest.spyOn(jwt, 'decode').mockReturnValue({
         sub: 'auth0|123',
         email: 'test@example.com',
-      } as any)
+      } as never)
 
-      jest.spyOn(authService['userService'], 'getUserProfile').mockResolvedValue(mockUser as any)
+      jest.spyOn(authService.userService, 'getUserProfile').mockResolvedValue(mockUser as never)
 
       const result = await authService.validateToken(token)
 
@@ -121,7 +121,7 @@ describe('AuthService', () => {
 
       jest.spyOn(jwt, 'decode').mockReturnValue({
         email: 'test@example.com',
-      } as any)
+      } as never)
 
       await expect(authService.validateToken(token)).rejects.toThrow(ApiError)
     })
@@ -132,7 +132,7 @@ describe('AuthService', () => {
       const userId = 'user-id'
       const mockToken = 'mock-refresh-token'
 
-      jest.spyOn(jwt, 'sign').mockReturnValue(mockToken as any)
+      jest.spyOn(jwt, 'sign').mockReturnValue(mockToken as never)
 
       const result = authService.generateRefreshToken(userId)
 
@@ -201,9 +201,9 @@ describe('AuthService', () => {
       jest.spyOn(jwt, 'verify').mockReturnValue({
         userId: 'user-id',
         type: 'refresh',
-      } as any)
+      } as never)
 
-      jest.spyOn(jwt, 'sign').mockReturnValue(mockAccessToken as any)
+      jest.spyOn(jwt, 'sign').mockReturnValue(mockAccessToken as never)
 
       const result = await authService.refreshAccessToken(refreshToken)
 

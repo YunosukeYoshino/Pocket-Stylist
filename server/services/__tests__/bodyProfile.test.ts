@@ -18,7 +18,7 @@ describe('BodyProfileService', () => {
         upsert: jest.fn(),
         delete: jest.fn(),
       },
-    } as any
+    } as never
 
     bodyProfileService = new BodyProfileService(mockPrisma)
   })
@@ -47,13 +47,13 @@ describe('BodyProfileService', () => {
       }
 
       jest
-        .spyOn(bodyProfileService['userRepository'], 'findByAuth0Id')
-        .mockResolvedValue(mockUser as any)
-      jest.spyOn(bodyProfileService['bodyProfileRepository'], 'findByUserId').mockResolvedValue({
+        .spyOn(bodyProfileService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(mockUser as never)
+      jest.spyOn(bodyProfileService.bodyProfileRepository, 'findByUserId').mockResolvedValue({
         ...mockBodyProfile,
         measurements: { chest: 95 },
         fitPreferences: 'slim',
-      } as any)
+      } as never)
 
       const result = await bodyProfileService.getBodyProfile(auth0Id)
 
@@ -74,7 +74,7 @@ describe('BodyProfileService', () => {
     it('should throw ApiError when user not found', async () => {
       const auth0Id = 'auth0|123'
 
-      jest.spyOn(bodyProfileService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(bodyProfileService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(bodyProfileService.getBodyProfile(auth0Id)).rejects.toThrow(ApiError)
       await expect(bodyProfileService.getBodyProfile(auth0Id)).rejects.toThrow('User not found')
@@ -87,9 +87,9 @@ describe('BodyProfileService', () => {
       const mockUser = { id: userId }
 
       jest
-        .spyOn(bodyProfileService['userRepository'], 'findByAuth0Id')
-        .mockResolvedValue(mockUser as any)
-      jest.spyOn(bodyProfileService['bodyProfileRepository'], 'findByUserId').mockResolvedValue(null)
+        .spyOn(bodyProfileService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(mockUser as never)
+      jest.spyOn(bodyProfileService.bodyProfileRepository, 'findByUserId').mockResolvedValue(null)
 
       await expect(bodyProfileService.getBodyProfile(auth0Id)).rejects.toThrow(ApiError)
       await expect(bodyProfileService.getBodyProfile(auth0Id)).rejects.toThrow(
@@ -124,11 +124,11 @@ describe('BodyProfileService', () => {
       }
 
       jest
-        .spyOn(bodyProfileService['userRepository'], 'findByAuth0Id')
-        .mockResolvedValue(mockUser as any)
+        .spyOn(bodyProfileService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(mockUser as never)
       jest
-        .spyOn(bodyProfileService['bodyProfileRepository'], 'create')
-        .mockResolvedValue(mockBodyProfile as any)
+        .spyOn(bodyProfileService.bodyProfileRepository, 'create')
+        .mockResolvedValue(mockBodyProfile as never)
 
       const result = await bodyProfileService.createBodyProfile(auth0Id, profileData)
 
@@ -144,7 +144,7 @@ describe('BodyProfileService', () => {
         createdAt: mockBodyProfile.createdAt,
         updatedAt: mockBodyProfile.updatedAt,
       })
-      expect(bodyProfileService['bodyProfileRepository'].create).toHaveBeenCalledWith(
+      expect(bodyProfileService.bodyProfileRepository.create).toHaveBeenCalledWith(
         userId,
         profileData
       )
@@ -154,7 +154,7 @@ describe('BodyProfileService', () => {
       const auth0Id = 'auth0|123'
       const profileData = { height: 175 }
 
-      jest.spyOn(bodyProfileService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(bodyProfileService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(bodyProfileService.createBodyProfile(auth0Id, profileData)).rejects.toThrow(
         ApiError
@@ -188,11 +188,11 @@ describe('BodyProfileService', () => {
       }
 
       jest
-        .spyOn(bodyProfileService['userRepository'], 'findByAuth0Id')
-        .mockResolvedValue(mockUser as any)
+        .spyOn(bodyProfileService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(mockUser as never)
       jest
-        .spyOn(bodyProfileService['bodyProfileRepository'], 'upsert')
-        .mockResolvedValue(updatedBodyProfile as any)
+        .spyOn(bodyProfileService.bodyProfileRepository, 'upsert')
+        .mockResolvedValue(updatedBodyProfile as never)
 
       const result = await bodyProfileService.updateBodyProfile(auth0Id, updateData)
 
@@ -208,7 +208,7 @@ describe('BodyProfileService', () => {
         createdAt: updatedBodyProfile.createdAt,
         updatedAt: updatedBodyProfile.updatedAt,
       })
-      expect(bodyProfileService['bodyProfileRepository'].upsert).toHaveBeenCalledWith(
+      expect(bodyProfileService.bodyProfileRepository.upsert).toHaveBeenCalledWith(
         userId,
         updateData
       )
@@ -218,7 +218,7 @@ describe('BodyProfileService', () => {
       const auth0Id = 'auth0|123'
       const updateData = { height: 180 }
 
-      jest.spyOn(bodyProfileService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(bodyProfileService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(bodyProfileService.updateBodyProfile(auth0Id, updateData)).rejects.toThrow(
         ApiError
@@ -249,27 +249,27 @@ describe('BodyProfileService', () => {
       }
 
       jest
-        .spyOn(bodyProfileService['userRepository'], 'findByAuth0Id')
-        .mockResolvedValue(mockUser as any)
+        .spyOn(bodyProfileService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(mockUser as never)
       jest
-        .spyOn(bodyProfileService['bodyProfileRepository'], 'findByUserId')
-        .mockResolvedValue(existingProfile as any)
+        .spyOn(bodyProfileService.bodyProfileRepository, 'findByUserId')
+        .mockResolvedValue(existingProfile as never)
       jest
-        .spyOn(bodyProfileService['bodyProfileRepository'], 'delete')
-        .mockResolvedValue(existingProfile as any)
+        .spyOn(bodyProfileService.bodyProfileRepository, 'delete')
+        .mockResolvedValue(existingProfile as never)
 
       const result = await bodyProfileService.deleteBodyProfile(auth0Id)
 
       expect(result).toEqual({
         message: 'Body profile deleted successfully',
       })
-      expect(bodyProfileService['bodyProfileRepository'].delete).toHaveBeenCalledWith(userId)
+      expect(bodyProfileService.bodyProfileRepository.delete).toHaveBeenCalledWith(userId)
     })
 
     it('should throw ApiError when user not found', async () => {
       const auth0Id = 'auth0|123'
 
-      jest.spyOn(bodyProfileService['userRepository'], 'findByAuth0Id').mockResolvedValue(null)
+      jest.spyOn(bodyProfileService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
 
       await expect(bodyProfileService.deleteBodyProfile(auth0Id)).rejects.toThrow(ApiError)
       await expect(bodyProfileService.deleteBodyProfile(auth0Id)).rejects.toThrow('User not found')

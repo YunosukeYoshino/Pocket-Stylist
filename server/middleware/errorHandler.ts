@@ -28,7 +28,7 @@ export const errorHandler = (
 ) => {
   let statusCode = 500
   let message = 'Internal Server Error'
-  let details: any = undefined
+  let details: unknown = undefined
 
   // Zod validation errors
   if (error instanceof ZodError) {
@@ -88,7 +88,7 @@ export const errorHandler = (
   })
 
   // レスポンス
-  const response: any = {
+  const response: Record<string, unknown> = {
     error: message,
     statusCode,
     timestamp: new Date().toISOString(),
@@ -107,7 +107,7 @@ export const errorHandler = (
   res.status(statusCode).json(response)
 }
 
-type AsyncRequestHandler = (req: Request, res: Response, next: NextFunction) => Promise<any>
+type AsyncRequestHandler = (req: Request, res: Response, next: NextFunction) => Promise<void>
 
 export const asyncHandler = (fn: AsyncRequestHandler) => {
   return (req: Request, res: Response, next: NextFunction) => {

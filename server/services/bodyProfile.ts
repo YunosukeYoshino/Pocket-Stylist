@@ -13,7 +13,18 @@ export class BodyProfileService {
     this.userRepository = new UserRepository(prisma)
   }
 
-  private formatBodyProfileResponse(bodyProfile: any) {
+  private formatBodyProfileResponse(bodyProfile: {
+    id: string
+    userId: string
+    height: number | null
+    weight: number | null
+    bodyType: string | null
+    skinTone: string | null
+    measurements: unknown
+    fitPreferences: string | null
+    createdAt: Date
+    updatedAt: Date
+  }) {
     return {
       id: bodyProfile.id,
       userId: bodyProfile.userId,
@@ -21,7 +32,7 @@ export class BodyProfileService {
       weight: bodyProfile.weight,
       bodyType: bodyProfile.bodyType,
       skinTone: bodyProfile.skinTone,
-      measurements: bodyProfile.measurements,
+      measurements: bodyProfile.measurements as Record<string, unknown> | null,
       fitPreferences: bodyProfile.fitPreferences,
       createdAt: bodyProfile.createdAt,
       updatedAt: bodyProfile.updatedAt,

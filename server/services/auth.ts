@@ -99,7 +99,7 @@ export class AuthService {
         type: 'refresh',
         iat: Math.floor(Date.now() / 1000),
       },
-      process.env.JWT_REFRESH_SECRET!,
+      process.env.JWT_REFRESH_SECRET || 'default-secret',
       { expiresIn: '30d' }
     )
   }
@@ -159,7 +159,10 @@ export class AuthService {
   private async fallbackTokenRefresh(refreshToken: string) {
     try {
       // リフレッシュトークンの検証
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as DecodedToken
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET || 'default-secret'
+      ) as DecodedToken
 
       if (decoded.type !== 'refresh') {
         throw new ApiError('Invalid refresh token', 401)
@@ -171,7 +174,7 @@ export class AuthService {
           sub: decoded.userId,
           iat: Math.floor(Date.now() / 1000),
         },
-        process.env.JWT_SECRET!,
+        process.env.JWT_SECRET || 'default-secret',
         { expiresIn: '24h' }
       )
 

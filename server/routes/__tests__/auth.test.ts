@@ -5,7 +5,7 @@ import { authRouter } from '../auth'
 
 // Mock authentication middleware
 jest.mock('../../middleware/auth', () => ({
-  authenticateToken: (req: any, res: any, next: any) => {
+  authenticateToken: (req: express.Request, res: express.Response, next: express.NextFunction) => {
     req.user = { sub: 'auth0|test-user' }
     next()
   },
@@ -25,7 +25,7 @@ describe('Auth Routes', () => {
         create: jest.fn(),
         update: jest.fn(),
       },
-    } as any
+    } as never
 
     // Inject mock Prisma into request
     app.use((req, res, next) => {
@@ -58,7 +58,7 @@ describe('Auth Routes', () => {
 
       // Mock the user creation/retrieval
       ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null) // User doesn't exist
-      ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(mockUser as any)
+      ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(mockUser as never)
 
       const response = await request(app).post('/auth/login').send(loginData).expect(200)
 
@@ -168,7 +168,11 @@ describe('Auth Routes', () => {
     it('should return 401 for missing authorization header', async () => {
       // Temporarily replace the mock middleware
       jest.doMock('../../middleware/auth', () => ({
-        authenticateToken: (req: any, res: any, next: any) => {
+        authenticateToken: (
+          req: express.Request,
+          res: express.Response,
+          next: express.NextFunction
+        ) => {
           return res.status(401).json({ error: 'Authorization header missing' })
         },
       }))
@@ -193,7 +197,7 @@ describe('Auth Routes', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser as any)
+      ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser as never)
 
       const response = await request(app)
         .get('/auth/me')

@@ -15,7 +15,7 @@ describe('UserService', () => {
         update: jest.fn(),
         delete: jest.fn(),
       },
-    } as any
+    } as unknown as jest.Mocked<PrismaClient>
 
     userService = new UserService(mockPrisma)
   })
@@ -40,7 +40,7 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(mockUser as any)
+      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(mockUser as never)
 
       const result = await userService.getUserProfile(auth0Id)
 
@@ -96,8 +96,10 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(existingUser as any)
-      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as any)
+      jest
+        .spyOn(userService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(existingUser as never)
+      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as never)
 
       const result = await userService.updateUserProfile(auth0Id, updateData)
 
@@ -145,8 +147,10 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(existingUser as any)
-      jest.spyOn(userService.userRepository, 'delete').mockResolvedValue(existingUser as any)
+      jest
+        .spyOn(userService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(existingUser as never)
+      jest.spyOn(userService.userRepository, 'delete').mockResolvedValue(existingUser as never)
 
       const result = await userService.deleteUserProfile(auth0Id)
 
@@ -181,7 +185,9 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(existingUser as any)
+      jest
+        .spyOn(userService.userRepository, 'findByAuth0Id')
+        .mockResolvedValue(existingUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 
@@ -204,7 +210,7 @@ describe('UserService', () => {
       }
 
       jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as any)
+      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 
@@ -230,7 +236,7 @@ describe('UserService', () => {
 
       jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
       jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'create').mockResolvedValue(newUser as any)
+      jest.spyOn(userService.userRepository, 'create').mockResolvedValue(newUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 
@@ -267,8 +273,8 @@ describe('UserService', () => {
       }
 
       jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as any)
-      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as any)
+      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as never)
+      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 

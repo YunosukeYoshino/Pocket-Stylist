@@ -17,7 +17,7 @@ const client = jwksClient({
   timeout: 30000,
 })
 
-function getKey(header: JwtHeader, callback: (err: any, key?: string) => void) {
+function getKey(header: JwtHeader, callback: (err: Error | null, key?: string) => void) {
   client.getSigningKey(header.kid, (err, key) => {
     if (err) {
       return callback(err)

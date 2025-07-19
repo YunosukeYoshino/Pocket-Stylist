@@ -189,7 +189,7 @@ class MonitoringService {
   }
 
   // Health check method
-  getHealthStatus(): { status: string; uptime: number; metrics: any } {
+  getHealthStatus(): { status: string; uptime: number; metrics: Record<string, unknown> } {
     const uptime = process.uptime()
     const memoryUsage = process.memoryUsage()
 
@@ -253,16 +253,16 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
 
   // Capture original res.end to intercept response
   const originalEnd = res.end
-  res.end = function (chunk?: any, encoding?: any): Response {
+  ;(res.end as any) = function (this: Response, ...args: any[]): Response {
     const responseTime = Date.now() - startTime
     const contentLength = res.get('Content-Length')
-      ? Number.parseInt(res.get('Content-Length')!)
+      ? Number.parseInt(res.get('Content-Length') || '0')
       : undefined
 
     monitoringService.recordResponse(requestData, responseTime, res.statusCode, contentLength)
 
-    // Call original end method
-    return originalEnd.call(this, chunk, encoding)
+    // Call original end method with all arguments
+    return (originalEnd as any).apply(this, args)
   }
 
   // Handle errors
