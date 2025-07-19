@@ -24,6 +24,8 @@ describe('Auth Routes', () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        findFirst: jest.fn(),
+        delete: jest.fn(),
       },
     } as never
 
@@ -54,9 +56,12 @@ describe('Auth Routes', () => {
         email: loginData.email,
         name: loginData.name,
         avatarUrl: loginData.avatarUrl,
+        auth0Id: loginData.auth0Id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
-      // Mock the user creation/retrieval
+      // Mock the user creation/retrieval - findOrCreate will call findByAuth0Id first
       ;(mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null) // User doesn't exist
       ;(mockPrisma.user.create as jest.Mock).mockResolvedValue(mockUser as never)
 

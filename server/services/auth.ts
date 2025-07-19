@@ -99,7 +99,7 @@ export class AuthService {
         type: 'refresh',
         iat: Math.floor(Date.now() / 1000),
       },
-      process.env.JWT_REFRESH_SECRET || 'default-secret',
+      process.env.JWT_REFRESH_SECRET!,
       { expiresIn: '30d' }
     )
   }
@@ -112,8 +112,10 @@ export class AuthService {
       const auth0ClientSecret = process.env.AUTH0_CLIENT_SECRET
 
       if (!auth0Domain || !auth0ClientId || !auth0ClientSecret) {
-        console.warn('Auth0 configuration incomplete, falling back to local token refresh')
-        return this.fallbackTokenRefresh(refreshToken)
+        throw new ApiError(
+          'Auth0 configuration incomplete. Please set AUTH0_DOMAIN, AUTH0_CLIENT_ID, and AUTH0_CLIENT_SECRET environment variables.',
+          500
+        )
       }
 
       // Use Auth0's token endpoint for proper token refresh
@@ -152,40 +154,6 @@ export class AuthService {
         throw error
       }
       console.error('Token refresh error:', error)
-      throw new ApiError('Token refresh failed', 401)
-    }
-  }
-
-  private async fallbackTokenRefresh(refreshToken: string) {
-    try {
-      // リフレッシュトークンの検証
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET || 'default-secret'
-      ) as DecodedToken
-
-      if (decoded.type !== 'refresh') {
-        throw new ApiError('Invalid refresh token', 401)
-      }
-
-      // 新しいアクセストークンを生成 (fallback implementation)
-      const newAccessToken = jwt.sign(
-        {
-          sub: decoded.userId,
-          iat: Math.floor(Date.now() / 1000),
-        },
-        process.env.JWT_SECRET || 'default-secret',
-        { expiresIn: '24h' }
-      )
-
-      return {
-        accessToken: newAccessToken,
-        expiresIn: 86400, // 24 hours in seconds
-        tokenType: 'Bearer',
-        message: 'Token refreshed successfully (fallback)',
-      }
-    } catch (error) {
-      console.error('Fallback token refresh error:', error)
       throw new ApiError('Token refresh failed', 401)
     }
   }

@@ -209,14 +209,14 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as never)
+      jest
+        .spyOn(userService.userRepository, 'findOrCreate')
+        .mockResolvedValue(existingUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(existingUser)
-      expect(userService.userRepository.findByAuth0Id).toHaveBeenCalledWith(userData.auth0Id)
-      expect(userService.userRepository.findByEmail).toHaveBeenCalledWith(userData.email)
+      expect(userService.userRepository.findOrCreate).toHaveBeenCalledWith(userData)
     })
 
     it('should create new user when not found', async () => {
@@ -234,19 +234,12 @@ describe('UserService', () => {
         updatedAt: new Date(),
       }
 
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'create').mockResolvedValue(newUser as never)
+      jest.spyOn(userService.userRepository, 'findOrCreate').mockResolvedValue(newUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(newUser)
-      expect(userService.userRepository.create).toHaveBeenCalledWith({
-        email: userData.email,
-        auth0Id: userData.auth0Id,
-        name: userData.name,
-        avatarUrl: userData.avatarUrl,
-      })
+      expect(userService.userRepository.findOrCreate).toHaveBeenCalledWith(userData)
     })
 
     it('should update existing user with new auth0Id when found by email only', async () => {
@@ -256,33 +249,21 @@ describe('UserService', () => {
         name: 'Test User',
       }
 
-      const existingUser = {
+      const updatedUser = {
         id: 'user-id',
         email: userData.email,
-        auth0Id: 'auth0|old-id',
-        name: 'Old Name',
+        auth0Id: userData.auth0Id,
+        name: userData.name,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
 
-      const updatedUser = {
-        ...existingUser,
-        auth0Id: userData.auth0Id,
-        name: userData.name,
-        updatedAt: new Date(),
-      }
-
-      jest.spyOn(userService.userRepository, 'findByAuth0Id').mockResolvedValue(null)
-      jest.spyOn(userService.userRepository, 'findByEmail').mockResolvedValue(existingUser as never)
-      jest.spyOn(userService.userRepository, 'update').mockResolvedValue(updatedUser as never)
+      jest.spyOn(userService.userRepository, 'findOrCreate').mockResolvedValue(updatedUser as never)
 
       const result = await userService.findOrCreateUser(userData)
 
       expect(result).toEqual(updatedUser)
-      expect(userService.userRepository.update).toHaveBeenCalledWith(existingUser.id, {
-        auth0Id: userData.auth0Id,
-        name: userData.name,
-      })
+      expect(userService.userRepository.findOrCreate).toHaveBeenCalledWith(userData)
     })
   })
 })

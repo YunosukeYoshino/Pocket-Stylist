@@ -253,7 +253,8 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
 
   // Capture original res.end to intercept response
   const originalEnd = res.end
-  ;(res.end as any) = function (this: Response, ...args: any[]): Response {
+  // biome-ignore lint/suspicious/noExplicitAny: Express.Response.end has complex overloads that are difficult to type correctly
+  ;(res.end as any) = function (this: Response, ...args: unknown[]): Response {
     const responseTime = Date.now() - startTime
     const contentLength = res.get('Content-Length')
       ? Number.parseInt(res.get('Content-Length') || '0')
@@ -262,6 +263,7 @@ export const requestLoggingMiddleware = (req: Request, res: Response, next: Next
     monitoringService.recordResponse(requestData, responseTime, res.statusCode, contentLength)
 
     // Call original end method with all arguments
+    // biome-ignore lint/suspicious/noExplicitAny: Complex Express.Response.end signature requires any for apply
     return (originalEnd as any).apply(this, args)
   }
 

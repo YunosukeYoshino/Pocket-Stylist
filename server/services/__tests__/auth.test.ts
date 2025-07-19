@@ -190,33 +190,25 @@ describe('AuthService', () => {
       )
     })
 
-    it('should fall back to local token refresh when Auth0 not configured', async () => {
+    it('should throw error when Auth0 not configured', async () => {
       // Temporarily remove Auth0 config
       const originalDomain = process.env.AUTH0_DOMAIN
+      const originalClientId = process.env.AUTH0_CLIENT_ID
       process.env.AUTH0_DOMAIN = undefined
+      process.env.AUTH0_CLIENT_ID = undefined
 
       const refreshToken = 'valid-refresh-token'
-      const mockAccessToken = 'new-access-token'
 
-      jest.spyOn(jwt, 'verify').mockReturnValue({
-        userId: 'user-id',
-        type: 'refresh',
-      } as never)
-
-      jest.spyOn(jwt, 'sign').mockReturnValue(mockAccessToken as never)
-
-      const result = await authService.refreshAccessToken(refreshToken)
-
-      expect(result).toEqual({
-        accessToken: mockAccessToken,
-        expiresIn: 86400,
-        tokenType: 'Bearer',
-        message: 'Token refreshed successfully (fallback)',
-      })
+      await expect(authService.refreshAccessToken(refreshToken)).rejects.toThrow(
+        'Auth0 configuration incomplete'
+      )
 
       // Restore original config
       if (originalDomain) {
         process.env.AUTH0_DOMAIN = originalDomain
+      }
+      if (originalClientId) {
+        process.env.AUTH0_CLIENT_ID = originalClientId
       }
     })
 

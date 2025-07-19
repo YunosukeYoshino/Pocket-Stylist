@@ -83,7 +83,7 @@ export class BodyProfileService {
     }
 
     // ボディプロファイルを更新（存在しない場合は作成）
-    const bodyProfile = await this.bodyProfileRepository.update(user.id, data)
+    const bodyProfile = await this.bodyProfileRepository.upsert(user.id, data)
 
     return this.formatBodyProfileResponse(bodyProfile)
   }
