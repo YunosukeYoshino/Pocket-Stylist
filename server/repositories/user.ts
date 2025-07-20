@@ -1,4 +1,5 @@
-import type { PrismaClient, User } from '@prisma/client'
+import type { PrismaClient } from '@prisma/client'
+import type { User } from '@prisma/client'
 import type { UpdateUserProfileInput } from '../schemas/user'
 import { BaseRepository } from './base'
 
