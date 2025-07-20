@@ -49,6 +49,31 @@ module.exports = {
       ],
       coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
     },
+    // Backend project configuration
+    {
+      displayName: 'Backend API',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/backend/src/**/*.test.{ts,js}'],
+      transform: {
+        '^.+\\.(ts|tsx)$': 'ts-jest',
+      },
+      preset: 'ts-jest',
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/$1',
+        '^@backend/(.*)$': '<rootDir>/backend/$1',
+      },
+      collectCoverageFrom: [
+        'backend/src/**/*.{ts,js}',
+        '!backend/src/**/*.d.ts',
+        '!backend/node_modules/**',
+        '!backend/dist/**',
+        '!backend/src/tests/**',
+        '!backend/src/server.ts', // Entry point usually excluded from coverage
+      ],
+      coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
+      roots: ['<rootDir>/backend/src'],
+      testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+    },
   ],
   coverageReporters: ['text', 'lcov', 'html'],
   coverageDirectory: 'coverage',
