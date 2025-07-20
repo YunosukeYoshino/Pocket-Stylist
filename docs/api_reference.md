@@ -527,6 +527,136 @@
 }
 ```
 
+## Files
+
+### Upload File
+
+**POST** `/v1/files/upload`
+
+**Auth Required**: Yes
+
+**Content-Type**: `multipart/form-data`
+
+**Request Body**:
+```
+file: File (required) - The file to upload
+category: string (required) - File category: "avatar", "garment", "tryon", "other"
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174010",
+    "filename": "user123/1704067200000_abc123.jpg",
+    "originalName": "photo.jpg",
+    "mimeType": "image/jpeg",
+    "size": 1024000,
+    "category": "garment",
+    "cdnUrl": "https://cdn.pocket-stylist.com/user123/1704067200000_abc123.jpg",
+    "thumbnailUrl": "https://imagedelivery.net/account/image-id/thumbnail",
+    "variants": {
+      "thumbnail": "https://imagedelivery.net/account/image-id/thumbnail",
+      "small": "https://imagedelivery.net/account/image-id/small",
+      "medium": "https://imagedelivery.net/account/image-id/medium",
+      "large": "https://imagedelivery.net/account/image-id/large"
+    },
+    "processed": true,
+    "createdAt": "2024-01-01T12:00:00Z"
+  }
+}
+```
+
+### Get File
+
+**GET** `/v1/files/{id}`
+
+**Auth Required**: Yes
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174010",
+    "filename": "user123/1704067200000_abc123.jpg",
+    "originalName": "photo.jpg",
+    "mimeType": "image/jpeg",
+    "size": 1024000,
+    "category": "garment",
+    "cdnUrl": "https://cdn.pocket-stylist.com/user123/1704067200000_abc123.jpg",
+    "thumbnailUrl": "https://imagedelivery.net/account/image-id/thumbnail",
+    "variants": {
+      "thumbnail": "https://imagedelivery.net/account/image-id/thumbnail",
+      "small": "https://imagedelivery.net/account/image-id/small",
+      "medium": "https://imagedelivery.net/account/image-id/medium",
+      "large": "https://imagedelivery.net/account/image-id/large"
+    },
+    "processed": true,
+    "createdAt": "2024-01-01T12:00:00Z"
+  }
+}
+```
+
+### Delete File
+
+**DELETE** `/v1/files/{id}`
+
+**Auth Required**: Yes
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "File deleted successfully"
+}
+```
+
+### Get User Files
+
+**GET** `/v1/files`
+
+**Auth Required**: Yes
+
+**Query Parameters**:
+- `category` (optional): Filter by category ("avatar", "garment", "tryon", "other")
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 100)
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174010",
+      "filename": "user123/1704067200000_abc123.jpg",
+      "originalName": "photo.jpg",
+      "mimeType": "image/jpeg",
+      "size": 1024000,
+      "category": "garment",
+      "cdnUrl": "https://cdn.pocket-stylist.com/user123/1704067200000_abc123.jpg",
+      "thumbnailUrl": "https://imagedelivery.net/account/image-id/thumbnail",
+      "variants": {
+        "thumbnail": "https://imagedelivery.net/account/image-id/thumbnail",
+        "small": "https://imagedelivery.net/account/image-id/small",
+        "medium": "https://imagedelivery.net/account/image-id/medium",
+        "large": "https://imagedelivery.net/account/image-id/large"
+      },
+      "processed": true,
+      "createdAt": "2024-01-01T12:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 1,
+    "totalPages": 1
+  }
+}
+```
+
 ## Order
 
 ### Get Orders
