@@ -136,7 +136,7 @@ export class RecommendationService {
         // Process and store recommendations
         const processedRecommendations = await this.processRecommendations(
           recommendation.id,
-          claudeResponse,
+          geminiResponse,
           request.preferences?.maxOutfits || 5
         )
 
@@ -145,15 +145,15 @@ export class RecommendationService {
           where: { id: recommendation.id },
           data: {
             status: 'completed',
-            styleAnalysis: claudeResponse.style_analysis as any,
-            personalizationInsights: claudeResponse.personalization_insights as any,
+            styleAnalysis: geminiResponse.style_analysis as any,
+            personalizationInsights: geminiResponse.personalization_insights as any,
             confidenceScore: this.calculateOverallConfidence(processedRecommendations),
             processingTime: Date.now() - startTime,
           },
         })
 
         // Update user style profile
-        await this.updateUserStyleProfile(user.id, claudeResponse)
+        await this.updateUserStyleProfile(user.id, geminiResponse)
 
         const response: RecommendationResponse = {
           id: recommendation.id,
@@ -161,8 +161,8 @@ export class RecommendationService {
           type: recommendation.type,
           status: 'completed',
           outfits: processedRecommendations,
-          styleAnalysis: claudeResponse.style_analysis as any,
-          personalizationInsights: claudeResponse.personalization_insights as any,
+          styleAnalysis: geminiResponse.style_analysis as any,
+          personalizationInsights: geminiResponse.personalization_insights as any,
           metadata: {
             processingTime: Date.now() - startTime,
             confidenceScore: this.calculateOverallConfidence(processedRecommendations),
@@ -369,10 +369,10 @@ export class RecommendationService {
 
   private async processRecommendations(
     recommendationId: string,
-    claudeResponse: any,
+    geminiResponse: any,
     maxOutfits: number
   ): Promise<any[]> {
-    const outfits = claudeResponse.outfits.slice(0, maxOutfits)
+    const outfits = geminiResponse.outfits.slice(0, maxOutfits)
     const processedOutfits = []
 
     for (let i = 0; i < outfits.length; i++) {
@@ -410,9 +410,9 @@ export class RecommendationService {
     return processedOutfits
   }
 
-  private async updateUserStyleProfile(userId: string, claudeResponse: any): Promise<void> {
-    const styleAnalysis = claudeResponse.style_analysis
-    const personalizationInsights = claudeResponse.personalization_insights
+  private async updateUserStyleProfile(userId: string, geminiResponse: any): Promise<void> {
+    const styleAnalysis = geminiResponse.style_analysis
+    const personalizationInsights = geminiResponse.personalization_insights
 
     if (!styleAnalysis) return
 

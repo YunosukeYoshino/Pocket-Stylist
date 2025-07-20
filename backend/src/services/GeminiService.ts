@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI, GenerativeModel, type GenerateContentResult } from '@google/generative-ai'
 import { env } from '../config/env'
-import { ClaudeAPIError } from '../middleware/errorHandler'
 import { logClaudeUsage, logger } from '../utils/logger'
 import { RedisService } from './RedisService'
 
