@@ -6,8 +6,7 @@ import { ClaudeService } from '../services/ClaudeService'
 jest.mock('../services/ClaudeService')
 
 const mockClaudeService = {
-  analyzeImageWithVision: jest.fn(),
-  getInstance: jest.fn()
+  analyzeImageWithVision: jest.fn()
 }
 
 // Mock the ClaudeService singleton

@@ -20,17 +20,17 @@ const mockGarmentService = {
   getRecentGarments: jest.fn(),
   toggleFavorite: jest.fn(),
   bulkUpdateGarments: jest.fn(),
-} as jest.Mocked<GarmentService>
+}
 
 const mockImageRecognitionService = {
   analyzeGarmentImage: jest.fn(),
   extractColorPalette: jest.fn(),
   suggestGarmentName: jest.fn(),
-} as jest.Mocked<GarmentImageRecognitionService>
+}
 
 // Mock the service constructors
-;(GarmentService as jest.Mock).mockImplementation(() => mockGarmentService)
-;(GarmentImageRecognitionService as jest.Mock).mockImplementation(() => mockImageRecognitionService)
+;(GarmentService as any).mockImplementation(() => mockGarmentService)
+;(GarmentImageRecognitionService as any).mockImplementation(() => mockImageRecognitionService)
 
 describe('Garment Routes', () => {
   let app: express.Application

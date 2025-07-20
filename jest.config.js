@@ -56,7 +56,19 @@ module.exports = {
       testMatch: ['<rootDir>/backend/src/**/*.test.{ts,js}'],
       setupFiles: ['<rootDir>/backend/jest.setup.js'],
       transform: {
-        '^.+\\.(ts|tsx)$': 'ts-jest',
+        '^.+\\.(ts|tsx)$': [
+          'ts-jest',
+          {
+            tsconfig: {
+              target: 'es2022',
+              module: 'commonjs',
+              esModuleInterop: true,
+              allowSyntheticDefaultImports: true,
+              strict: false,
+              isolatedModules: false,
+            },
+          },
+        ],
       },
       preset: 'ts-jest',
       moduleNameMapper: {
