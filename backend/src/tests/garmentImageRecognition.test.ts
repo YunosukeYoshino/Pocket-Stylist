@@ -13,8 +13,10 @@ jest.mock('../services/ClaudeService', () => {
 })
 
 import { ClaudeService } from '../services/ClaudeService'
-// Get the mock function from the mocked service
-const mockClaudeService = (ClaudeService.getInstance as jest.Mock)()
+// Get the mock function from the mocked service with proper typing
+const mockClaudeService = (ClaudeService.getInstance as jest.Mock)() as {
+  analyzeImageWithVision: jest.MockedFunction<any>
+}
 const mockAnalyzeImageWithVision = mockClaudeService.analyzeImageWithVision
 
 describe('GarmentImageRecognitionService', () => {

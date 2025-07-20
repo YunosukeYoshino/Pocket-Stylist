@@ -5,32 +5,34 @@ import garmentRoutes from '../routes/garment'
 import { GarmentService } from '../services/garmentService'
 import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
 
-// Mock services
-jest.mock('../services/garmentService')
-jest.mock('../services/garmentImageRecognitionService')
-
+// Create mocks before importing
 const mockGarmentService = {
-  createGarment: jest.fn() as jest.MockedFunction<any>,
-  getGarmentById: jest.fn() as jest.MockedFunction<any>,
-  updateGarment: jest.fn() as jest.MockedFunction<any>,
-  deleteGarment: jest.fn() as jest.MockedFunction<any>,
-  searchGarments: jest.fn() as jest.MockedFunction<any>,
-  getGarmentStatistics: jest.fn() as jest.MockedFunction<any>,
-  getFavoriteGarments: jest.fn() as jest.MockedFunction<any>,
-  getRecentGarments: jest.fn() as jest.MockedFunction<any>,
-  toggleFavorite: jest.fn() as jest.MockedFunction<any>,
-  bulkUpdateGarments: jest.fn() as jest.MockedFunction<any>,
-} as any
+  createGarment: jest.fn(),
+  getGarmentById: jest.fn(),
+  updateGarment: jest.fn(),
+  deleteGarment: jest.fn(),
+  searchGarments: jest.fn(),
+  getGarmentStatistics: jest.fn(),
+  getFavoriteGarments: jest.fn(),
+  getRecentGarments: jest.fn(),
+  toggleFavorite: jest.fn(),
+  bulkUpdateGarments: jest.fn(),
+}
 
 const mockImageRecognitionService = {
-  analyzeGarmentImage: jest.fn() as jest.MockedFunction<any>,
-  extractColorPalette: jest.fn() as jest.MockedFunction<any>,
-  suggestGarmentName: jest.fn() as jest.MockedFunction<any>,
-} as any
+  analyzeGarmentImage: jest.fn(),
+  extractColorPalette: jest.fn(),
+  suggestGarmentName: jest.fn(),
+}
 
-// Mock the service constructors
-;(GarmentService as any).mockImplementation(() => mockGarmentService)
-;(GarmentImageRecognitionService as any).mockImplementation(() => mockImageRecognitionService)
+// Mock the service classes
+jest.mock('../services/garmentService', () => ({
+  GarmentService: jest.fn().mockImplementation(() => mockGarmentService)
+}))
+
+jest.mock('../services/garmentImageRecognitionService', () => ({
+  GarmentImageRecognitionService: jest.fn().mockImplementation(() => mockImageRecognitionService)
+}))
 
 describe('Garment Routes', () => {
   let app: express.Application
@@ -190,8 +192,8 @@ describe('Garment Routes', () => {
         id: mockGarmentId,
         userId: mockUserId,
         ...newGarment,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
 
       mockGarmentService.createGarment.mockResolvedValue(mockCreatedGarment)
