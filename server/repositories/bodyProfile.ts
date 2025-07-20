@@ -1,4 +1,5 @@
-import type { BodyProfile, PrismaClient } from '@prisma/client'
+import type { PrismaClient } from '@prisma/client'
+import type { BodyProfile } from '@prisma/client'
 import type { CreateBodyProfileInput, UpdateBodyProfileInput } from '../schemas/user'
 import { BaseRepository } from './base'
 

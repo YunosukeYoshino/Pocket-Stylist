@@ -60,29 +60,29 @@ describe('File Validation', () => {
   })
 
   describe('validateFileContent', () => {
-    it('should validate JPEG file signature', async () => {
+    it('should validate JPEG file signature', () => {
       const jpegHeader = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0])
       const buffer = jpegHeader.buffer
 
-      const result = await validateFileContent(buffer)
+      const result = validateFileContent(buffer)
       
       expect(result.isValid).toBe(true)
     })
 
-    it('should validate PNG file signature', async () => {
+    it('should validate PNG file signature', () => {
       const pngHeader = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
       const buffer = pngHeader.buffer
 
-      const result = await validateFileContent(buffer)
+      const result = validateFileContent(buffer)
       
       expect(result.isValid).toBe(true)
     })
 
-    it('should reject invalid file signatures', async () => {
+    it('should reject invalid file signatures', () => {
       const invalidHeader = new Uint8Array([0x00, 0x00, 0x00, 0x00])
       const buffer = invalidHeader.buffer
 
-      const result = await validateFileContent(buffer)
+      const result = validateFileContent(buffer)
       
       expect(result.isValid).toBe(false)
       expect(result.error).toContain('File content does not match expected image format')

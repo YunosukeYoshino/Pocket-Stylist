@@ -31,5 +31,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules", "dist", "build", ".expo", ".next", "backend"]
+  "exclude": ["node_modules", "dist", "build", ".expo", ".next", "backend", "server"]
 }

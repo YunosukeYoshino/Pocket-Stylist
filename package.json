@@ -23,10 +23,10 @@
     "server:build": "tsc --project server/tsconfig.json",
     "type-check": "tsc --noEmit",
     "lint": "biome lint",
-    "lint:fix": "biome lint --apply",
+    "lint:fix": "biome lint --write",
     "format": "biome format --write",
     "check": "biome check",
-    "check:fix": "biome check --apply",
+    "check:fix": "biome check --write",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -125,7 +125,8 @@
     "typescript": "^5.3.3"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx,json,css,md}": ["biome check --apply"]
+    "!(backend|server)/**/*.{js,jsx,ts,tsx,json,css,md}": ["biome check --write"],
+    "*.{js,jsx,ts,tsx,json,css,md}": ["biome check --write"]
   },
   "prisma": {
     "seed": "bun run prisma/seed.ts"

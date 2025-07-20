@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client'
 import type { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
 
@@ -41,7 +41,7 @@ export const errorHandler = (
     }))
   }
   // Prisma errors
-  else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  else if (error instanceof PrismaClientKnownRequestError) {
     switch (error.code) {
       case 'P2002':
         statusCode = 409
@@ -62,7 +62,7 @@ export const errorHandler = (
     }
   }
   // Prisma validation errors
-  else if (error instanceof Prisma.PrismaClientValidationError) {
+  else if (error instanceof PrismaClientValidationError) {
     statusCode = 400
     message = 'Invalid data provided'
   }

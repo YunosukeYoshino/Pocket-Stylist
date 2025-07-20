@@ -49,6 +49,44 @@ module.exports = {
       ],
       coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
     },
+    // Backend project configuration
+    {
+      displayName: 'Backend API',
+      testEnvironment: 'node',
+      testMatch: ['<rootDir>/backend/src/**/*.test.{ts,js}'],
+      setupFiles: ['<rootDir>/backend/jest.setup.js'],
+      transform: {
+        '^.+\\.(ts|tsx)$': [
+          'ts-jest',
+          {
+            tsconfig: {
+              target: 'es2022',
+              module: 'commonjs',
+              esModuleInterop: true,
+              allowSyntheticDefaultImports: true,
+              strict: false,
+              isolatedModules: false,
+            },
+          },
+        ],
+      },
+      preset: 'ts-jest',
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/$1',
+        '^@backend/(.*)$': '<rootDir>/backend/$1',
+      },
+      collectCoverageFrom: [
+        'backend/src/**/*.{ts,js}',
+        '!backend/src/**/*.d.ts',
+        '!backend/node_modules/**',
+        '!backend/dist/**',
+        '!backend/src/tests/**',
+        '!backend/src/server.ts', // Entry point usually excluded from coverage
+      ],
+      coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
+      roots: ['<rootDir>/backend/src'],
+      testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+    },
   ],
   coverageReporters: ['text', 'lcov', 'html'],
   coverageDirectory: 'coverage',

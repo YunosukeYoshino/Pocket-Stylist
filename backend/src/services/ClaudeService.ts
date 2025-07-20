@@ -232,6 +232,70 @@ export class ClaudeService {
     }
   }
 
+  public async analyzeImageWithVision(input: {
+    image: string
+    prompt: string
+    isBase64?: boolean
+    userId?: string
+  }): Promise<string> {
+    const startTime = Date.now()
+
+    try {
+      let imageContent: any
+
+      if (input.isBase64) {
+        // For base64 images, use the correct format
+        imageContent = {
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: 'image/jpeg', // Assume JPEG, could be made configurable
+            data: input.image
+          }
+        }
+      } else {
+        // For URLs, Claude doesn't support URL images directly in the API
+        // We would need to fetch and convert to base64 first
+        throw new Error('URL-based image analysis not implemented. Please use base64 images.')
+      }
+
+      const response = await this.client.messages.create({
+        model: env.CLAUDE_VISION_MODEL,
+        max_tokens: Number.parseInt(env.CLAUDE_MAX_TOKENS, 10),
+        temperature: Number.parseFloat(env.CLAUDE_TEMPERATURE),
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: input.prompt
+              },
+              imageContent
+            ]
+          }
+        ]
+      })
+
+      const result = this.parseTextResponse(response.content[0])
+      const processingTime = Date.now() - startTime
+
+      // Log usage
+      logClaudeUsage(
+        input.userId || 'system',
+        'image_analysis',
+        response.usage?.input_tokens || 0,
+        this.calculateCost(response.usage?.input_tokens || 0, response.usage?.output_tokens || 0),
+        processingTime
+      )
+
+      return result
+    } catch (error) {
+      logger.error('Claude API error in analyzeImageWithVision:', error)
+      throw new ClaudeAPIError('Failed to analyze image with vision')
+    }
+  }
+
   private buildStylingPrompt(input: StylingRecommendationInput): string {
     return `You are a professional stylist AI assistant for Pocket Stylist. Generate personalized styling recommendations based on the user's profile, body type, available garments, and context.
 

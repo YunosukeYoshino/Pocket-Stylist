@@ -118,7 +118,10 @@ export function generateSecureFilename(originalFilename: string, userId: string)
   const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-_]/g, '')
   const timestamp = Date.now()
   const randomSuffix = Math.random().toString(36).substring(2, 15)
-  const extension = originalFilename.split('.').pop()?.toLowerCase() || 'unknown'
+  
+  // Extract extension properly - if no extension, use 'unknown'
+  const lastDotIndex = originalFilename.lastIndexOf('.')
+  const extension = lastDotIndex !== -1 ? originalFilename.slice(lastDotIndex + 1).toLowerCase() : 'unknown'
   
   return `${sanitizedUserId}/${timestamp}_${randomSuffix}.${extension}`
 }
