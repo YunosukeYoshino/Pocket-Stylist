@@ -1,23 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
-import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
 
 // Create mock function first with proper typing
 const mockAnalyzeImageWithVision = jest.fn() as jest.MockedFunction<any>
 
-// Mock ClaudeService with simpler approach
-jest.mock('../services/ClaudeService', () => ({
-  ClaudeService: {
-    getInstance: () => ({
-      analyzeImageWithVision: mockAnalyzeImageWithVision
-    })
-  }
-}))
-
 describe('GarmentImageRecognitionService', () => {
-  let imageRecognitionService: GarmentImageRecognitionService
+  let imageRecognitionService: any
+  let GarmentImageRecognitionService: any
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Clear module cache
+    jest.resetModules()
+    
+    // Set up dynamic mocks
+    jest.doMock('../services/ClaudeService', () => ({
+      ClaudeService: {
+        getInstance: () => ({
+          analyzeImageWithVision: mockAnalyzeImageWithVision
+        })
+      }
+    }))
+    
+    // Re-import the service after mocks are set
+    const serviceModule = await import('../services/garmentImageRecognitionService')
+    GarmentImageRecognitionService = serviceModule.GarmentImageRecognitionService
     imageRecognitionService = new GarmentImageRecognitionService()
+    
     jest.clearAllMocks()
   })
 

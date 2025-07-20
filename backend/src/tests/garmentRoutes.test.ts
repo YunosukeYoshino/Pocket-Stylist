@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import request from 'supertest'
 import express from 'express'
-import garmentRoutes from '../routes/garment'
-import { GarmentService } from '../services/garmentService'
-import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
 
 // Create mocks before importing with proper typing
 const mockGarmentService = {
@@ -25,21 +22,28 @@ const mockImageRecognitionService = {
   suggestGarmentName: jest.fn() as jest.MockedFunction<any>,
 }
 
-// Mock the service classes
-jest.mock('../services/garmentService', () => ({
-  GarmentService: jest.fn().mockImplementation(() => mockGarmentService)
-}))
-
-jest.mock('../services/garmentImageRecognitionService', () => ({
-  GarmentImageRecognitionService: jest.fn().mockImplementation(() => mockImageRecognitionService)
-}))
-
 describe('Garment Routes', () => {
   let app: express.Application
+  let garmentRoutes: any
   const mockUserId = 'user-123'
   const mockGarmentId = 'garment-123'
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Clear module cache
+    jest.resetModules()
+    
+    // Set up dynamic mocks
+    jest.doMock('../services/garmentService', () => ({
+      GarmentService: jest.fn().mockImplementation(() => mockGarmentService)
+    }))
+    
+    jest.doMock('../services/garmentImageRecognitionService', () => ({
+      GarmentImageRecognitionService: jest.fn().mockImplementation(() => mockImageRecognitionService)
+    }))
+    
+    // Re-import the routes module after mocks are set
+    garmentRoutes = (await import('../routes/garment')).default
+    
     app = express()
     app.use(express.json())
     
