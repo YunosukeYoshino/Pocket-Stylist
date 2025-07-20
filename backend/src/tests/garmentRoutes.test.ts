@@ -149,7 +149,7 @@ describe('Garment Routes', () => {
         category: 'tops'
       }
 
-      mockGarmentService.getGarmentById.mockResolvedValue(mockGarment as any)
+      mockGarmentService.getGarmentById.mockResolvedValue(mockGarment)
 
       const response = await request(app)
         .get(`/api/v1/garments/${mockGarmentId}`)
@@ -194,7 +194,7 @@ describe('Garment Routes', () => {
         updatedAt: new Date()
       }
 
-      mockGarmentService.createGarment.mockResolvedValue(mockCreatedGarment as any)
+      mockGarmentService.createGarment.mockResolvedValue(mockCreatedGarment)
 
       const response = await request(app)
         .post('/api/v1/garments')
@@ -241,7 +241,7 @@ describe('Garment Routes', () => {
         color: 'red'
       }
 
-      mockGarmentService.updateGarment.mockResolvedValue(mockUpdatedGarment as any)
+      mockGarmentService.updateGarment.mockResolvedValue(mockUpdatedGarment)
 
       const response = await request(app)
         .patch(`/api/v1/garments/${mockGarmentId}`)
@@ -348,7 +348,7 @@ describe('Garment Routes', () => {
         isFavorite: true
       }
 
-      mockGarmentService.toggleFavorite.mockResolvedValue(mockGarment as any)
+      mockGarmentService.toggleFavorite.mockResolvedValue(mockGarment)
 
       const response = await request(app)
         .post(`/api/v1/garments/${mockGarmentId}/favorite`)

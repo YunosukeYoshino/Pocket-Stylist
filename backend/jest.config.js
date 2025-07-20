@@ -4,7 +4,18 @@ module.exports = {
   roots: ['<rootDir>/src'],
   testMatch: ['**/src/**/*.test.(ts|js)'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        target: 'es2022',
+        module: 'commonjs',
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+        strict: false,
+        noImplicitAny: false,
+        strictNullChecks: false,
+        strictFunctionTypes: false
+      }
+    }],
   },
   collectCoverageFrom: [
     'src/**/*.{ts,js}',

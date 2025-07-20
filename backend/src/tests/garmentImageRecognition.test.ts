@@ -3,14 +3,19 @@ import { GarmentImageRecognitionService } from '../services/garmentImageRecognit
 import { ClaudeService } from '../services/ClaudeService'
 
 // Mock ClaudeService
-jest.mock('../services/ClaudeService')
+jest.mock('../services/ClaudeService', () => ({
+  ClaudeService: {
+    getInstance: jest.fn()
+  }
+}))
 
 const mockClaudeService = {
   analyzeImageWithVision: jest.fn()
 }
 
-// Mock the ClaudeService singleton
-(ClaudeService.getInstance as jest.Mock).mockReturnValue(mockClaudeService)
+// Setup mock after declaration
+const MockClaudeService = ClaudeService as jest.Mocked<typeof ClaudeService>
+MockClaudeService.getInstance.mockReturnValue(mockClaudeService as any)
 
 describe('GarmentImageRecognitionService', () => {
   let imageRecognitionService: GarmentImageRecognitionService

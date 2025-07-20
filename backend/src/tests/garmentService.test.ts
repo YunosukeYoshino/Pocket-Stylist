@@ -37,7 +37,7 @@ describe('GarmentService', () => {
     
     garmentService = new GarmentService({
       DATABASE_URL: 'postgresql://test'
-    } as any)
+    })
     jest.clearAllMocks()
   })
 
@@ -66,7 +66,7 @@ describe('GarmentService', () => {
         updatedAt: new Date()
       }
 
-      mockPrismaClient.garment.create.mockResolvedValue(mockGarment as any)
+      mockPrismaClient.garment.create.mockResolvedValue(mockGarment)
 
       const result = await garmentService.createGarment(mockUserId, {
         name: 'Blue T-Shirt',
@@ -132,7 +132,7 @@ describe('GarmentService', () => {
         category: 'tops'
       }
 
-      mockPrismaClient.garment.findFirst.mockResolvedValue(mockGarment as any)
+      mockPrismaClient.garment.findFirst.mockResolvedValue(mockGarment)
 
       const result = await garmentService.getGarmentById(mockUserId, mockGarmentId)
 
@@ -164,7 +164,7 @@ describe('GarmentService', () => {
       }
 
       mockPrismaClient.garment.updateMany.mockResolvedValue({ count: 1 })
-      mockPrismaClient.garment.findFirst.mockResolvedValue(mockUpdatedGarment as any)
+      mockPrismaClient.garment.findFirst.mockResolvedValue(mockUpdatedGarment)
 
       const result = await garmentService.updateGarment(mockUserId, mockGarmentId, {
         name: 'Updated Blue T-Shirt'
@@ -224,7 +224,7 @@ describe('GarmentService', () => {
         { id: '2', name: 'T-Shirt 2', category: 'tops' }
       ]
 
-      mockPrismaClient.garment.findMany.mockResolvedValue(mockGarments as any)
+      mockPrismaClient.garment.findMany.mockResolvedValue(mockGarments)
       mockPrismaClient.garment.count.mockResolvedValue(2)
 
       const result = await garmentService.searchGarments({
@@ -286,7 +286,7 @@ describe('GarmentService', () => {
         .mockResolvedValueOnce(1) // favoriteCount
         .mockResolvedValueOnce(2) // recentlyAdded
 
-      mockPrismaClient.garment.findMany.mockResolvedValue(mockGarments as any)
+      mockPrismaClient.garment.findMany.mockResolvedValue(mockGarments)
       mockPrismaClient.garment.aggregate.mockResolvedValue({
         _avg: { price: 31.67 },
         _sum: { price: 95 }
@@ -333,9 +333,9 @@ describe('GarmentService', () => {
         isFavorite: true
       }
 
-      mockPrismaClient.garment.findFirst.mockResolvedValue(mockGarment as any)
+      mockPrismaClient.garment.findFirst.mockResolvedValue(mockGarment)
       mockPrismaClient.garment.updateMany.mockResolvedValue({ count: 1 })
-      mockPrismaClient.garment.findFirst.mockResolvedValueOnce(mockUpdatedGarment as any)
+      mockPrismaClient.garment.findFirst.mockResolvedValueOnce(mockUpdatedGarment)
 
       const result = await garmentService.toggleFavorite(mockUserId, mockGarmentId)
 
