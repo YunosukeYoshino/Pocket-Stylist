@@ -123,13 +123,21 @@ export const honoErrorMiddleware = (error: Error, c: Context) => {
   let message = 'Internal Server Error'
   let details: Array<{ field: string; message: string }> | undefined = undefined
 
+  // Filter out sensitive headers
+  const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-auth-token']
+  const sanitizedHeaders = Object.fromEntries(
+    Object.entries(c.req.header()).filter(([key]) => 
+      !sensitiveHeaders.includes(key.toLowerCase())
+    )
+  )
+
   // Log error details
   console.error('Error caught by Hono error handler:', {
     message: error.message,
     stack: error.stack,
     url: c.req.url,
     method: c.req.method,
-    headers: Object.fromEntries(Object.entries(c.req.header())),
+    headers: sanitizedHeaders,
     timestamp: new Date().toISOString(),
   })
 

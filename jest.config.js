@@ -54,6 +54,7 @@ module.exports = {
       displayName: 'Backend API',
       testEnvironment: 'node',
       testMatch: ['<rootDir>/backend/src/**/*.test.{ts,js}'],
+      setupFiles: ['<rootDir>/backend/jest.setup.js'],
       transform: {
         '^.+\\.(ts|tsx)$': 'ts-jest',
       },

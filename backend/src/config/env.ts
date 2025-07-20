@@ -10,6 +10,7 @@ const envSchema = z.object({
   // Claude API
   CLAUDE_API_KEY: z.string().min(1, 'Claude API key is required'),
   CLAUDE_MODEL: z.string().default('claude-3-sonnet-20240229'),
+  CLAUDE_VISION_MODEL: z.string().default('claude-3-sonnet-20240229'),
   CLAUDE_MAX_TOKENS: z.string().default('4096'),
   CLAUDE_TEMPERATURE: z.string().default('0.7'),
 
@@ -63,4 +64,18 @@ export function validateEnv(): EnvConfig {
   }
 }
 
-export const env = validateEnv()
+// Lazy initialization to avoid failing during tests
+let _env: EnvConfig | null = null
+export const getEnv = (): EnvConfig => {
+  if (!_env) {
+    _env = validateEnv()
+  }
+  return _env
+}
+
+// For backward compatibility
+export const env = new Proxy({} as EnvConfig, {
+  get(_, prop) {
+    return getEnv()[prop as keyof EnvConfig]
+  }
+})

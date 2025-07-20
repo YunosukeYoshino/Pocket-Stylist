@@ -7,7 +7,7 @@ describe('File Validation', () => {
         name: 'test.jpg',
         type: 'image/jpeg',
         size: 1024 * 1024, // 1MB
-      } as File
+      } as File;
 
       const result = validateFile(mockFile)
       
@@ -24,7 +24,7 @@ describe('File Validation', () => {
         name: 'test.jpg',
         type: 'image/jpeg',
         size: 11 * 1024 * 1024, // 11MB (over limit)
-      } as File
+      } as File;
 
       const result = validateFile(mockFile)
       
@@ -37,7 +37,7 @@ describe('File Validation', () => {
         name: 'test.gif',
         type: 'image/gif',
         size: 1024 * 1024,
-      } as File
+      } as File;
 
       const result = validateFile(mockFile)
       
@@ -50,7 +50,7 @@ describe('File Validation', () => {
         name: 'test.exe',
         type: 'image/jpeg',
         size: 1024 * 1024,
-      } as File
+      } as File;
 
       const result = validateFile(mockFile)
       
@@ -60,29 +60,29 @@ describe('File Validation', () => {
   })
 
   describe('validateFileContent', () => {
-    it('should validate JPEG file signature', async () => {
+    it('should validate JPEG file signature', () => {
       const jpegHeader = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0])
       const buffer = jpegHeader.buffer
 
-      const result = await validateFileContent(buffer)
+      const result = validateFileContent(buffer)
       
       expect(result.isValid).toBe(true)
     })
 
-    it('should validate PNG file signature', async () => {
+    it('should validate PNG file signature', () => {
       const pngHeader = new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
       const buffer = pngHeader.buffer
 
-      const result = await validateFileContent(buffer)
+      const result = validateFileContent(buffer)
       
       expect(result.isValid).toBe(true)
     })
 
-    it('should reject invalid file signatures', async () => {
+    it('should reject invalid file signatures', () => {
       const invalidHeader = new Uint8Array([0x00, 0x00, 0x00, 0x00])
       const buffer = invalidHeader.buffer
 
-      const result = await validateFileContent(buffer)
+      const result = validateFileContent(buffer)
       
       expect(result.isValid).toBe(false)
       expect(result.error).toContain('File content does not match expected image format')

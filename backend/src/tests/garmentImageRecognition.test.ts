@@ -11,7 +11,7 @@ const mockClaudeService = {
 }
 
 // Mock the ClaudeService singleton
-;(ClaudeService.getInstance as jest.Mock).mockReturnValue(mockClaudeService)
+(ClaudeService.getInstance as jest.Mock).mockReturnValue(mockClaudeService)
 
 describe('GarmentImageRecognitionService', () => {
   let imageRecognitionService: GarmentImageRecognitionService

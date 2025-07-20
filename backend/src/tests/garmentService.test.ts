@@ -1,3 +1,8 @@
+// Mock the database utility before any imports
+jest.mock('../utils/database', () => ({
+  getPrismaClient: jest.fn()
+}))
+
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import { GarmentService } from '../services/garmentService'
 import type { PrismaClient } from '@prisma/client'
@@ -6,6 +11,7 @@ import {
   isValidCategory, 
   isValidSubcategory 
 } from '../utils/garmentCategories'
+import { getPrismaClient } from '../utils/database'
 
 // Mock Prisma Client
 const mockPrismaClient = {
@@ -20,17 +26,15 @@ const mockPrismaClient = {
   },
 } as unknown as jest.Mocked<PrismaClient>
 
-// Mock the database utility
-jest.mock('../utils/database', () => ({
-  getPrismaClient: jest.fn(() => mockPrismaClient),
-}))
-
 describe('GarmentService', () => {
   let garmentService: GarmentService
   const mockUserId = 'user-123'
   const mockGarmentId = 'garment-123'
 
   beforeEach(() => {
+    // Setup the mock to return mockPrismaClient
+    ;(getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient)
+    
     garmentService = new GarmentService({
       DATABASE_URL: 'postgresql://test'
     } as any)
@@ -38,7 +42,7 @@ describe('GarmentService', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    jest.clearAllMocks()
   })
 
   describe('createGarment', () => {

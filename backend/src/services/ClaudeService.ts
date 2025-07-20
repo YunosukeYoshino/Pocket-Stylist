@@ -260,7 +260,7 @@ export class ClaudeService {
       }
 
       const response = await this.client.messages.create({
-        model: 'claude-3-sonnet-20240229', // Vision model
+        model: env.CLAUDE_VISION_MODEL,
         max_tokens: Number.parseInt(env.CLAUDE_MAX_TOKENS, 10),
         temperature: Number.parseFloat(env.CLAUDE_TEMPERATURE),
         messages: [
