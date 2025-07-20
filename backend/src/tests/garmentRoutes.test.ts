@@ -5,24 +5,24 @@ import garmentRoutes from '../routes/garment'
 import { GarmentService } from '../services/garmentService'
 import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
 
-// Create mocks before importing
+// Create mocks before importing with proper typing
 const mockGarmentService = {
-  createGarment: jest.fn(),
-  getGarmentById: jest.fn(),
-  updateGarment: jest.fn(),
-  deleteGarment: jest.fn(),
-  searchGarments: jest.fn(),
-  getGarmentStatistics: jest.fn(),
-  getFavoriteGarments: jest.fn(),
-  getRecentGarments: jest.fn(),
-  toggleFavorite: jest.fn(),
-  bulkUpdateGarments: jest.fn(),
+  createGarment: jest.fn() as jest.MockedFunction<any>,
+  getGarmentById: jest.fn() as jest.MockedFunction<any>,
+  updateGarment: jest.fn() as jest.MockedFunction<any>,
+  deleteGarment: jest.fn() as jest.MockedFunction<any>,
+  searchGarments: jest.fn() as jest.MockedFunction<any>,
+  getGarmentStatistics: jest.fn() as jest.MockedFunction<any>,
+  getFavoriteGarments: jest.fn() as jest.MockedFunction<any>,
+  getRecentGarments: jest.fn() as jest.MockedFunction<any>,
+  toggleFavorite: jest.fn() as jest.MockedFunction<any>,
+  bulkUpdateGarments: jest.fn() as jest.MockedFunction<any>,
 }
 
 const mockImageRecognitionService = {
-  analyzeGarmentImage: jest.fn(),
-  extractColorPalette: jest.fn(),
-  suggestGarmentName: jest.fn(),
+  analyzeGarmentImage: jest.fn() as jest.MockedFunction<any>,
+  extractColorPalette: jest.fn() as jest.MockedFunction<any>,
+  suggestGarmentName: jest.fn() as jest.MockedFunction<any>,
 }
 
 // Mock the service classes

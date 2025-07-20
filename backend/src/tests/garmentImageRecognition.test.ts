@@ -1,23 +1,17 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
 
-// Mock ClaudeService
-jest.mock('../services/ClaudeService', () => {
-  return {
-    ClaudeService: {
-      getInstance: jest.fn().mockReturnValue({
-        analyzeImageWithVision: jest.fn()
-      })
-    }
-  }
-})
+// Create mock function first
+const mockAnalyzeImageWithVision = jest.fn()
 
-import { ClaudeService } from '../services/ClaudeService'
-// Get the mock function from the mocked service with proper typing
-const mockClaudeService = (ClaudeService.getInstance as jest.Mock)() as {
-  analyzeImageWithVision: jest.MockedFunction<any>
-}
-const mockAnalyzeImageWithVision = mockClaudeService.analyzeImageWithVision
+// Mock ClaudeService with simpler approach
+jest.mock('../services/ClaudeService', () => ({
+  ClaudeService: {
+    getInstance: () => ({
+      analyzeImageWithVision: mockAnalyzeImageWithVision
+    })
+  }
+}))
 
 describe('GarmentImageRecognitionService', () => {
   let imageRecognitionService: GarmentImageRecognitionService
