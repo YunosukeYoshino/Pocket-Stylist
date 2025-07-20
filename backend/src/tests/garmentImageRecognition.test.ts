@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
 
-// Create mock function first
-const mockAnalyzeImageWithVision = jest.fn()
+// Create mock function first with proper typing
+const mockAnalyzeImageWithVision = jest.fn() as jest.MockedFunction<any>
 
 // Mock ClaudeService with simpler approach
 jest.mock('../services/ClaudeService', () => ({
@@ -140,7 +140,7 @@ describe('GarmentImageRecognitionService', () => {
         }
       })
 
-      const callArgs = mockAnalyzeImageWithVision.mock.calls[0][0]
+      const callArgs = mockAnalyzeImageWithVision.mock.calls[0][0] as any
       expect(callArgs.prompt).toContain("User's preferred brands: Uniqlo, H&M")
       expect(callArgs.prompt).toContain("User's style preferences: casual, minimalist")
       expect(callArgs.prompt).toContain("User's color preferences: blue, white, black")
