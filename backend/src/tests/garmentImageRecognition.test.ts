@@ -13,7 +13,8 @@ jest.doMock('../services/ClaudeService', () => ({
 }))
 
 // Import after mock setup
-const { GarmentImageRecognitionService } = jest.requireActual('../services/garmentImageRecognitionService')
+const garmentServiceModule = jest.requireActual('../services/garmentImageRecognitionService') as any
+const { GarmentImageRecognitionService } = garmentServiceModule
 
 describe('GarmentImageRecognitionService', () => {
   let imageRecognitionService: any

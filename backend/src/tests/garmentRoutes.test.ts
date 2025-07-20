@@ -28,11 +28,16 @@ jest.doMock('../services/garmentService', () => ({
 }))
 
 jest.doMock('../services/garmentImageRecognitionService', () => ({
-  GarmentImageRecognitionService: jest.fn().mockImplementation(() => mockImageRecognitionService)
+  GarmentImageRecognitionService: class MockGarmentImageRecognitionService {
+    analyzeGarmentImage = mockImageRecognitionService.analyzeGarmentImage
+    extractColorPalette = mockImageRecognitionService.extractColorPalette
+    suggestGarmentName = mockImageRecognitionService.suggestGarmentName
+  }
 }))
 
 // Import routes after mock setup
-const garmentRoutes = jest.requireActual('../routes/garment').default
+const garmentRoutesModule = jest.requireActual('../routes/garment') as any
+const garmentRoutes = garmentRoutesModule.default
 
 describe('Garment Routes', () => {
   let app: express.Application
