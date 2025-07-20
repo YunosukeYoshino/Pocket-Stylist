@@ -10,8 +10,8 @@ jest.mock('../services/ClaudeService', () => ({
 }))
 
 const mockClaudeService = {
-  analyzeImageWithVision: jest.fn()
-}
+  analyzeImageWithVision: jest.fn() as jest.MockedFunction<any>
+} as any
 
 // Setup mock after declaration
 const MockClaudeService = ClaudeService as jest.Mocked<typeof ClaudeService>

@@ -3,19 +3,28 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/src/**/*.test.(ts|js)'],
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {
+  globals: {
+    'ts-jest': {
+      isolatedModules: true,
       tsconfig: {
         target: 'es2022',
         module: 'commonjs',
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
+        skipLibCheck: true,
         strict: false,
         noImplicitAny: false,
         strictNullChecks: false,
-        strictFunctionTypes: false
+        strictFunctionTypes: false,
+        strictPropertyInitialization: false,
+        noImplicitThis: false,
+        noImplicitReturns: false,
+        exactOptionalPropertyTypes: false
       }
-    }],
+    }
+  },
+  transform: {
+    '^.+\\.ts$': 'ts-jest',
   },
   collectCoverageFrom: [
     'src/**/*.{ts,js}',

@@ -13,18 +13,18 @@ import {
 } from '../utils/garmentCategories'
 import { getPrismaClient } from '../utils/database'
 
-// Mock Prisma Client
+// Mock Prisma Client with explicit typing
 const mockPrismaClient = {
   garment: {
-    create: jest.fn(),
-    findFirst: jest.fn(),
-    findMany: jest.fn(),
-    updateMany: jest.fn(),
-    deleteMany: jest.fn(),
-    count: jest.fn(),
-    aggregate: jest.fn(),
+    create: jest.fn() as jest.MockedFunction<any>,
+    findFirst: jest.fn() as jest.MockedFunction<any>,
+    findMany: jest.fn() as jest.MockedFunction<any>,
+    updateMany: jest.fn() as jest.MockedFunction<any>,
+    deleteMany: jest.fn() as jest.MockedFunction<any>,
+    count: jest.fn() as jest.MockedFunction<any>,
+    aggregate: jest.fn() as jest.MockedFunction<any>,
   },
-}
+} as any
 
 describe('GarmentService', () => {
   let garmentService: GarmentService
@@ -36,8 +36,14 @@ describe('GarmentService', () => {
     ;(getPrismaClient as jest.Mock).mockReturnValue(mockPrismaClient)
     
     garmentService = new GarmentService({
-      DATABASE_URL: 'postgresql://test'
-    })
+      DATABASE_URL: 'postgresql://test',
+      R2_BUCKET: 'test-bucket',
+      R2_ACCESS_KEY_ID: 'test-key',
+      R2_SECRET_ACCESS_KEY: 'test-secret',
+      R2_ENDPOINT: 'https://test.r2.dev',
+      CLAUDE_API_KEY: 'test-claude-key',
+      CLAUDE_MODEL: 'claude-3-sonnet-20240229'
+    } as any)
     jest.clearAllMocks()
   })
 
