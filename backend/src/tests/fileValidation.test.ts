@@ -7,7 +7,7 @@ describe('File Validation', () => {
         name: 'test.jpg',
         type: 'image/jpeg',
         size: 1024 * 1024, // 1MB
-      } as File;
+      } as File
 
       const result = validateFile(mockFile)
       
@@ -24,7 +24,7 @@ describe('File Validation', () => {
         name: 'test.jpg',
         type: 'image/jpeg',
         size: 11 * 1024 * 1024, // 11MB (over limit)
-      } as File;
+      } as File
 
       const result = validateFile(mockFile)
       
@@ -37,7 +37,7 @@ describe('File Validation', () => {
         name: 'test.gif',
         type: 'image/gif',
         size: 1024 * 1024,
-      } as File;
+      } as File
 
       const result = validateFile(mockFile)
       
@@ -50,7 +50,7 @@ describe('File Validation', () => {
         name: 'test.exe',
         type: 'image/jpeg',
         size: 1024 * 1024,
-      } as File;
+      } as File
 
       const result = validateFile(mockFile)
       
