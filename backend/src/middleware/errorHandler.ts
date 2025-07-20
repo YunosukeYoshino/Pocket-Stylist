@@ -99,14 +99,14 @@ export const errorHandler = (
   // Send error response
   res.status(statusCode).json({
     error: message,
-    ...(process.env['NODE_ENV'] === 'development' && {
+    ...(process.env.NODE_ENV === 'development' && {
       details: error.message,
       stack: error.stack,
     }),
   })
 }
 
-export const asyncHandler = (fn: Function) => {
+export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next)
   }
@@ -121,7 +121,7 @@ export const notFound = (req: Request, _res: Response, next: NextFunction) => {
 export const honoErrorMiddleware = (error: Error, c: Context) => {
   let statusCode = 500
   let message = 'Internal Server Error'
-  let details: any = undefined
+  let details: Array<{ field: string; message: string }> | undefined = undefined
 
   // Log error details
   console.error('Error caught by Hono error handler:', {
@@ -179,7 +179,11 @@ export const honoErrorMiddleware = (error: Error, c: Context) => {
   }
 
   // Build response object
-  const responseBody: any = { error: message }
+  const responseBody: {
+    error: string;
+    details?: Array<{ field: string; message: string }>;
+    debug?: { message: string; stack?: string };
+  } = { error: message }
   
   if (details) {
     responseBody.details = details

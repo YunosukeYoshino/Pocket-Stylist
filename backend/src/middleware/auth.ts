@@ -1,7 +1,7 @@
 import type { Context, Next } from 'hono'
 import type { Env, AuthContext, User } from '../index'
 
-export async function authMiddleware(c: Context<{ Bindings: Env; Variables: AuthContext }>, next: Next): Promise<Response | void> {
+export async function authMiddleware(c: Context<{ Bindings: Env; Variables: AuthContext }>, next: Next): Promise<Response | undefined> {
   try {
     const authorization = c.req.header('Authorization')
     
@@ -9,7 +9,9 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: Auth
       return c.json({ error: 'Authorization header required' }, 401)
     }
     
-    const token = authorization.replace('Bearer ', '')
+    const token = authorization.startsWith('Bearer ')
+      ? authorization.slice(7)
+      : ''
     
     if (!token) {
       return c.json({ error: 'Bearer token required' }, 401)
@@ -44,6 +46,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env; Variables: Auth
     c.set('user', user)
     
     await next()
+    return
   } catch (error) {
     console.error('Auth middleware error:', {
       message: error instanceof Error ? error.message : 'Unknown error',

@@ -48,7 +48,7 @@ export class ImageService {
     metadata?: Record<string, string>
   ): Promise<string> {
     const formData = new FormData()
-    formData.append('file', new Blob([imageBuffer]), filename)
+    formData.append('file', new Blob([imageBuffer], { type: 'application/octet-stream' }), filename)
     
     if (metadata) {
       formData.append('metadata', JSON.stringify(metadata))

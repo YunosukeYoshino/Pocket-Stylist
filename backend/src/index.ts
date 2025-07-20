@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { authMiddleware } from './middleware/auth'
 import { honoErrorMiddleware } from './middleware/errorHandler'
 import { fileRoutes } from './routes/files'
+import type { FileController } from './controllers/fileController'
 
 export interface Env {
   // Database
@@ -43,7 +44,7 @@ export interface User {
 // Define extended context type for Hono with user
 export interface AuthContext {
   user: User
-  fileController?: any
+  fileController?: FileController
   [key: string]: unknown
 }
 
