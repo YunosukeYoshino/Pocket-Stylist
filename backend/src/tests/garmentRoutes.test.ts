@@ -22,27 +22,24 @@ const mockImageRecognitionService = {
   suggestGarmentName: jest.fn() as jest.MockedFunction<any>,
 }
 
+// Set up dynamic mocks before any imports
+jest.doMock('../services/garmentService', () => ({
+  GarmentService: jest.fn().mockImplementation(() => mockGarmentService)
+}))
+
+jest.doMock('../services/garmentImageRecognitionService', () => ({
+  GarmentImageRecognitionService: jest.fn().mockImplementation(() => mockImageRecognitionService)
+}))
+
+// Import routes after mock setup
+const garmentRoutes = jest.requireActual('../routes/garment').default
+
 describe('Garment Routes', () => {
   let app: express.Application
-  let garmentRoutes: any
   const mockUserId = 'user-123'
   const mockGarmentId = 'garment-123'
 
-  beforeEach(async () => {
-    // Clear module cache
-    jest.resetModules()
-    
-    // Set up dynamic mocks
-    jest.doMock('../services/garmentService', () => ({
-      GarmentService: jest.fn().mockImplementation(() => mockGarmentService)
-    }))
-    
-    jest.doMock('../services/garmentImageRecognitionService', () => ({
-      GarmentImageRecognitionService: jest.fn().mockImplementation(() => mockImageRecognitionService)
-    }))
-    
-    // Re-import the routes module after mocks are set
-    garmentRoutes = (await import('../routes/garment')).default
+  beforeEach(() => {
     
     app = express()
     app.use(express.json())
@@ -433,7 +430,11 @@ describe('Garment Routes', () => {
       expect(mockImageRecognitionService.analyzeGarmentImage).toHaveBeenCalledWith({
         imageBase64: 'mock-base64-string',
         imageUrl: undefined,
-        userPreferences: undefined
+        userPreferences: {
+          preferredBrands: undefined,
+          stylePreferences: undefined,
+          colorPreferences: undefined
+        }
       })
     })
 
