@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { authMiddleware } from './middleware/auth'
-// import { honoErrorHandler } from './middleware/errorHandler'
+import { honoErrorMiddleware } from './middleware/errorHandler'
 import { fileRoutes } from './routes/files'
 
 export interface Env {
@@ -52,7 +52,9 @@ const app = new Hono<{ Bindings: Env; Variables: AuthContext }>()
 // Middleware
 app.use('*', cors())
 app.use('*', logger())
-// app.use('*', honoErrorHandler)
+
+// Error handler
+app.onError(honoErrorMiddleware)
 
 // Health check
 app.get('/health', (c) => {
