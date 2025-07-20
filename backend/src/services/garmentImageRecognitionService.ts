@@ -1,4 +1,4 @@
-import { ClaudeService } from './ClaudeService'
+import { GeminiService } from './GeminiService'
 import { 
   GARMENT_CATEGORIES, 
   GARMENT_COLORS,
@@ -41,10 +41,10 @@ export interface ImageRecognitionInput {
 }
 
 export class GarmentImageRecognitionService {
-  private claudeService: ClaudeService
+  private geminiService: GeminiService
 
   constructor() {
-    this.claudeService = ClaudeService.getInstance()
+    this.geminiService = GeminiService.getInstance()
   }
 
   /**
@@ -71,7 +71,7 @@ export class GarmentImageRecognitionService {
       }
 
       // Call Claude with vision capabilities
-      const response = await this.claudeService.analyzeImageWithVision({
+      const response = await this.geminiService.analyzeImageWithVision({
         image: imageData,
         prompt,
         isBase64: !!input.imageBase64
@@ -338,7 +338,7 @@ Focus on the main garment colors, ignore background. Provide up to 5 colors. Per
         throw new Error('Image data is required')
       }
 
-      const response = await this.claudeService.analyzeImageWithVision({
+      const response = await this.geminiService.analyzeImageWithVision({
         image: imageData,
         prompt,
         isBase64: !!input.imageBase64

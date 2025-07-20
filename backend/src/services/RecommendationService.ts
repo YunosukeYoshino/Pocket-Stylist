@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { RecommendationError } from '../middleware/errorHandler'
 import { logRecommendationGeneration, logger } from '../utils/logger'
-import { ClaudeService, type StylingRecommendationInput } from './ClaudeService'
+import { GeminiService, type StylingRecommendationInput } from './GeminiService'
 import { RedisService } from './RedisService'
 // import { env } from '../config/env';
 
@@ -76,12 +76,12 @@ export interface RecommendationResponse {
 export class RecommendationService {
   private static instance: RecommendationService
   private prisma: PrismaClient
-  private claude: ClaudeService
+  private gemini: GeminiService
   private redis: RedisService
 
   private constructor() {
     this.prisma = new PrismaClient()
-    this.claude = ClaudeService.getInstance()
+    this.gemini = GeminiService.getInstance()
     this.redis = RedisService.getInstance()
   }
 
@@ -127,11 +127,11 @@ export class RecommendationService {
       })
 
       try {
-        // Prepare Claude API input
-        const claudeInput = await this.prepareClaudeInput(user, request)
+        // Prepare Gemini API input
+        const geminiInput = await this.prepareGeminiInput(user, request)
 
-        // Generate recommendations using Claude
-        const claudeResponse = await this.claude.generateStylingRecommendations(claudeInput)
+        // Generate recommendations using Gemini
+        const geminiResponse = await this.gemini.generateStylingRecommendations(geminiInput)
 
         // Process and store recommendations
         const processedRecommendations = await this.processRecommendations(
@@ -311,7 +311,7 @@ export class RecommendationService {
     }
   }
 
-  private async prepareClaudeInput(
+  private async prepareGeminiInput(
     user: any,
     request: RecommendationRequest
   ): Promise<StylingRecommendationInput> {
@@ -584,8 +584,8 @@ export class RecommendationService {
         throw new RecommendationError('User not found', 404)
       }
 
-      // Analyze user style using Claude
-      const analysis = await this.claude.analyzeUserStyleProfile(
+      // Analyze user style using Gemini
+      const analysis = await this.gemini.analyzeUserStyleProfile(
         userId,
         user.preferences,
         user.garments

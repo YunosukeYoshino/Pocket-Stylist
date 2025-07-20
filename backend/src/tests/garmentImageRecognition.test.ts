@@ -4,8 +4,8 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 const mockAnalyzeImageWithVision = jest.fn() as jest.MockedFunction<any>
 
 // Set up mock before any imports
-jest.doMock('../services/ClaudeService', () => ({
-  ClaudeService: {
+jest.doMock('../services/GeminiService', () => ({
+  GeminiService: {
     getInstance: () => ({
       analyzeImageWithVision: mockAnalyzeImageWithVision
     })

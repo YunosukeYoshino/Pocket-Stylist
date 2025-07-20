@@ -1,13 +1,13 @@
 import { type Request, type Response, Router } from 'express'
 import { z } from 'zod'
 import { asyncHandler } from '../middleware/errorHandler'
-import { ClaudeService } from '../services/ClaudeService'
+import { GeminiService } from '../services/GeminiService'
 import { RecommendationService } from '../services/RecommendationService'
 import { logUserFeedback, logger } from '../utils/logger'
 
 const router = Router()
 const recommendationService = RecommendationService.getInstance()
-const claudeService = ClaudeService.getInstance()
+const geminiService = GeminiService.getInstance()
 
 // Validation schemas
 const stylingRecommendationSchema = z.object({
@@ -261,7 +261,7 @@ router.post(
 
     logger.info('Generating outfit description', { garmentIds, occasion, season })
 
-    const description = await claudeService.generateOutfitDescription(garmentIds, occasion, season)
+    const description = await geminiService.generateOutfitDescription(garmentIds, occasion, season)
 
     res.json({
       success: true,
