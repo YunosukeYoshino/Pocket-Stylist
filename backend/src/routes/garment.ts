@@ -12,15 +12,24 @@ import { asyncHandler } from '../middleware/errorHandler'
 
 const router = Router()
 
-// Initialize services
+// Initialize services once
+let garmentService: GarmentService | null = null
+let imageRecognitionService: GarmentImageRecognitionService | null = null
+
 const getGarmentService = () => {
-  return new GarmentService({
-    DATABASE_URL: process.env.DATABASE_URL!
-  } as any)
+  if (!garmentService) {
+    garmentService = new GarmentService({
+      DATABASE_URL: process.env.DATABASE_URL!
+    } as any)
+  }
+  return garmentService
 }
 
 const getImageRecognitionService = () => {
-  return new GarmentImageRecognitionService()
+  if (!imageRecognitionService) {
+    imageRecognitionService = new GarmentImageRecognitionService()
+  }
+  return imageRecognitionService
 }
 
 // GET /v1/garments - List garments with filtering and pagination
@@ -51,8 +60,8 @@ router.get(
     
     const sortBy = (req.query.sortBy as any) || 'createdAt'
     const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'desc'
-    const page = parseInt((req.query.page as string) || '1')
-    const limit = Math.min(parseInt((req.query.limit as string) || '20'), 100)
+    const page = Math.max(1, parseInt((req.query.page as string) || '1') || 1)
+    const limit = Math.min(100, Math.max(1, parseInt((req.query.limit as string) || '20') || 20))
 
     const filters = {
       ...(category && { category }),
@@ -232,6 +241,51 @@ router.post(
   })
 )
 
+// PATCH /v1/garments/bulk - Bulk update garments
+router.patch(
+  '/bulk',
+  asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req as any).user?.sub
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    if (!req.body.garmentIds || !Array.isArray(req.body.garmentIds) || req.body.garmentIds.length === 0) {
+      res.status(400).json({ error: 'garmentIds array is required' })
+      return
+    }
+
+    const updateData = {
+      ...(req.body.category !== undefined && { category: req.body.category }),
+      ...(req.body.subcategory !== undefined && { subcategory: req.body.subcategory }),
+      ...(req.body.brand !== undefined && { brand: req.body.brand }),
+      ...(req.body.color !== undefined && { color: req.body.color }),
+      ...(req.body.condition !== undefined && { condition: req.body.condition }),
+      ...(req.body.isFavorite !== undefined && { isFavorite: req.body.isFavorite })
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      res.status(400).json({ error: 'No update data provided' })
+      return
+    }
+
+    const garmentService = getGarmentService()
+    const updatedCount = await garmentService.bulkUpdateGarments(
+      userId,
+      req.body.garmentIds,
+      updateData
+    )
+
+    res.json({
+      success: true,
+      data: {
+        updatedCount
+      }
+    })
+  })
+)
+
 // PATCH /v1/garments/:id - Update a garment
 router.patch(
   '/:id',
@@ -321,50 +375,6 @@ router.post(
   })
 )
 
-// PATCH /v1/garments/bulk - Bulk update garments
-router.patch(
-  '/bulk',
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user?.sub
-    if (!userId) {
-      res.status(401).json({ error: 'Unauthorized' })
-      return
-    }
-
-    if (!req.body.garmentIds || !Array.isArray(req.body.garmentIds) || req.body.garmentIds.length === 0) {
-      res.status(400).json({ error: 'garmentIds array is required' })
-      return
-    }
-
-    const updateData = {
-      ...(req.body.category !== undefined && { category: req.body.category }),
-      ...(req.body.subcategory !== undefined && { subcategory: req.body.subcategory }),
-      ...(req.body.brand !== undefined && { brand: req.body.brand }),
-      ...(req.body.color !== undefined && { color: req.body.color }),
-      ...(req.body.condition !== undefined && { condition: req.body.condition }),
-      ...(req.body.isFavorite !== undefined && { isFavorite: req.body.isFavorite })
-    }
-
-    if (Object.keys(updateData).length === 0) {
-      res.status(400).json({ error: 'No update data provided' })
-      return
-    }
-
-    const garmentService = getGarmentService()
-    const updatedCount = await garmentService.bulkUpdateGarments(
-      userId,
-      req.body.garmentIds,
-      updateData
-    )
-
-    res.json({
-      success: true,
-      data: {
-        updatedCount
-      }
-    })
-  })
-)
 
 // POST /v1/garments/analyze-image - Analyze a garment image for automatic classification
 router.post(

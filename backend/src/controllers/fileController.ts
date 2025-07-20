@@ -123,8 +123,8 @@ export class FileController {
       }
       
       const category = c.req.query('category') as 'avatar' | 'garment' | 'tryon' | 'other' | undefined
-      const page = Number.parseInt(c.req.query('page') || '1', 10)
-      const limit = Number.parseInt(c.req.query('limit') || '20', 10)
+      const page = Math.max(1, Number.parseInt(c.req.query('page') || '1', 10) || 1)
+      const limit = Math.min(100, Math.max(1, Number.parseInt(c.req.query('limit') || '20', 10) || 20))
       
       const result = await this.fileService.getUserFiles(user.sub, category, page, limit)
       
