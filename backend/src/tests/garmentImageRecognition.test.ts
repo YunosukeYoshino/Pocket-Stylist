@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import { GarmentImageRecognitionService } from '../services/garmentImageRecognitionService'
-import { ClaudeService } from '../services/ClaudeService'
 
 // Mock ClaudeService
-jest.mock('../services/ClaudeService', () => ({
-  ClaudeService: {
-    getInstance: jest.fn()
+jest.mock('../services/ClaudeService', () => {
+  return {
+    ClaudeService: {
+      getInstance: jest.fn().mockReturnValue({
+        analyzeImageWithVision: jest.fn()
+      })
+    }
   }
-}))
+})
 
-const mockClaudeService = {
-  analyzeImageWithVision: jest.fn() as jest.MockedFunction<any>
-} as any
-
-// Setup mock after declaration
-const MockClaudeService = ClaudeService as jest.Mocked<typeof ClaudeService>
-MockClaudeService.getInstance.mockReturnValue(mockClaudeService as any)
+import { ClaudeService } from '../services/ClaudeService'
+// Get the mock function from the mocked service
+const mockClaudeService = (ClaudeService.getInstance as jest.Mock)()
+const mockAnalyzeImageWithVision = mockClaudeService.analyzeImageWithVision
 
 describe('GarmentImageRecognitionService', () => {
   let imageRecognitionService: GarmentImageRecognitionService
@@ -56,7 +56,7 @@ describe('GarmentImageRecognitionService', () => {
         }
       })
 
-      mockClaudeService.analyzeImageWithVision.mockResolvedValue(mockClaudeResponse)
+      mockAnalyzeImageWithVision.mockResolvedValue(mockClaudeResponse)
 
       const result = await imageRecognitionService.analyzeGarmentImage({
         imageBase64: 'mock-base64-string'
@@ -73,7 +73,7 @@ describe('GarmentImageRecognitionService', () => {
         style: 'casual'
       })
 
-      expect(mockClaudeService.analyzeImageWithVision).toHaveBeenCalledWith({
+      expect(mockAnalyzeImageWithVision).toHaveBeenCalledWith({
         image: 'mock-base64-string',
         prompt: expect.stringContaining('You are an expert fashion AI assistant'),
         isBase64: true
@@ -88,7 +88,7 @@ describe('GarmentImageRecognitionService', () => {
         color: 'Blue'
       })
 
-      mockClaudeService.analyzeImageWithVision.mockResolvedValue(mockClaudeResponse)
+      mockAnalyzeImageWithVision.mockResolvedValue(mockClaudeResponse)
 
       const result = await imageRecognitionService.analyzeGarmentImage({
         imageBase64: 'mock-base64-string'
@@ -106,7 +106,7 @@ describe('GarmentImageRecognitionService', () => {
         color: 'Blue' // Valid color from our list
       })
 
-      mockClaudeService.analyzeImageWithVision.mockResolvedValue(mockClaudeResponse)
+      mockAnalyzeImageWithVision.mockResolvedValue(mockClaudeResponse)
 
       const result = await imageRecognitionService.analyzeGarmentImage({
         imageBase64: 'mock-base64-string'
@@ -117,7 +117,7 @@ describe('GarmentImageRecognitionService', () => {
     })
 
     it('should handle Claude API errors gracefully', async () => {
-      mockClaudeService.analyzeImageWithVision.mockRejectedValue(new Error('Claude API Error'))
+      mockAnalyzeImageWithVision.mockRejectedValue(new Error('Claude API Error'))
 
       await expect(
         imageRecognitionService.analyzeGarmentImage({
@@ -133,7 +133,7 @@ describe('GarmentImageRecognitionService', () => {
     })
 
     it('should include user preferences in analysis prompt', async () => {
-      mockClaudeService.analyzeImageWithVision.mockResolvedValue('{"confidence": 50, "category": "tops"}')
+      mockAnalyzeImageWithVision.mockResolvedValue('{"confidence": 50, "category": "tops"}')
 
       await imageRecognitionService.analyzeGarmentImage({
         imageBase64: 'mock-base64-string',
@@ -144,7 +144,7 @@ describe('GarmentImageRecognitionService', () => {
         }
       })
 
-      const callArgs = mockClaudeService.analyzeImageWithVision.mock.calls[0][0]
+      const callArgs = mockAnalyzeImageWithVision.mock.calls[0][0]
       expect(callArgs.prompt).toContain("User's preferred brands: Uniqlo, H&M")
       expect(callArgs.prompt).toContain("User's style preferences: casual, minimalist")
       expect(callArgs.prompt).toContain("User's color preferences: blue, white, black")
@@ -159,7 +159,7 @@ describe('GarmentImageRecognitionService', () => {
         { color: 'gray', hex: '#808080', percentage: 10 }
       ])
 
-      mockClaudeService.analyzeImageWithVision.mockResolvedValue(mockColorPalette)
+      mockAnalyzeImageWithVision.mockResolvedValue(mockColorPalette)
 
       const result = await imageRecognitionService.extractColorPalette({
         imageBase64: 'mock-base64-string'
@@ -172,7 +172,7 @@ describe('GarmentImageRecognitionService', () => {
         percentage: 60
       })
 
-      expect(mockClaudeService.analyzeImageWithVision).toHaveBeenCalledWith({
+      expect(mockAnalyzeImageWithVision).toHaveBeenCalledWith({
         image: 'mock-base64-string',
         prompt: expect.stringContaining('extract the color palette'),
         isBase64: true
@@ -180,7 +180,7 @@ describe('GarmentImageRecognitionService', () => {
     })
 
     it('should handle invalid JSON response', async () => {
-      mockClaudeService.analyzeImageWithVision.mockResolvedValue('Invalid JSON response')
+      mockAnalyzeImageWithVision.mockResolvedValue('Invalid JSON response')
 
       const result = await imageRecognitionService.extractColorPalette({
         imageBase64: 'mock-base64-string'
@@ -190,7 +190,7 @@ describe('GarmentImageRecognitionService', () => {
     })
 
     it('should handle errors gracefully', async () => {
-      mockClaudeService.analyzeImageWithVision.mockRejectedValue(new Error('API Error'))
+      mockAnalyzeImageWithVision.mockRejectedValue(new Error('API Error'))
 
       const result = await imageRecognitionService.extractColorPalette({
         imageBase64: 'mock-base64-string'
