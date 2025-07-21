@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { RecommendationError } from '../middleware/errorHandler'
 import { logRecommendationGeneration, logger } from '../utils/logger'
-import { ClaudeService, type StylingRecommendationInput } from './ClaudeService'
+import { GeminiService, type StylingRecommendationInput } from './GeminiService'
 import { RedisService } from './RedisService'
 // import { env } from '../config/env';
 
@@ -76,12 +76,12 @@ export interface RecommendationResponse {
 export class RecommendationService {
   private static instance: RecommendationService
   private prisma: PrismaClient
-  private claude: ClaudeService
+  private gemini: GeminiService
   private redis: RedisService
 
   private constructor() {
     this.prisma = new PrismaClient()
-    this.claude = ClaudeService.getInstance()
+    this.gemini = GeminiService.getInstance()
     this.redis = RedisService.getInstance()
   }
 
@@ -127,16 +127,16 @@ export class RecommendationService {
       })
 
       try {
-        // Prepare Claude API input
-        const claudeInput = await this.prepareClaudeInput(user, request)
+        // Prepare Gemini API input
+        const geminiInput = await this.prepareGeminiInput(user, request)
 
-        // Generate recommendations using Claude
-        const claudeResponse = await this.claude.generateStylingRecommendations(claudeInput)
+        // Generate recommendations using Gemini
+        const geminiResponse = await this.gemini.generateStylingRecommendations(geminiInput)
 
         // Process and store recommendations
         const processedRecommendations = await this.processRecommendations(
           recommendation.id,
-          claudeResponse,
+          geminiResponse,
           request.preferences?.maxOutfits || 5
         )
 
@@ -145,15 +145,15 @@ export class RecommendationService {
           where: { id: recommendation.id },
           data: {
             status: 'completed',
-            styleAnalysis: claudeResponse.style_analysis as any,
-            personalizationInsights: claudeResponse.personalization_insights as any,
+            styleAnalysis: geminiResponse.style_analysis as any,
+            personalizationInsights: geminiResponse.personalization_insights as any,
             confidenceScore: this.calculateOverallConfidence(processedRecommendations),
             processingTime: Date.now() - startTime,
           },
         })
 
         // Update user style profile
-        await this.updateUserStyleProfile(user.id, claudeResponse)
+        await this.updateUserStyleProfile(user.id, geminiResponse)
 
         const response: RecommendationResponse = {
           id: recommendation.id,
@@ -161,8 +161,8 @@ export class RecommendationService {
           type: recommendation.type,
           status: 'completed',
           outfits: processedRecommendations,
-          styleAnalysis: claudeResponse.style_analysis as any,
-          personalizationInsights: claudeResponse.personalization_insights as any,
+          styleAnalysis: geminiResponse.style_analysis as any,
+          personalizationInsights: geminiResponse.personalization_insights as any,
           metadata: {
             processingTime: Date.now() - startTime,
             confidenceScore: this.calculateOverallConfidence(processedRecommendations),
@@ -311,7 +311,7 @@ export class RecommendationService {
     }
   }
 
-  private async prepareClaudeInput(
+  private async prepareGeminiInput(
     user: any,
     request: RecommendationRequest
   ): Promise<StylingRecommendationInput> {
@@ -369,10 +369,10 @@ export class RecommendationService {
 
   private async processRecommendations(
     recommendationId: string,
-    claudeResponse: any,
+    geminiResponse: any,
     maxOutfits: number
   ): Promise<any[]> {
-    const outfits = claudeResponse.outfits.slice(0, maxOutfits)
+    const outfits = geminiResponse.outfits.slice(0, maxOutfits)
     const processedOutfits = []
 
     for (let i = 0; i < outfits.length; i++) {
@@ -410,9 +410,9 @@ export class RecommendationService {
     return processedOutfits
   }
 
-  private async updateUserStyleProfile(userId: string, claudeResponse: any): Promise<void> {
-    const styleAnalysis = claudeResponse.style_analysis
-    const personalizationInsights = claudeResponse.personalization_insights
+  private async updateUserStyleProfile(userId: string, geminiResponse: any): Promise<void> {
+    const styleAnalysis = geminiResponse.style_analysis
+    const personalizationInsights = geminiResponse.personalization_insights
 
     if (!styleAnalysis) return
 
@@ -584,8 +584,8 @@ export class RecommendationService {
         throw new RecommendationError('User not found', 404)
       }
 
-      // Analyze user style using Claude
-      const analysis = await this.claude.analyzeUserStyleProfile(
+      // Analyze user style using Gemini
+      const analysis = await this.gemini.analyzeUserStyleProfile(
         userId,
         user.preferences,
         user.garments

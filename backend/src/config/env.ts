@@ -7,12 +7,21 @@ const envSchema = z.object({
   // Database
   DATABASE_URL: z.string().url(),
 
-  // Claude API
+  // Claude API (Legacy - to be deprecated)
   CLAUDE_API_KEY: z.string().min(1, 'Claude API key is required'),
   CLAUDE_MODEL: z.string().default('claude-3-sonnet-20240229'),
   CLAUDE_VISION_MODEL: z.string().default('claude-3-sonnet-20240229'),
   CLAUDE_MAX_TOKENS: z.string().default('4096'),
   CLAUDE_TEMPERATURE: z.string().default('0.7'),
+
+  // Gemini API
+  GEMINI_API_KEY: z.string().min(1, 'Gemini API key is required'),
+  GEMINI_MODEL: z.string().default('gemini-1.5-pro'),
+  GEMINI_VISION_MODEL: z.string().default('gemini-1.5-pro-vision'),
+  GEMINI_MAX_TOKENS: z.string().default('8192'),
+  GEMINI_TEMPERATURE: z.string().default('0.7'),
+  GEMINI_TOP_P: z.string().default('0.8'),
+  GEMINI_TOP_K: z.string().default('40'),
 
   // Redis
   REDIS_URL: z.string().url().optional(),
@@ -33,6 +42,8 @@ const envSchema = z.object({
   RATE_LIMIT_MAX: z.string().default('100'),
   CLAUDE_RATE_LIMIT_WINDOW_MS: z.string().default('60000'), // 1 minute
   CLAUDE_RATE_LIMIT_MAX: z.string().default('20'),
+  GEMINI_RATE_LIMIT_WINDOW_MS: z.string().default('60000'), // 1 minute
+  GEMINI_RATE_LIMIT_MAX: z.string().default('60'), // Higher limit for Gemini
 
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),

@@ -1,6 +1,6 @@
-# Claude Development Guidelines
+# CLAUDE.md
 
-This file contains guidelines and rules for Claude when working on the Pocket Stylist project.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 🚫 Code Quality Rules
 
@@ -16,7 +16,7 @@ This file contains guidelines and rules for Claude when working on the Pocket St
    - Feature flags and configuration values
 
 2. **API Configurations**
-   - Service URLs (Auth0, Cloudflare, Claude API, etc.)
+   - Service URLs (Auth0, Cloudflare, Gemini API, etc.)
    - Bucket names and storage paths
    - Rate limits and timeouts
    - API versions and endpoints
@@ -43,74 +43,233 @@ const apiUrl = env.API_BASE_URL
 const maxFileSize = parseInt(env.MAX_FILE_SIZE_BYTES || '10485760')
 ```
 
-```typescript
-// ❌ BAD - Hardcoded in service
-r2Bucket: 'pocket-stylist'
-
-// ✅ GOOD - From environment
-r2Bucket: this.env.R2_BUCKET_NAME
-```
-
 ### Configuration Management
 
 1. **Store all configurable values in `.env.example`**
-2. **Document required environment variables in README**
-3. **Use type-safe environment variable loading**
-4. **Provide sensible defaults where appropriate**
-5. **Validate environment variables at startup**
-
-### Examples of What to Extract
-
-- **Service URLs**: Auth0 domain, Cloudflare endpoints, API base URLs
-- **Resource Names**: Bucket names, database names, queue names
-- **Limits**: File size limits, rate limits, pagination sizes
-- **Timeouts**: Request timeouts, cache TTL, retry intervals
-- **Credentials**: API keys, database passwords, JWT secrets
-
-## 🔧 Implementation Guidelines
+2. **Use type-safe environment variable loading in `backend/src/config/env.ts`**
+3. **Provide sensible defaults where appropriate**
+4. **Validate environment variables at startup using Zod schemas**
 
 ### Environment Variable Naming
 
 Use consistent naming conventions:
 - `SERVICE_SETTING_NAME` format
-- Prefix with service name (e.g., `R2_BUCKET_NAME`, `AUTH0_DOMAIN`)
-- Use descriptive names (e.g., `CLAUDE_MAX_TOKENS` not `MAX_TOKENS`)
+- Prefix with service name (e.g., `R2_BUCKET_NAME`, `AUTH0_DOMAIN`, `GEMINI_API_KEY`)
+- Use descriptive names (e.g., `GEMINI_MAX_TOKENS` not `MAX_TOKENS`)
 
-### Configuration Validation
+## 🏗 Architecture Overview
 
-Always validate configuration at startup:
+### Project Structure
+
+This is a **multi-service monorepo** with three main components:
+
+1. **Frontend** (`/app`, `/src`) - React Native + Expo mobile app
+2. **Server** (`/server`) - Express.js API server for user management and authentication
+3. **Backend** (`/backend`) - Express.js API server for AI services and garment management
+
+### Key Services Architecture
+
+#### AI Services Layer
+- **GeminiService** (`backend/src/services/GeminiService.ts`) - Primary AI service (migrated from Claude)
+- **ClaudeService** (`backend/src/services/ClaudeService.ts`) - Legacy AI service (being phased out)
+- **RecommendationService** (`backend/src/services/RecommendationService.ts`) - High-level recommendation orchestration
+- **GarmentImageRecognitionService** (`backend/src/services/garmentImageRecognitionService.ts`) - Image analysis for garments
+
+#### Data Layer
+- **Prisma ORM** - Database abstraction with PostgreSQL
+- **RedisService** (`backend/src/services/RedisService.ts`) - Caching layer
+- **R2Service** (`backend/src/services/r2Service.ts`) - Cloudflare R2 file storage
+
+#### Service Communication Pattern
+```
+API Routes → Controllers → Services → Repositories/External APIs
+```
+
+### Environment Configuration
+
+The project uses **dual environment systems**:
+- **Root level** - Frontend/server configuration
+- **Backend level** - Backend-specific configuration with comprehensive validation
+
+Environment validation happens in `backend/src/config/env.ts` using Zod schemas.
+
+## 🛠 Development Commands
+
+### Full Stack Development
+```bash
+# Install all dependencies
+npm run setup
+
+# Run full development environment
+npm run dev:full
+
+# Start individual services
+npm run start              # Frontend (Expo)
+npm run server:dev         # Server (Express)
+npm run backend:dev        # Backend (Express)
+```
+
+### Frontend (React Native/Expo)
+```bash
+npm run start              # Start Expo dev server
+npm run android            # Run on Android
+npm run ios                # Run on iOS
+npm run web                # Run on web
+```
+
+### Backend Development
+```bash
+cd backend
+npm run dev                # Development server with watch
+npm run build              # Build TypeScript
+npm run start              # Production server
+
+# Database operations
+npm run db:generate        # Generate Prisma client
+npm run db:migrate         # Run migrations
+npm run db:seed            # Seed database
+npm run db:studio          # Open Prisma Studio
+```
+
+### Testing
+
+The project uses **Jest with multi-project configuration**:
+
+```bash
+# Run all tests
+npm test
+
+# Specific project tests
+npm run test:server        # Server API tests
+npm run test:client        # React Native tests
+npm run backend:test       # Backend API tests
+
+# Test patterns
+npm test -- --testPathPattern="GeminiService"
+npm test -- --testNamePattern="should handle errors"
+
+# Coverage
+npm run test:coverage
+npm run backend:test -- --coverage
+```
+
+### Code Quality
+```bash
+# Linting and formatting (uses Biome)
+npm run lint
+npm run lint:fix
+npm run format
+npm run check
+npm run check:fix
+
+# Type checking
+npm run type-check
+npm run backend:build      # Backend TypeScript check
+```
+
+### Docker Operations
+```bash
+npm run docker:up         # Start services
+npm run docker:down       # Stop services
+npm run docker:logs       # View logs
+```
+
+## 🔧 Testing Guidelines
+
+### Test File Locations
+- **Backend tests**: `backend/src/tests/*.test.ts`
+- **Server tests**: `server/**/*.test.ts`
+- **Frontend tests**: `app/**/*.test.tsx`
+
+### Mock Patterns for AI Services
+
+When testing AI services, use proper mock setup:
 
 ```typescript
-// ✅ Validate required environment variables
-const requiredEnvVars = ['R2_BUCKET_NAME', 'AUTH0_DOMAIN', 'CLAUDE_API_KEY']
-for (const envVar of requiredEnvVars) {
-  if (!env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`)
-  }
-}
+// Mock environment variables first
+process.env.GEMINI_API_KEY = 'test-key'
+
+// Mock the Google AI SDK
+jest.doMock('@google/generative-ai', () => ({
+  GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
+    getGenerativeModel: jest.fn().mockImplementation(() => ({
+      generateContent: mockGenerateContent
+    }))
+  }))
+}))
+
+// Import service after mocks
+const { GeminiService } = jest.requireActual('../services/GeminiService') as any
 ```
+
+### Test Configuration
+
+Tests are configured with relaxed TypeScript settings for better mock compatibility. Each project has separate Jest configurations optimized for their specific needs.
+
+## 🔄 Service Migration Patterns
+
+### AI Service Migration (Claude → Gemini)
+
+When working with AI services, note the migration pattern:
+- **GeminiService** is the primary AI service
+- **ClaudeService** exists for backward compatibility
+- Both services implement identical interfaces for seamless swapping
+- Migration involved updating service dependencies across multiple layers
+
+### Service Interface Consistency
+
+All AI services must maintain consistent interfaces:
+```typescript
+generateStylingRecommendations(input: StylingRecommendationInput): Promise<StylingRecommendationOutput>
+analyzeImageWithVision(input: {image: string, prompt: string, isBase64?: boolean, userId?: string}): Promise<string>
+```
+
+## 📦 Package Management
+
+- **Package Manager**: Bun (preferred) and npm
+- **Frontend deps**: Root `package.json`
+- **Backend deps**: `backend/package.json`
+- **Workspaces**: Not used - each service manages its own dependencies
+
+## 🔒 Security Considerations
+
+### Environment Variables
+- All sensitive values MUST be in environment variables
+- Never commit `.env` files
+- Use `.env.example` to document required variables
+- Validate all environment variables with Zod schemas
+
+### API Security
+- Auth0 integration for authentication
+- JWT tokens for authorization
+- Rate limiting on all public endpoints
+- Helmet.js for security headers
+
+## 🎯 Common Development Patterns
+
+### Error Handling
+- Custom error classes (`GeminiAPIError`, `RecommendationError`)
+- Consistent error response format
+- Comprehensive logging with Winston
+
+### Caching Strategy
+- Redis for API response caching
+- TTL-based invalidation
+- Cache keys use user ID + input hash pattern
+
+### Database Patterns
+- Prisma ORM with PostgreSQL
+- Repository pattern for data access
+- Migration-based schema management
+- Seeding for development data
 
 ## 📋 Review Checklist
 
 Before submitting code, ensure:
-
-- [ ] No hardcoded URLs or endpoints
-- [ ] No hardcoded credentials or secrets  
-- [ ] No hardcoded bucket names or resource identifiers
-- [ ] No hardcoded business logic values
-- [ ] All configurable values use environment variables
-- [ ] New environment variables are documented in `.env.example`
-- [ ] Environment variables are validated at startup
-
-## 🎯 Benefits
-
-Following these rules ensures:
-- **Environment Portability**: Code works across dev/staging/prod
-- **Security**: No credentials in source code
-- **Flexibility**: Easy configuration changes without code deployment
-- **Maintainability**: Clear separation of code and configuration
-- **Team Collaboration**: Consistent configuration management
-
-## 🚨 Enforcement
-
-Any PR containing hardcoded values will be flagged for revision. Use this checklist during code review to maintain code quality standards.
+- [ ] No hardcoded values (see policy above)
+- [ ] Environment variables documented in `.env.example`
+- [ ] Tests pass for affected components
+- [ ] TypeScript compilation succeeds
+- [ ] Biome linting passes
+- [ ] Proper error handling implemented
+- [ ] Service interfaces remain consistent
