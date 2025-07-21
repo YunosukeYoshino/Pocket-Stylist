@@ -18,10 +18,13 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'icon', size
   }
 
   const getTextSize = () => {
-    if (variant === 'icon') {
-      return size === 'large' ? 6 : size === 'small' ? 4 : 5
+    const sizeMap = {
+      icon: { small: 4, medium: 5, large: 6 },
+      default: { small: 3, medium: 4, large: 5 },
     }
-    return size === 'large' ? 5 : size === 'small' ? 3 : 4
+
+    const mapKey = variant === 'icon' ? 'icon' : 'default'
+    return sizeMap[mapKey][size]
   }
 
   const getButtonText = () => {
@@ -42,7 +45,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'icon', size
       accessibilityLabel={`Switch to ${isDark ? 'light' : 'dark'} theme`}
       accessibilityRole="button"
     >
-      <Text size={getTextSize()}>{getButtonText()}</Text>
+      <Text size={getTextSize() as any}>{getButtonText()}</Text>
     </Button>
   )
 }

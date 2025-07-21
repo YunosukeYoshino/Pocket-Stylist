@@ -65,21 +65,21 @@ export const Button = styled(TamaguiButton, {
         backgroundColor: '$success',
         color: 'white',
         hoverStyle: {
-          backgroundColor: '#1E7E34',
+          backgroundColor: '$successDark',
         },
       },
       warning: {
         backgroundColor: '$warning',
-        color: '$color',
+        color: '$colorInverse',
         hoverStyle: {
-          backgroundColor: '#E0A800',
+          backgroundColor: '$warningDark',
         },
       },
       error: {
         backgroundColor: '$error',
         color: 'white',
         hoverStyle: {
-          backgroundColor: '#C82333',
+          backgroundColor: '$errorDark',
         },
       },
     },
