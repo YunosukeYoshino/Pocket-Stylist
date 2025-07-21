@@ -32,7 +32,7 @@ validateEnv()
 app.use(helmet())
 app.use(
   cors({
-    origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   })
 )
@@ -83,7 +83,7 @@ app.use('*', (_req, res) => {
   res.status(404).json({ error: 'Endpoint not found' })
 })
 
-const PORT = process.env['PORT'] || 3001
+const PORT = process.env.PORT || 3001
 
 // Initialize services
 async function initializeServices() {
@@ -107,7 +107,7 @@ async function initializeServices() {
     // Start server
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`)
-      logger.info(`Environment: ${process.env['NODE_ENV'] || 'development'}`)
+      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`)
     })
   } catch (error) {
     logger.error('Failed to initialize services:', error)

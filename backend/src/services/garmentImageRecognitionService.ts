@@ -291,8 +291,8 @@ Respond with only the JSON object, no additional text.`
           .map(alt => {
             const colorMatch = getColorByName(alt.color)
             return {
-              color: colorMatch!.name,
-              hex: colorMatch!.hex,
+              color: colorMatch?.name || '',
+              hex: colorMatch?.hex || '',
               confidence: Math.max(0, Math.min(100, alt.confidence || 0))
             }
           })
