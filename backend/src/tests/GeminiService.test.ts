@@ -25,8 +25,8 @@ jest.doMock('@google/generative-ai', () => ({
 jest.doMock('../services/RedisService', () => ({
   RedisService: {
     getInstance: jest.fn().mockImplementation(() => ({
-      getJson: jest.fn().mockResolvedValue(null),
-      setJson: jest.fn().mockResolvedValue(true)
+      getJson: jest.fn().mockResolvedValue(null as any),
+      setJson: jest.fn().mockResolvedValue(true as any)
     }))
   }
 }))
