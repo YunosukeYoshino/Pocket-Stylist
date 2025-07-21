@@ -1,52 +1,53 @@
 {
-  "expo": {
-    "name": "Pocket Stylist AI",
-    "slug": "pocket-stylist-ai",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "resizeMode": "contain",
-      "backgroundColor": "#E14F5A"
-    },
-    "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.pocketstylist.ai"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E14F5A"
-      },
-      "package": "com.pocketstylist.ai"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static"
-    },
-    "scheme": "pocket-stylist-ai",
-    "plugins": [
-      "expo-router",
-      "expo-font",
-      "expo-dev-client",
-      "expo-secure-store",
-      [
-        "expo-splash-screen",
-        {
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {}
-    }
-  }
+	"expo": {
+		"name": "Pocket Stylist AI",
+		"slug": "pocket-stylist-ai",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"userInterfaceStyle": "automatic",
+		"splash": {
+			"resizeMode": "contain",
+			"backgroundColor": "#E14F5A"
+		},
+		"assetBundlePatterns": ["**/*"],
+		"ios": {
+			"supportsTablet": true,
+			"bundleIdentifier": "com.pocketstylist.ai",
+			"deploymentTarget": "13.4"
+		},
+		"android": {
+			"adaptiveIcon": {
+				"backgroundColor": "#E14F5A"
+			},
+			"package": "com.pocketstylist.ai"
+		},
+		"web": {
+			"bundler": "metro",
+			"output": "static"
+		},
+		"scheme": "pocket-stylist-ai",
+		"plugins": [
+			"expo-router",
+			"expo-font",
+			"expo-dev-client",
+			"expo-secure-store",
+			[
+				"expo-splash-screen",
+				{
+					"imageWidth": 200,
+					"resizeMode": "contain",
+					"backgroundColor": "#ffffff"
+				}
+			]
+		],
+		"experiments": {
+			"typedRoutes": true
+		},
+		"extra": {
+			"router": {
+				"origin": false
+			},
+			"eas": {}
+		}
+	}
 }
