@@ -279,6 +279,53 @@ The project uses **Tamagui v3** as the foundation for the design system:
 ### Usage Pattern
 Components follow Tamagui's styled-component pattern with theme-aware styling and responsive design built-in.
 
+## 🌐 Browser Testing with Playwright MCP
+
+### Post-Development Browser Verification
+
+**MANDATORY**: After completing any frontend development work, you MUST verify the application works correctly in the browser using Playwright MCP.
+
+#### When to Use Browser Testing
+- After implementing new UI components
+- After fixing styling or layout issues
+- After making changes to routing or navigation
+- After resolving TypeScript or build errors
+- Before committing changes to frontend code
+
+#### Browser Testing Process
+
+1. **Start the development server** (if not already running):
+   ```bash
+   npm run start  # Expo dev server
+   ```
+
+2. **Use Playwright MCP tools to verify functionality**:
+   - Navigate to the application URL (typically `http://localhost:8081/`)
+   - Take screenshots to verify visual appearance
+   - Test key user interactions (navigation, forms, buttons)
+   - Verify responsive design across different viewport sizes
+   - Check theme switching functionality if applicable
+
+3. **Document any issues found** and fix before proceeding
+
+#### Example Browser Testing Commands
+```typescript
+// Navigate to app
+await mcp__playwright__browser_navigate({ url: "http://localhost:8081/" })
+
+// Take screenshot for verification
+await mcp__playwright__browser_take_screenshot({ filename: "app-verification.png" })
+
+// Test component interactions
+await mcp__playwright__browser_click({ element: "theme toggle button", ref: "button-ref" })
+
+// Verify different viewport sizes
+await mcp__playwright__browser_resize({ width: 375, height: 812 }) // Mobile
+await mcp__playwright__browser_resize({ width: 1024, height: 768 }) // Tablet
+```
+
+This ensures all changes work correctly in the actual browser environment before code review or deployment.
+
 ## 📋 Review Checklist
 
 Before submitting code, ensure:
@@ -289,3 +336,4 @@ Before submitting code, ensure:
 - [ ] Biome linting passes
 - [ ] Proper error handling implemented
 - [ ] Service interfaces remain consistent
+- [ ] **Browser verification completed using Playwright MCP** (for frontend changes)
