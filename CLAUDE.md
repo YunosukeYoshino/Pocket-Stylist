@@ -263,6 +263,22 @@ analyzeImageWithVision(input: {image: string, prompt: string, isBase64?: boolean
 - Migration-based schema management
 - Seeding for development data
 
+## 🎨 Tamagui Design System
+
+The project uses **Tamagui v3** as the foundation for the design system:
+
+### Configuration
+- Main config: `config/tamagui.config.ts` - Simplified configuration extending base Tamagui config
+- Component library: `src/components/ui/` - Custom UI components built on Tamagui primitives
+
+### Design Tokens
+- **Primary Brand Color**: `#E14F5A` (red-pink)
+- **Theme Support**: Light/dark mode with automatic switching
+- **Typography**: Consistent scale with Tamagui's built-in typography system
+
+### Usage Pattern
+Components follow Tamagui's styled-component pattern with theme-aware styling and responsive design built-in.
+
 ## 📋 Review Checklist
 
 Before submitting code, ensure:

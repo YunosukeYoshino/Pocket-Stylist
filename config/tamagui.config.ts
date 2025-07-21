@@ -1,4 +1,4 @@
 import { config } from '@tamagui/config/v3'
+import { createTamagui } from '@tamagui/core'
 
-// biome-ignore lint/suspicious/noExplicitAny: Tamagui v3 config type compatibility
-export const tamaguiConfig = config as any
+export const tamaguiConfig = createTamagui(config)
