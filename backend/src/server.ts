@@ -1,6 +1,9 @@
+// Load environment variables first
+import dotenv from 'dotenv'
+dotenv.config()
+
 import { PrismaClient } from '@prisma/client'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import express from 'express'
 import rateLimit from 'express-rate-limit'
 import helmet from 'helmet'
@@ -17,9 +20,6 @@ import aiRoutes from './routes/ai'
 import authRoutes from './routes/auth'
 import garmentRoutes from './routes/garment'
 import userRoutes from './routes/user'
-
-// Load environment variables
-dotenv.config()
 
 const app = express()
 const logger = createLogger()
