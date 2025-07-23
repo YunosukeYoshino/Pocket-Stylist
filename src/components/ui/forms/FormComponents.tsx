@@ -1,4 +1,4 @@
-import { type GetProps, styled, Text } from '@tamagui/core'
+import { type GetProps, styled, Text, useTheme } from '@tamagui/core'
 import React from 'react'
 import { View, TouchableOpacity, Switch as RNSwitch } from 'react-native'
 import { Button } from '../atoms/Button'
@@ -106,7 +106,7 @@ export const PSSelectComponent: React.FC<PSSelectProps> = ({
         >
           {selectedOption?.label || placeholder}
         </Text>
-        <PSIcon name="ChevronDown" size="small" />
+        <PSIcon name="chevron-down" size="small" />
       </PSSelect>
       
       {isOpen && (
@@ -204,7 +204,7 @@ export const PSCheckboxComponent: React.FC<PSCheckboxProps> = ({
         size={size}
         disabled={disabled}
       >
-        {checked && <PSIcon name="Check" size="small" />}
+        {checked && <PSIcon name="check" size="small" />}
       </PSCheckbox>
       {label && <Text color={disabled ? '$placeholderColor' : '$color'}>{label}</Text>}
     </TouchableOpacity>
@@ -225,6 +225,8 @@ export const PSSwitchComponent: React.FC<PSSwitchProps> = ({
   disabled,
   size = 'medium',
 }) => {
+  const theme = useTheme()
+  
   const switchProps = {
     small: { transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] },
     medium: { transform: [{ scaleX: 1.0 }, { scaleY: 1.0 }] },
@@ -236,8 +238,8 @@ export const PSSwitchComponent: React.FC<PSSwitchProps> = ({
       value={value}
       onValueChange={onValueChange}
       disabled={disabled}
-      trackColor={{ false: '#767577', true: '#E14F5A' }}
-      thumbColor={value ? '#f5dd4b' : '#f4f3f4'}
+      trackColor={{ false: theme.backgroundPress.val, true: theme.primary.val }}
+      thumbColor={value ? theme.color.val : theme.background.val}
       style={switchProps[size]}
     />
   )
