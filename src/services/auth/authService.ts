@@ -1,5 +1,4 @@
 import * as AuthSession from "expo-auth-session";
-import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 import Auth0, { type User as Auth0User } from "react-native-auth0";
 import type {
@@ -13,7 +12,7 @@ import type {
 } from "../../types/auth";
 
 // 定数
-const CUSTOM_CLAIMS_NAMESPACE = "https://pocket-stylist.com/" as const;
+const _CUSTOM_CLAIMS_NAMESPACE = "https://pocket-stylist.com/" as const;
 const DEFAULT_TOKEN_EXPIRY = 60 * 60; // 1 hour in seconds
 
 // Auth0User をカスタムクレームで拡張
