@@ -138,6 +138,71 @@ export const Card = styled(View, {
   },
 })
 
+export const Grid = styled(View, {
+  name: 'PSGrid',
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+
+  variants: {
+    columns: {
+      1: { width: '100%' },
+      2: { width: '50%' },
+      3: { width: '33.333%' },
+      4: { width: '25%' },
+      5: { width: '20%' },
+      6: { width: '16.666%' },
+    },
+    spacing: {
+      xs: { gap: '$1' },
+      sm: { gap: '$2' },
+      md: { gap: '$3' },
+      lg: { gap: '$4' },
+      xl: { gap: '$6' },
+    },
+    align: {
+      start: { alignItems: 'flex-start' },
+      center: { alignItems: 'center' },
+      end: { alignItems: 'flex-end' },
+      stretch: { alignItems: 'stretch' },
+    },
+    justify: {
+      start: { justifyContent: 'flex-start' },
+      center: { justifyContent: 'center' },
+      end: { justifyContent: 'flex-end' },
+      between: { justifyContent: 'space-between' },
+      around: { justifyContent: 'space-around' },
+      evenly: { justifyContent: 'space-evenly' },
+    },
+  } as const,
+
+  defaultVariants: {
+    columns: 2,
+    spacing: 'md',
+  },
+})
+
+export const GridItem = styled(View, {
+  name: 'PSGridItem',
+  
+  variants: {
+    span: {
+      1: { flex: 1 },
+      2: { flex: 2 },
+      3: { flex: 3 },
+      4: { flex: 4 },
+      5: { flex: 5 },
+      6: { flex: 6 },
+      full: { width: '100%' },
+    },
+  } as const,
+
+  defaultVariants: {
+    span: 1,
+  },
+})
+
 export type ContainerProps = GetProps<typeof Container>
 export type StackProps = GetProps<typeof Stack>
 export type CardProps = GetProps<typeof Card>
+export type GridProps = GetProps<typeof Grid>
+export type GridItemProps = GetProps<typeof GridItem>
