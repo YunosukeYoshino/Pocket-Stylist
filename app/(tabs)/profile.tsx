@@ -26,7 +26,7 @@ export default function ProfileScreen() {
 	return (
 		<ProtectedRoute>
 			<View flex={1} backgroundColor="$background">
-				<PSHeaderComponent title="プロフィール" />
+				<PSHeader title="プロフィール" />
 
 				<ScrollView style={{ flex: 1, padding: 16 }}>
 					<Stack
