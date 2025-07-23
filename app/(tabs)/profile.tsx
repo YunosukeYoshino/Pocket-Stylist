@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { Alert, ScrollView } from "react-native";
 import { useAuthContext } from "../../src/components/auth/AuthProvider";
 import { ProtectedRoute } from "../../src/components/auth/ProtectedRoute";
-import { PSHeaderComponent } from "../../src/components/ui/navigation/NavigationComponents";
+import { PSHeader } from "../../src/components/ui/navigation/PSHeader";
 
 export default function ProfileScreen() {
 	const { user, logout } = useAuthContext();
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
 			<View flex={1} backgroundColor="$background">
 				<PSHeaderComponent title="プロフィール" />
 
-				<ScrollView flex={1} padding="$4">
+				<ScrollView style={{ flex: 1, padding: 16 }}>
 					<Stack
 						flexDirection="column"
 						gap="$6"

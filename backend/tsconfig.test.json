@@ -1,14 +1,11 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "types": ["node", "jest", "@jest/globals"],
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": false
-  },
-  "include": [
-    "src/**/*",
-    "src/tests/**/*.test.ts"
-  ],
-  "exclude": ["node_modules", "dist"]
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"types": ["node", "jest", "@jest/globals"],
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"isolatedModules": false
+	},
+	"include": ["src/**/*", "src/tests/**/*.test.ts"],
+	"exclude": ["node_modules", "dist"]
 }

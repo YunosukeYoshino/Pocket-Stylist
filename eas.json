@@ -1,42 +1,42 @@
 {
-  "cli": {
-    "version": ">= 7.8.0"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "resourceClass": "m1-medium"
-      },
-      "android": {
-        "buildType": "developmentBuild"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "ios": {
-        "resourceClass": "m1-medium"
-      },
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "production": {
-      "ios": {
-        "resourceClass": "m1-medium"
-      },
-      "android": {
-        "buildType": "app-bundle"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {},
-      "android": {
-        "track": "internal"
-      }
-    }
-  }
+	"cli": {
+		"version": ">= 7.8.0"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal",
+			"ios": {
+				"resourceClass": "m1-medium"
+			},
+			"android": {
+				"buildType": "developmentBuild"
+			}
+		},
+		"preview": {
+			"distribution": "internal",
+			"ios": {
+				"resourceClass": "m1-medium"
+			},
+			"android": {
+				"buildType": "apk"
+			}
+		},
+		"production": {
+			"ios": {
+				"resourceClass": "m1-medium"
+			},
+			"android": {
+				"buildType": "app-bundle"
+			}
+		}
+	},
+	"submit": {
+		"production": {
+			"ios": {},
+			"android": {
+				"track": "internal"
+			}
+		}
+	}
 }
