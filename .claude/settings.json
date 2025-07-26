@@ -1,27 +1,27 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run lint"
-          },
-          {
-            "type": "command",
-            "command": "bun run type-check"
-          },
-          {
-            "type": "command",
-            "command": "bun test"
-          },
-          {
-            "type": "command",
-            "command": "claude /init"
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit|MultiEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun run lint"
+					},
+					{
+						"type": "command",
+						"command": "bun run type-check"
+					},
+					{
+						"type": "command",
+						"command": "bun test"
+					},
+					{
+						"type": "command",
+						"command": "claude /init"
+					}
+				]
+			}
+		]
+	}
 }
