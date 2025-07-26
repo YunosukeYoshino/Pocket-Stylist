@@ -1,7 +1,6 @@
 import { Button } from "@tamagui/button";
 import { Stack, Text, View } from "@tamagui/core";
 import { useRouter } from "expo-router";
-import React from "react";
 
 export default function UnauthorizedScreen() {
 	const router = useRouter();

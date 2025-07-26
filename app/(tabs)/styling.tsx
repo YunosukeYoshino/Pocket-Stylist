@@ -4,13 +4,13 @@ import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ScrollView } from "react-native";
 import { ProtectedRoute } from "../../src/components/auth/ProtectedRoute";
-import { PSHeader } from "../../src/components/ui/navigation/PSHeader";
+import { PSHeaderComponent } from "../../src/components/ui/navigation/NavigationComponents";
 
 export default function StylingScreen() {
 	return (
 		<ProtectedRoute>
 			<View flex={1} backgroundColor="$background">
-				<PSHeader title="スタイリング" />
+				<PSHeaderComponent title="スタイリング" />
 
 				<ScrollView style={{ flex: 1, padding: 16 }}>
 					<Stack

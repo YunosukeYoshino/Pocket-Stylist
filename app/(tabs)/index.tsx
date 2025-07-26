@@ -1,6 +1,6 @@
 import { Button } from "@tamagui/button";
 import { Stack, Text, View } from "@tamagui/core";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useAuthContext } from "../../src/components/auth/AuthProvider";
 import { ProtectedRoute } from "../../src/components/auth/ProtectedRoute";
@@ -8,7 +8,6 @@ import { PSHeaderComponent } from "../../src/components/ui/navigation/Navigation
 
 export default function HomeScreen() {
 	const { user, logout } = useAuthContext();
-	const router = useRouter();
 
 	const handleLogout = async () => {
 		try {
